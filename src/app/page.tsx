@@ -1,51 +1,48 @@
 // src/app/page.tsx
 'use client'; 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { FaInstagram, FaYoutube } from 'react-icons/fa';
+import { FaInstagram, FaYoutube, FaCameraRetro } from 'react-icons/fa';
 import Logo from '@/components/ui/Logo';
+import { Header } from '@/components/layout/Header';
+// import { Footer } from '@/components/layout/Footer'; // Futuramente, quando refatorarmos o Footer
 
 export default function HomePage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
+  const observer = useRef<IntersectionObserver | null>(null);
 
-  const handleLinkClick = () => {
-    setIsMenuOpen(false);
-  };
+  useEffect(() => {
+    // Cria o observador que vai monitorar as seções
+    observer.current = new IntersectionObserver((entries) => {
+      const visibleSection = entries.find((entry) => entry.isIntersecting)?.target.id;
+      if (visibleSection) {
+        setActiveSection(visibleSection);
+      }
+    }, { 
+      rootMargin: '-50% 0px -50% 0px', // Ativa quando o meio da seção cruza o meio da tela
+      threshold: 0 
+    });
+
+    // Pega todas as seções da página e começa a observá-las
+    const sections = document.querySelectorAll('section[id]');
+    sections.forEach((section) => {
+      observer.current?.observe(section);
+    });
+
+    // Limpa o observador quando o componente é desmontado
+    return () => {
+      sections.forEach((section) => {
+        observer.current?.unobserve(section);
+      });
+    };
+  }, []);
+
 
   return (
     <main>
-      {/* CABEÇALHO E NAVEGAÇÃO */}
-      <header id="home" className="bg-black/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="#home" className="inline-block">
-            <Logo />
-          </a>
-          <nav className="hidden md:flex space-x-8 items-center">
-            <a href="#sobre" className="hover:text-m2-green transition-colors duration-300">Sobre</a>
-            <a href="#servicos" className="hover:text-m2-green transition-colors duration-300">Serviços</a>
-            <a href="#portfolio" className="hover:text-m2-green transition-colors duration-300">Portfólio</a>
-            <a href="#contato" className="hover:text-m2-green transition-colors duration-300">Contato</a>
-          </nav>
-          <a href="#" className="hidden md:inline-block bg-m2-green text-black font-bold py-2 px-4 rounded-lg hover:bg-white transition-colors duration-300">
-            Área do Cliente
-          </a>
-          <button id="mobile-menu-button" className="md:hidden text-white focus:outline-none" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-4 6h4"></path></svg>
-          </button>
-        </div>
-        <div id="mobile-menu" className={`md:hidden px-6 pt-2 pb-4 space-y-2 ${isMenuOpen ? 'block' : 'hidden'}`}>
-          <a href="#sobre" onClick={handleLinkClick} className="block hover:text-m2-green transition-colors duration-300">Sobre</a>
-          <a href="#servicos" onClick={handleLinkClick} className="block hover:text-m2-green transition-colors duration-300">Serviços</a>
-          <a href="#portfolio" onClick={handleLinkClick} className="block hover:text-m2-green transition-colors duration-300">Portfólio</a>
-          <a href="#contato" onClick={handleLinkClick} className="block hover:text-m2-green transition-colors duration-300">Contato</a>
-          <a href="#" onClick={handleLinkClick} className="block bg-m2-green text-black text-center font-bold mt-4 py-2 px-4 rounded-lg hover:bg-white transition-colors duration-300">
-            Área do Cliente
-          </a>
-        </div>
-      </header>
+      <Header activeSection={activeSection} />
 
-      {/* VÍDEO FIXO NO FUNDO */}
       <video 
         autoPlay 
         loop 
@@ -57,7 +54,6 @@ export default function HomePage() {
         Seu navegador não suporta a tag de vídeo.
       </video>
       
-      {/* SEÇÃO HERO */}
       <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-black/70 z-10"></div>
         <div className="relative z-20 text-center container mx-auto px-6">
@@ -73,7 +69,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SEÇÃO SOBRE */}
       <section id="sobre" className="py-20 bg-black">
         <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -88,14 +83,13 @@ export default function HomePage() {
               Nossa equipe é formada por pilotos certificados e videomakers experientes, garantindo segurança, qualidade e um resultado final que supera as expectativas. Para nós, cada projeto é único e tratado com a máxima dedicação.
             </p>
             <p className="text-gray-300 mb-4">
-              Todos nossos voos são regulamentados de acordo com a legislação em vigor, seguindo as normas estabelecidas pelo Departamento de Controle do Espaço Aéreo (DECEA), como emissão do plano de voo e autorização de decolagem.
+              Todos nossos voos são regulamentados de acordo com a legislação em vigor, seguindo as normas estabelecidas pelo Departamento de Controle do Espaço Aereo (DECEA), como emissão do plano de voo e autorização de decolagem.
             </p>
           </div>
         </div>
       </section>
 
-      {/* SEÇÃO SERVIÇOS */}
-      <section id="servicos" className="py-20 bg-m2-dark">
+      <section id="servicos" className="py-20 bg-black">
             <div className="container mx-auto px-6">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold uppercase">Nossos <span className="text-m2-green">Serviços</span></h2>
@@ -106,8 +100,8 @@ export default function HomePage() {
                         <div className="flex justify-center mb-4">
                             <svg className="w-12 h-12 text-m2-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                         </div>
-                        <h3 className="text-xl font-bold mb-2">Construção Civil</h3>
-                        <p className="text-gray-400">Acompanhamento de obras, inspeções técnicas e marketing imobiliário.</p>
+                        <h3 className="text-xl font-bold mb-2">Construção e Mercado Imobiliário</h3>
+                        <p className="text-gray-400">Acompanhamento de obras, inspeções técnicas e vídeos para marketing imobiliário.</p>
                     </div>
                     <div className="bg-gray-900 p-8 rounded-lg text-center border border-gray-800 hover:border-m2-green hover:-translate-y-2 transition-all duration-300">
                          <div className="flex justify-center mb-4">
@@ -123,18 +117,17 @@ export default function HomePage() {
                         <h3 className="text-xl font-bold mb-2">Cobertura de Eventos</h3>
                         <p className="text-gray-400">Registros aéreos de shows, casamentos, eventos esportivos e mais.</p>
                     </div>
-                     <div className="bg-gray-900 p-8 rounded-lg text-center border border-gray-800 hover:border-m2-green hover:-translate-y-2 transition-all duration-300">
+                    <div className="bg-gray-900 p-8 rounded-lg text-center border border-gray-800 hover:border-m2-green hover:-translate-y-2 transition-all duration-300">
                         <div className="flex justify-center mb-4">
-                            <svg className="w-12 h-12 text-m2-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <FaCameraRetro className="w-12 h-12 text-m2-green" />
                         </div>
-                        <h3 className="text-xl font-bold mb-2">Mapeamento Aéreo</h3>
-                        <p className="text-gray-400">Topografia, agricultura de precisão e mapeamento de áreas.</p>
+                        <h3 className="text-xl font-bold mb-2">Turismo e Hotelaria</h3>
+                        <p className="text-gray-400">Criação de conteúdo aéreo para hotéis, pousadas e pontos turísticos.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-      {/* SEÇÃO PORTFÓLIO */}
       <section id="portfolio" className="py-20 bg-black">
         <div className="container mx-auto px-6">
             <div className="text-center mb-12">
@@ -143,7 +136,7 @@ export default function HomePage() {
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="group relative overflow-hidden rounded-lg">
-                    <Image src="https://placehold.co/600x400/000/FFF?text=Vídeo+Imobiliário" alt="Projeto 1" width={600} height={400} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <Image src="/portfolio/projeto-1.jpg" alt="Projeto Edifício SkyTower" width={600} height={400} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     <div className="absolute inset-0 bg-black/70 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                         <div>
                             <h3 className="text-xl font-bold">Edifício SkyTower</h3>
@@ -151,60 +144,13 @@ export default function HomePage() {
                         </div>
                     </div>
                 </div>
-                <div className="group relative overflow-hidden rounded-lg">
-                    <Image src="https://placehold.co/600x400/333/FFF?text=Evento+Musical" alt="Projeto 2" width={600} height={400} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-black/70 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <div>
-                            <h3 className="text-xl font-bold">Festival MusicVibe</h3>
-                            <p className="text-m2-green">Cobertura de Evento</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="group relative overflow-hidden rounded-lg">
-                    <Image src="https://placehold.co/600x400/111/FFF?text=Obra+Industrial" alt="Projeto 3" width={600} height={400} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-black/70 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <div>
-                            <h3 className="text-xl font-bold">Inspeção Industrial</h3>
-                            <p className="text-m2-green">Acompanhamento de Obra</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="group relative overflow-hidden rounded-lg">
-                    <Image src="https://placehold.co/600x400/222/FFF?text=Casamento" alt="Projeto 4" width={600} height={400} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-black/70 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <div>
-                            <h3 className="text-xl font-bold">Casamento na Praia</h3>
-                            <p className="text-m2-green">Cobertura de Evento Social</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="group relative overflow-hidden rounded-lg">
-                    <Image src="https://placehold.co/600x400/444/FFF?text=Vídeo+Institucional" alt="Projeto 5" width={600} height={400} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-black/70 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <div>
-                            <h3 className="text-xl font-bold">AgroTech Corp</h3>
-                            <p className="text-m2-green">Vídeo Corporativo</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="group relative overflow-hidden rounded-lg">
-                    <Image src="https://placehold.co/600x400/555/FFF?text=Mapeamento+de+Área" alt="Projeto 6" width={600} height={400} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-black/70 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <div>
-                            <h3 className="text-xl font-bold">Fazenda Verde</h3>
-                            <p className="text-m2-green">Mapeamento para Agricultura</p>
-                        </div>
-                    </div>
-                </div>
+                {/* Repita para as outras imagens do portfólio */}
             </div>
-            <div className="text-center mt-12">
-                <a href="#" className="text-gray-500 text-sm hover:text-white">Acesso Restrito: Gerenciar Portfólio</a>
-            </div>
+            
         </div>
       </section>
 
-      {/* SEÇÃO DE CONTATO */}
-      <section id="contato" className="py-20 bg-m2-dark">
+      <section id="contato" className="py-20 bg-black">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold uppercase">Fale <span className="text-m2-green">Conosco</span></h2>
@@ -245,16 +191,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* RODAPÉ ATUALIZADO */}
       <footer className="bg-black py-10">
         <div className="container mx-auto px-6 text-center text-gray-400 text-sm">
           <div className="mb-4">
-            <a href="#home" className="inline-block">
+            <a href="#home" className="inline-block h-7 w-auto">
               <Logo />
             </a>
           </div>
           <p className="mb-4">
-            <a className="hover:text-m2-green transition-colors duration-300">&copy; 2025 M2PROJECTA.</a> Todos os direitos reservados. | Desenvolvido por <a href="https://www.instagram.com/levbrands/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors duration-300">LEV.B - Marketing 360º</a>
+            <span className="text-m2-green">&copy; 2025 M2PROJECTA.</span> Todos os direitos reservados. | Desenvolvido por <a href="https://www.instagram.com/levbrands/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors duration-300">LEV.B - Marketing 360º</a>
           </p>
           <div className="flex justify-center items-center space-x-6">
             <a 
