@@ -3,8 +3,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { FaInstagram, FaYoutube, FaCameraRetro, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
-import Logo from '@/components/ui/Logo';
+import { FaInstagram, FaCameraRetro, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { PortfolioSlider } from '@/components/PortfolioSlider';
