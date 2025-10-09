@@ -194,7 +194,7 @@ export default function HomePage() {
       <footer className="bg-black py-10">
         <div className="container mx-auto px-6 text-center text-gray-400 text-sm">
           <div className="mb-4">
-            <a href="#home" className="inline-block h-7 w-auto">
+            <a href="#home" className="inline-block h-auto w-auto">
               <Logo />
             </a>
           </div>
