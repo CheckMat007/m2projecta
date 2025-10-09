@@ -7,3 +7,13 @@ body {
   background-color: #111111;
   color: white;
 }
+
+/* Estilos para customizar a navegação da Swiper */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #97f901 !important; /* Cor m2-green */
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #97f901 !important; /* Cor m2-green */
+}
