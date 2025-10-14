@@ -44,7 +44,7 @@ export default function HomePage() {
   }, []);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault(); 
 
     const form = e.target as HTMLFormElement;
     const data = new FormData(form);
@@ -60,17 +60,20 @@ export default function HomePage() {
 
       if (response.ok) {
         setFormStatus({ submitted: true, success: true, message: 'Obrigado pelo contato! Sua mensagem foi enviada com sucesso.' });
-        form.reset();
-        setMessageLength(0); // Reseta o contador de caracteres
+        form.reset(); 
+        setMessageLength(0);
       } else {
         const responseData = await response.json();
         if (responseData.errors) {
-            setFormStatus({ submitted: true, success: false, message: responseData.errors.map((error: any) => error.message).join(', ') });
+            // CORREÇÃO 1: Trocamos 'any' por um tipo mais específico
+            setFormStatus({ submitted: true, success: false, message: responseData.errors.map((error: { message: string }) => error.message).join(', ') });
         } else {
             setFormStatus({ submitted: true, success: false, message: 'Ocorreu um erro ao enviar o formulário. Tente novamente.' });
         }
       }
     } catch (error) {
+      // CORREÇÃO 2: Usamos a variável 'error' no console.log
+      console.error("Erro de rede ao enviar formulário:", error);
       setFormStatus({ submitted: true, success: false, message: 'Ocorreu um erro de rede. Verifique sua conexão e tente novamente.' });
     }
   };
