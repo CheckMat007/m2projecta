@@ -55,7 +55,7 @@ export const Header = ({ activeSection }: HeaderProps) => {
           })}
         </nav>
 
-        <a href="#" className="hidden md:inline-block bg-m2-green text-black font-bold py-2 px-4 rounded-lg hover:bg-white transition-colors duration-300">
+        <a href="/login" className="hidden md:inline-block bg-m2-green text-black font-bold py-2 px-4 rounded-lg hover:bg-white transition-colors duration-300">
           Área do Cliente
         </a>
         <button id="mobile-menu-button" className="md:hidden text-white focus:outline-none" onClick={() => setIsMenuOpen(!isMenuOpen)}>
