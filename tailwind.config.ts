@@ -1,52 +1,101 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from "tailwindcss"
 
-const config: Config = {
+const config = {
+  darkMode: ["class"],
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}', // <-- ESSA LINHA É A CRÍTICA
-  ],
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+	],
+  prefix: "",
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
+      // NOSSAS CUSTOMIZAÇÕES
       colors: {
         'm2-green': '#97f901',
         'm2-dark': '#111111',
+        // CORES DO SHADCN
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'],
       },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
       keyframes: {
-        'fly-search': {
-          '0%': { 
-            transform: 'translateX(0vw) translateY(0vh) rotate(5deg)',
-            opacity: '0.8',
-          },
-          '25%': {
-            transform: 'translateX(10vw) translateY(-5vh) rotate(-5deg)',
-          },
-          '50%': {
-            transform: 'translateX(0vw) translateY(0vh) rotate(5deg)',
-          },
-          '75%': {
-            transform: 'translateX(-10vw) translateY(5vh) rotate(-5deg)',
-          },
-          '100%': { 
-            transform: 'translateX(0vw) translateY(0vh) rotate(5deg)',
-            opacity: '0.8',
-          },
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
-        'pulse': { // Reintroduzindo a animação de pulso para a luz
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        // NOSSAS ANIMAÇÕES
+        'search-float': {
+          '0%, 100%': { transform: 'translate(0px, 0px) rotate(0deg)' },
+          '25%': { transform: 'translate(15px, -15px) rotate(5deg)' },
+          '50%': { transform: 'translate(0px, -20px) rotate(-5deg)' },
+          '75%': { transform: 'translate(-15px, -15px) rotate(5deg)' },
+        },
+        pulse: {
           '0%, 100%': { opacity: '0.3' },
           '50%': { opacity: '0.7' },
         }
       },
       animation: {
-        'fly-search': 'fly-search 15s ease-in-out infinite', // Animação mais rápida e suave
-        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-      }
-      
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        // NOSSAS ANIMAÇÕES
+        'search-float': 'search-float 8s ease-in-out infinite',
+        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
     },
   },
-  plugins: [],
-}
+  plugins: [require("tailwindcss-animate")],
+} satisfies Config
+
 export default config
