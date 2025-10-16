@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { FaInstagram, FaCameraRetro, FaEnvelope, FaWhatsapp, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaInstagram, FaCameraRetro, FaEnvelope, FaWhatsapp, FaMapMarkerAlt, FaTiktok } from 'react-icons/fa';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { PortfolioSlider } from '@/components/PortfolioSlider';
@@ -128,7 +128,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="servicos" className="py-20 bg-black">
+      <section id="servicos" className="py-5 bg-black">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold uppercase">Nossos <span className="text-m2-green">Serviços</span></h2>
@@ -167,17 +167,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="portfolio" className="py-20 bg-black">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
+      <section id="portfolio" className="py-5 bg-black">
+      <div className="container mx-auto px-6">
+        <div className="bg-m2-dark rounded-lg shadow-lg p-8 md:p-12 center md:grid-cols-2 gap-12 items-center">
+          <div className="text-center mb-12 ">
+            <div>
             <h2 className="text-3xl font-bold uppercase">Nosso <span className="text-m2-green">Portfólio</span></h2>
             <p className="text-gray-400 mt-2 max-w-2xl mx-auto">Veja alguns dos projetos incríveis que já realizamos.</p>
           </div>
           <PortfolioSlider />
         </div>
+        </div>
+        </div>
       </section>
 
-      <section id="contato" className="py-20 bg-black">
+      <section id="contato" className="py-5 bg-black">
         <div className="container mx-auto px-6">
           <div className="bg-m2-dark rounded-lg shadow-lg p-8 md:p-12 grid md:grid-cols-2 gap-12 items-center">
             
@@ -204,7 +208,7 @@ export default function HomePage() {
                   <a href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank" rel="noopener noreferrer" className="flex items-center group">
                     <FaWhatsapp className="text-m2-green mr-3 h-5 w-5" />
                     <span className="relative text-gray-300 group-hover:text-m2-green transition-colors">
-                      WhatsApp (12) 99131-6774
+                      (12) 99131-6774
                       <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                     </span>
                   </a>
@@ -212,6 +216,13 @@ export default function HomePage() {
                     <FaInstagram className="text-m2-green mr-3 h-5 w-5" />
                     <span className="relative text-gray-300 group-hover:text-m2-green transition-colors">
                       @m2projecta
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                    </span>
+                  </a>
+                  <a href="tiktok.com/@m2.projecta" target="_blank" rel="noopener noreferrer" className="flex items-center group">
+                    <FaTiktok className="text-m2-green mr-3 h-5 w-5" />
+                    <span className="relative text-gray-300 group-hover:text-m2-green transition-colors">
+                      @m2.projecta
                       <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                     </span>
                   </a>

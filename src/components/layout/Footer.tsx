@@ -1,7 +1,7 @@
 // src/components/layout/Footer.tsx
 
 import React from 'react';
-import { FaInstagram, FaYoutube, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
+import { FaInstagram, FaYoutube, FaEnvelope, FaWhatsapp, FaTiktok } from 'react-icons/fa';
 import Logo from '@/components/ui/Logo';
 
 export const Footer = () => {
@@ -73,7 +73,7 @@ export const Footer = () => {
               <li className="flex items-center justify-center md:justify-start group">
                 <FaWhatsapp className="text-m2-green mr-3 h-5 w-5 flex-shrink-0" />
                 <a href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank" rel="noopener noreferrer" className="relative text-gray-400 group-hover:text-m2-green transition-colors">
-                  WhatsApp (12) 99131-6774
+                  (12) 99131-6774
                   <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                 </a>
               </li>
@@ -87,7 +87,14 @@ export const Footer = () => {
               <li className="flex items-center justify-center md:justify-start group">
                 <FaYoutube className="text-m2-green mr-3 h-5 w-5 flex-shrink-0" />
                 <a href="https://www.youtube.com/@M2Projecta" target="_blank" rel="noopener noreferrer" className="relative text-gray-400 group-hover:text-m2-green transition-colors">
-                  YouTube
+                  @M2Projecta
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                </a>
+              </li>
+              <li className="flex items-center justify-center md:justify-start group">
+                <FaTiktok className="text-m2-green mr-3 h-5 w-5 flex-shrink-0" />
+                <a href="tiktok.com/@m2.projecta" target="_blank" rel="noopener noreferrer" className="relative text-gray-400 group-hover:text-m2-green transition-colors">
+                  @m2.projecta
                   <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                 </a>
               </li>

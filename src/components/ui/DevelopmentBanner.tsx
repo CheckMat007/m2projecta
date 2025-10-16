@@ -4,7 +4,7 @@ import { Wrench } from 'lucide-react';
 export default function DevelopmentBanner() {
   return (
     <div className="fixed bottom-0 left-0 w-full z-50 flex items-center justify-center p-3 
-                   bg-gray-950/90 border-t border-green-500/30 backdrop-blur-sm">
+                   bg-white-950 border-green-500/30 ">
       
       <div className="flex items-center gap-3 text-center">
         <Wrench className="w-5 h-5 text-green-400 flex-shrink-0" />

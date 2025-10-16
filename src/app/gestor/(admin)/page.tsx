@@ -1,7 +1,7 @@
 // src/app/gestor/(admin)/page.tsx
 
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { Users, FileText, Calendar, TrendingUp, Info, PlusCircle, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
