@@ -44,7 +44,7 @@ declare module "next-auth/jwt" {
 // ======================
 // 🔹 Configuração do NextAuth
 // ======================
-// @ts-expect-error
+// @ts-expect-error | sera corrigido depois
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
