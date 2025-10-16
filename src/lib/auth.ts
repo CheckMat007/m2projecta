@@ -2,7 +2,7 @@ import type { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient, Role } from "@prisma/client";
-import bcrypt from "bcrypt";
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -13,20 +13,32 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: { email: { label: "Email", type: "email" }, password: { label: "Password", type: "password" } },
       async authorize(credentials) {
-        try {
-          if (!credentials?.email || !credentials.password) return null;
-          const user = await prisma.user.findUnique({ where: { email: credentials.email } });
-          if (!user) return null;
+  try {
+    if (!credentials?.email || !credentials.password) {
+      console.log("Authorize failed: missing credentials");
+      return null;
+    }
 
-          const valid = await bcrypt.compare(credentials.password, user.password);
-          if (!valid) return null;
+    const user = await prisma.user.findUnique({ where: { email: credentials.email } });
+    if (!user) {
+      console.log("Authorize failed: user not found");
+      return null;
+    }
 
-          return { id: user.id, name: user.name, email: user.email, role: user.role };
-        } catch (err) {
-          console.error("Authorize error:", err);
-          return null;
-        }
-      },
+    const valid = await bcrypt.compare(credentials.password, user.password);
+    if (!valid) {
+      console.log("Authorize failed: password invalid for user:", credentials.email);
+      return null;
+    }
+
+    console.log("Authorize success for user:", user.email);
+    return { id: user.id, name: user.name, email: user.email, role: user.role };
+  } catch (err) {
+    console.error("Authorize error:", err);
+    return null;
+  }
+}
+
     }),
   ],
   session: { strategy: "jwt" },
@@ -53,4 +65,5 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  debug: true,
 };
