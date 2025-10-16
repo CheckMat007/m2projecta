@@ -107,7 +107,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
-
+// @ts-expect-error | sera corrigido
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
