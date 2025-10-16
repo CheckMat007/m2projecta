@@ -4,7 +4,7 @@
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from "@/lib/auth";
 import bcrypt from 'bcrypt';
 import { revalidatePath } from 'next/cache';
 import { Prisma } from '@prisma/client'; // Importa o Prisma para tipagem de erro

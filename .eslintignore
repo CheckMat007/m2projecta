@@ -1,0 +1,43 @@
+# Ignora build output
+.next/
+out/
+dist/
+
+# Ignora dependências
+node_modules/
+
+# Ignora arquivos de ambiente e de configuração
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+*.log
+
+# Ignora arquivos de build e cache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.eslintcache
+
+# Ignora arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Ignora tipagens geradas automaticamente
+*.d.ts
+
+# Ignora arquivos do Prisma gerados automaticamente
+prisma/generated/
+src/generate/prisma/
+src/generated/
+src/prisma/generated/
+
+# Ignora pastas específicas de testes ou mocks
+__tests__/
+__mocks__/
+coverage/
+
+# Ignora possíveis arquivos de scripts utilitários
+scripts/

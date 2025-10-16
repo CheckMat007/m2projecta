@@ -16,14 +16,14 @@ import 'swiper/css/pagination';
 
 // Array com os dados do portfólio para facilitar a manutenção
 const portfolioItems = [
-  { id: 1, title: 'Edifício SkyTower', category: 'Marketing Imobiliário' },
-  { id: 2, title: 'Festival MusicVibe', category: 'Cobertura de Evento' },
-  { id: 3, title: 'Inspeção Industrial', category: 'Acompanhamento de Obra' },
-  { id: 4, title: 'Casamento na Praia', category: 'Cobertura de Evento Social' },
-  { id: 5, title: 'AgroTech Corp', category: 'Vídeo Corporativo' },
-  { id: 6, title: 'Fazenda Verde', category: 'Mapeamento para Agricultura' },
-  { id: 7, title: 'Lançamento Residencial', category: 'Marketing Imobiliário' },
-  { id: 8, title: 'Concerto ao Ar Livre', category: 'Cobertura de Evento' },
+  { id: 1, title: 'Cristo - Taubaté', category: 'Turismo', image: '/assets/portfolio/cristo.jpg' },
+  { id: 2, title: 'Rodovia Pres. Dutra', category: 'Obra em estrada', image: '/assets/portfolio/dutra.jpg' },
+  { id: 3, title: 'Obra na Av. Italia', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_av_italia.jpg' },
+  { id: 4, title: 'Obra na Vila S. José', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_vila_sao_jose.jpg' },
+  { id: 5, title: 'Parque do Quiririm', category: 'Turismo', image: '/assets/portfolio/quiririm.jpg' },
+  { id: 6, title: 'Passarela em São Paulo', category: 'Acompanhamento de Obra', image: '/assets/portfolio/passarela.jpg' },
+  { id: 7, title: 'Obra em Ubatuba', category: 'Acompanhamento de Obra', image: '/assets/portfolio/ubatuba.jpg' },
+  { id: 8, title: 'Via Vale Garden Shopping', category: 'Voo noturno', image: '/assets/portfolio/via_vale.jpg' },
 ];
 
 export const PortfolioSlider = () => {
@@ -56,7 +56,7 @@ export const PortfolioSlider = () => {
         <SwiperSlide key={item.id}>
           <div className="group relative overflow-hidden rounded-lg">
             <Image 
-              src="https://placehold.co/600x400/111/FFF?text=Imagem+Exemplo" 
+              src={item.image} 
               alt={item.title} 
               width={600} 
               height={400} 
