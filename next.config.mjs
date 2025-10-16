@@ -1,14 +1,18 @@
-// next.config.mjs
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Adicione esta propriedade aqui dentro
     dangerouslyAllowSVG: true,
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
+      },
+      // ADD THIS NEW BLOCK
+      {
+        protocol: 'https',
+        hostname: '05u48khpcr7o7cwv.public.blob.vercel-storage.com',
         port: '',
         pathname: '/**',
       },

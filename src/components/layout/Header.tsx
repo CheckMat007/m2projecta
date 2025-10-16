@@ -75,7 +75,7 @@ export const Header = ({ activeSection }: HeaderProps) => {
              {link.label}
            </a>
         ))}
-        <a href="#" onClick={handleLinkClick} className="block bg-m2-green text-black text-center font-bold mt-4 py-2 px-4 rounded-lg hover:bg-white transition-colors duration-300">
+        <a href="/login" onClick={handleLinkClick} className="block bg-m2-green text-black text-center font-bold mt-4 py-2 px-4 rounded-lg hover:bg-white transition-colors duration-300">
           Área do Cliente
         </a>
       </div>

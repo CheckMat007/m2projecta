@@ -111,7 +111,7 @@ export default function HomePage() {
       <section id="sobre" className="py-20 bg-black">
         <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <Image src="/assets/equipe-m2-projecta.svg" alt="Equipe da M2 Projecta com drone" width={600} height={400} className="rounded-lg shadow-lg w-full h-auto" />
+            <Image src="/assets/equipe-m2-projecta.png" alt="Equipe da M2 Projecta com drone" width={600} height={400} className="rounded-lg shadow-lg w-full h-auto" />
           </div>
           <div className="text-center md:text-left">
             <h2 className="text-3xl font-bold mb-4 uppercase">Sobre a <span className="text-m2-green">M2 Projecta</span></h2>
@@ -227,7 +227,7 @@ export default function HomePage() {
                     </div>
                     <div className="w-full max-w-sm md:max-w-md mt-4 px-4 sm:px-0">
                         <Image
-                            src="/assets/svg/mapa-sp-valeparaiba.svg"
+                            src="/assets/svg/mapa-sp-valeparaiba.png"
                             alt="Mapa do estado de São Paulo com o Vale do Paraíba destacado"
                             width={500}
                             height={400}
