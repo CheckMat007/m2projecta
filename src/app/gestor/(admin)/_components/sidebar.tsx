@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 // 1. IMPORTE O NOVO ÍCONE AQUI
-import { User, LogOut, Briefcase, Users, LayoutDashboard, FileText, UserCog } from 'lucide-react'; 
+import { User, Briefcase, Users, LayoutDashboard, FileText, UserCog } from 'lucide-react';
 import { LogoutButton } from './logout-button';
 import Logo from '@/components/ui/Logo';
 

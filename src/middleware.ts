@@ -4,7 +4,7 @@ import { withAuth } from "next-auth/middleware"
 
 export default withAuth(
   // `withAuth` anexa o token do usuário ao request.
-  function middleware(req) {
+  function middleware(_req) {
     // console.log(req.nextauth.token) // Use para debugar, se necessário
   },
   {
