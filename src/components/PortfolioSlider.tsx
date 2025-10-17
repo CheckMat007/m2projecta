@@ -9,11 +9,6 @@ import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, A11y } from 'swiper/modules';
 
-// Importação dos estilos da Swiper (MUITO IMPORTANTE)
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-
 // Array com os dados do portfólio para facilitar a manutenção
 const portfolioItems = [
   { id: 1, title: 'Cristo - Taubaté', category: 'Turismo', image: '/assets/portfolio/cristo.jpg' },

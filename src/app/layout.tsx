@@ -24,9 +24,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className="scroll-smooth">
-      {/* O BANNER FOI MOVIDO PARA DENTRO DO BODY */}
+      <head>
+        {/* Adiciona o link para o CSS da Swiper aqui */}
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+        />
+      </head>
       <body className={inter.className}>
-        <Providers> {/* Envolva o children com o Providers */}
+        <Providers>
           {children}
         </Providers>
         <DevelopmentBanner />
