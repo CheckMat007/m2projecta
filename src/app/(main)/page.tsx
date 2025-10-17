@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { PortfolioSlider } from '@/components/PortfolioSlider';
 import InputMask from 'react-input-mask';
+import Script from 'next/script';
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState('home');
@@ -128,7 +129,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="servicos" className="py-5 bg-black">
+      <section id="servicos" className="py-20 bg-black">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold uppercase">Nossos <span className="text-m2-green">Serviços</span></h2>
@@ -323,6 +324,19 @@ export default function HomePage() {
       </section>
 
       <Footer />
+      
+<Script 
+        src="https://www.googletagmanager.com/gtag/js?id=G-6F0RMM5CY2" 
+        strategy="afterInteractive" 
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-6F0RMM5CY2');
+        `}
+      </Script>
     </main>
   );
 }
