@@ -2,7 +2,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import DevelopmentBanner from '@/components/ui/DevelopmentBanner'
 import Providers from './providers';
 
 const inter = Inter({ 
@@ -24,18 +23,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className="scroll-smooth">
-      <head>
-        {/* Adiciona o link para o CSS da Swiper aqui */}
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
-        />
-      </head>
       <body className={inter.className}>
         <Providers>
           {children}
         </Providers>
-        <DevelopmentBanner />
       </body>
     </html>
   )

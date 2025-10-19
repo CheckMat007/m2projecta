@@ -7,93 +7,116 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   prefix: "",
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: '2rem',
       screens: {
-        "2xl": "1400px",
-      },
+        '2xl': '1400px'
+      }
     },
     extend: {
-      // NOSSAS CUSTOMIZAÇÕES
       colors: {
         'm2-green': '#97f901',
         'm2-dark': '#111111',
-        // CORES DO SHADCN
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))'
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))'
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))'
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))'
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))'
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))'
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-      },
-      fontFamily: {
-        sans: ['var(--font-inter)', 'sans-serif'],
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-        // NOSSAS ANIMAÇÕES
-        'search-float': {
-          '0%, 100%': { transform: 'translate(0px, 0px) rotate(0deg)' },
-          '25%': { transform: 'translate(15px, -15px) rotate(5deg)' },
-          '50%': { transform: 'translate(0px, -20px) rotate(-5deg)' },
-          '75%': { transform: 'translate(-15px, -15px) rotate(5deg)' },
-        },
-        pulse: {
-          '0%, 100%': { opacity: '0.3' },
-          '50%': { opacity: '0.7' },
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))'
         }
       },
+      fontFamily: {
+        sans: [
+          'var(--font-inter)',
+          'sans-serif'
+        ]
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)'
+      },
+      keyframes: {
+        'accordion-down': {
+          from: {
+            height: '0'
+          },
+          to: {
+            height: 'var(--radix-accordion-content-height)'
+          }
+        },
+        'accordion-up': {
+          from: {
+            height: 'var(--radix-accordion-content-height)'
+          },
+          to: {
+            height: '0'
+          }
+        },
+        'search-float': {
+          '0%, 100%': {
+            transform: 'translate(0px, 0px) rotate(0deg)'
+          },
+          '25%': {
+            transform: 'translate(15px, -15px) rotate(5deg)'
+          },
+          '50%': {
+            transform: 'translate(0px, -20px) rotate(-5deg)'
+          },
+          '75%': {
+            transform: 'translate(-15px, -15px) rotate(5deg)'
+          }
+        },
+        pulse: {
+          '0%, 100%': {
+            opacity: '0.3'
+          },
+          '50%': {
+            opacity: '0.7'
+          }
+        },
+        // REMOVIDO: 'accordion-down' duplicado
+        // REMOVIDO: 'accordion-up' duplicado
+      },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-        // NOSSAS ANIMAÇÕES
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
         'search-float': 'search-float 8s ease-in-out infinite',
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-      },
-    },
+        // REMOVIDO: 'accordion-down' duplicado
+        // REMOVIDO: 'accordion-up' duplicado
+      }
+    }
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config
