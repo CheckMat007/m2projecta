@@ -1,71 +1,93 @@
-// src/components/PortfolioSlider.tsx
-
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
-
-// Importações essenciais da Swiper
+import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, A11y } from 'swiper/modules';
+import { Navigation, Pagination, A11y, EffectCoverflow } from 'swiper/modules';
+import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 
-// Array com os dados do portfólio para facilitar a manutenção
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/effect-coverflow';
+
 const portfolioItems = [
-  { id: 1, title: 'Cristo - Taubaté', category: 'Turismo', image: '/assets/portfolio/cristo.jpg' },
-  { id: 2, title: 'Rodovia Pres. Dutra', category: 'Obra em estrada', image: '/assets/portfolio/dutra.jpg' },
-  { id: 3, title: 'Obra na Av. Italia', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_av_italia.jpg' },
-  { id: 4, title: 'Obra na Vila S. José', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_vila_sao_jose.jpg' },
-  { id: 5, title: 'Parque do Quiririm', category: 'Turismo', image: '/assets/portfolio/quiririm.jpg' },
-  { id: 6, title: 'Passarela em São Paulo', category: 'Acompanhamento de Obra', image: '/assets/portfolio/passarela.jpg' },
-  { id: 7, title: 'Obra em Ubatuba', category: 'Acompanhamento de Obra', image: '/assets/portfolio/ubatuba.jpg' },
-  { id: 8, title: 'Via Vale Garden Shopping', category: 'Voo noturno', image: '/assets/portfolio/via_vale.jpg' },
+  { id: 1, title: 'Cristo - Taubaté', category: 'Turismo', image: '/assets/portfolio/cristo.jpg', link: '/portfolio/cristo-taubate' },
+  { id: 2, title: 'Rodovia Pres. Dutra', category: 'Obra em estrada', image: '/assets/portfolio/dutra.jpg', link: '/portfolio/rodovia-dutra' },
+  { id: 3, title: 'Obra na Av. Italia', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_av_italia.jpg', link: '/portfolio/obra-av-italia' },
+  { id: 4, title: 'Obra na Vila S. José', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_vila_sao_jose.jpg', link: '/portfolio/obra-vila-sao-jose' },
+  { id: 5, title: 'Parque do Quiririm', category: 'Turismo', image: '/assets/portfolio/quiririm.jpg', link: '/portfolio/parque-quiririm' },
+  { id: 1, title: 'Cristo - Taubaté', category: 'Turismo', image: '/assets/portfolio/cristo.jpg', link: '/portfolio/cristo-taubate' },
+  { id: 2, title: 'Rodovia Pres. Dutra', category: 'Obra em estrada', image: '/assets/portfolio/dutra.jpg', link: '/portfolio/rodovia-dutra' },
+  { id: 3, title: 'Obra na Av. Italia', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_av_italia.jpg', link: '/portfolio/obra-av-italia' },
+  { id: 4, title: 'Obra na Vila S. José', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_vila_sao_jose.jpg', link: '/portfolio/obra-vila-sao-jose' },
+  { id: 5, title: 'Parque do Quiririm', category: 'Turismo', image: '/assets/portfolio/quiririm.jpg', link: '/portfolio/parque-quiririm' },
 ];
 
 export const PortfolioSlider = () => {
   return (
-    <Swiper
-      // Módulos que vamos usar
-      modules={[Navigation, Pagination, A11y]}
-      // Espaço entre os slides
-      spaceBetween={30}
-      // Quantidade de slides visíveis
-      slidesPerView={1}
-      // Configuração de breakpoints para responsividade
-      breakpoints={{
-        // Quando a tela for >= 768px (tablets)
-        768: {
-          slidesPerView: 2,
-        },
-        // Quando a tela for >= 1024px (desktops)
-        1024: {
-          slidesPerView: 3,
-        },
-      }}
-      // Habilita os botões de navegação (setas)
-      navigation
-      // Habilita a paginação (bolinhas) e torna-as clicáveis
-      pagination={{ clickable: true }}
-      className="w-full"
-    >
-      {portfolioItems.map((item) => (
-        <SwiperSlide key={item.id}>
-          <div className="group relative overflow-hidden rounded-lg">
-            <Image 
-              src={item.image} 
-              alt={item.title} 
-              width={600} 
-              height={400} 
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-            />
-            <div className="absolute inset-0 bg-black/70 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-              <div>
-                <h3 className="text-xl font-bold">{item.title}</h3>
-                <p className="text-m2-green">{item.category}</p>
+    <div className="portfolio-slider-full-width">
+      <Swiper
+        modules={[Navigation, Pagination, A11y, EffectCoverflow]}
+        speed={800}
+        effect={'coverflow'}
+        coverflowEffect={{
+          rotate: 50,
+          stretch: 0,
+          depth: 100,
+          modifier: 1,
+          slideShadows: false,
+        }}
+        loop={true}
+        centeredSlides={true}
+        slidesPerView={'auto'}
+        navigation={{
+          nextEl: '.portfolio-full-width-next',
+          prevEl: '.portfolio-full-width-prev',
+        }}
+        pagination={{ 
+          clickable: true,
+          el: '.portfolio-pagination-container',
+          type: 'bullets', 
+        }}
+        className="h-full"
+      >
+        {portfolioItems.map((item) => (
+          <SwiperSlide key={item.id} className="!w-[80%] md:!w-[50%] lg:!w-[40%]">
+            {/* MUDANÇA 2: Aspect ratio responsivo */}
+            <div className="group relative overflow-hidden rounded-lg aspect-[3/4] md:aspect-video">
+              <Image 
+                src={item.image} 
+                alt={item.title} 
+                fill
+                sizes="(max-width: 768px) 80vw, 50vw"
+                className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
+              />
+              <div className="portfolio-overlay absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
+                <div className="transform transition-transform duration-500 ease-in-out">
+                  <h3 className="text-xl font-bold text-white">{item.title}</h3>
+                  <p className="text-m2-green">{item.category}</p>
+                  <Link href={item.link} className="text-white font-semibold mt-2 inline-flex items-center gap-2 hover:underline">
+                    Ver Projeto <ArrowRight size={16} />
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        </SwiperSlide> // <-- ERRO CORRIGIDO AQUI!
-      ))}
-    </Swiper>
+          </SwiperSlide>
+        ))}
+
+        <div className="swiper-button-custom prev portfolio-full-width-prev">
+          <ChevronLeft />
+        </div>
+        <div className="swiper-button-custom next portfolio-full-width-next">
+          <ChevronRight />
+        </div>
+      </Swiper>
+      
+      <div className="mt-8 md:mt-12 flex w-full items-center justify-center">
+        <div className="swiper-pagination-capsule portfolio-pagination-container"></div>
+      </div>
+    </div>
   );
 };

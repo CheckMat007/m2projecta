@@ -2,22 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Suas customizações para a biblioteca Swiper (isto está correto) */
-.swiper-button-next,
-.swiper-button-prev {
-  color: #97f901 !important; /* Cor m2-green */
-}
-
-.swiper-pagination-bullet-active {
-  background-color: #97f901 !important; /* Cor m2-green */
-}
-
-/* Este é o ÚNICO bloco @layer base que você precisa.
-   Ele contém as variáveis do Shadcn e os estilos base do body. */
+/*
+============================================
+  BASE STYLES & THEME VARIABLES
+============================================
+*/
 @layer base {
   :root {
-    /* Eu ajustei o --background para usar a cor #111111 que você definiu.
-       HSL(0 0% 7%) é o equivalente de #111111 */
     --background: 0 0% 7%;
     --foreground: 210 40% 98%;
     --card: 0 0% 7%;
@@ -41,10 +32,8 @@
   }
  
   .dark {
-    /* Mantemos o .dark para consistência com o Shadcn */
     --background: 0 0% 7%;
     --foreground: 210 40% 98%;
-    /* ... o resto das variáveis .dark que você já tinha */
   }
 
   * {
@@ -52,5 +41,159 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  .hero-image-bg {
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/assets/hero-image.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+}
+
+/*
+============================================
+  SWIPER SLIDER STYLES
+============================================
+*/
+
+/* --- 1. General & Shared Styles --- */
+
+.swiper-button-custom {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(26, 27, 30, 0.5);
+  border: 1px solid rgba(151, 249, 1, 0.2);
+  border-radius: 9999px;
+  transition: opacity 0.3s ease-in-out, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.swiper-button-custom:hover {
+  background: rgba(151, 249, 1, 0.2);
+  border-color: rgba(151, 249, 1, 0.5);
+}
+
+.swiper-button-custom svg {
+  width: 24px;
+  height: 24px;
+  color: #97f901;
+}
+
+.swiper-button-disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+
+/* --- 2. Testimonials Slider Styles --- */
+
+.testimonial-bg-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  transition: background-image 0.5s ease-in-out;
+}
+
+.slider-container-padded {
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
+
+.slider-container-padded .swiper-button-custom.prev { left: 0; }
+.slider-container-padded .swiper-button-custom.next { right: 0; }
+
+.slider-container-padded .swiper-button-custom {
+  opacity: 0;
+  pointer-events: none;
+}
+.slider-container-padded:hover .swiper-button-custom {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.swiper-pagination-capsule {
+  background: rgba(26, 27, 30, 0.5);
+  border: 1px solid rgba(151, 249, 1, 0.2);
+  border-radius: 9999px;
+  padding: 8px 16px !important;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.swiper-pagination-capsule .swiper-pagination-bullet {
+  display: block !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  background-color: #6b7280 !important;
+  opacity: 1 !important;
+  transition: background-color 0.3s ease;
+}
+
+.swiper-pagination-capsule .swiper-pagination-bullet-active {
+  background-color: #97f901 !important;
+}
+
+
+/* --- 3. Portfolio Slider (Cinematic) Styles - SIMPLIFICADO --- */
+
+.portfolio-slider-full-width .swiper {
+  overflow: visible !important;
+}
+
+/* Opcional: Adiciona opacidade aos slides não ativos */
+.portfolio-slider-full-width .swiper-slide {
+  opacity: 0.7;
+  transition: opacity 0.4s ease;
+}
+
+.portfolio-slider-full-width .swiper-slide-active {
+  opacity: 1;
+}
+
+/* Arrow visibility & positioning */
+.portfolio-slider-full-width .swiper-button-custom {
+  opacity: 1;
+  pointer-events: auto;
+}
+.portfolio-slider-full-width .swiper-button-custom.prev { left: 1.5rem; }
+.portfolio-slider-full-width .swiper-button-custom.next { right: 1.5rem; }
+
+/* Overlay effect */
+.portfolio-overlay { opacity: 0; transition: opacity 0.4s ease; }
+.portfolio-slider-full-width .swiper-slide-active .portfolio-overlay,
+.portfolio-slider-full-width .swiper-slide:hover .portfolio-overlay {
+  opacity: 1;
+}
+
+
+/*
+============================================
+  RESPONSIVE STYLES (MOBILE)
+============================================
+*/
+@media (max-width: 767px) {
+  /* Hide ALL slider arrows on mobile */
+  .swiper-button-custom {
+    display: none !important;
+  }
+  
+  /* Adjust padding for testimonials slider on mobile */
+  .slider-container-padded {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
