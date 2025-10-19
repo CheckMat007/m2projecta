@@ -56,7 +56,7 @@ export const TestimonialsSlider = ({ testimonials, onActiveIndexChange }: { test
                 <CardContent className="p-6 flex-1 flex flex-col text-center">
                   <Quote className="w-8 h-8 text-m2-green mb-4 mx-auto" />
                   <p className="text-gray-300 italic text-lg mb-6 flex-1">
-                    "{testimonial.quote.start}
+                    &quot{testimonial.quote.start}
                     <span className="text-m2-green font-semibold not-italic">{testimonial.quote.highlight}</span>
                     {testimonial.quote.end}"
                   </p>
