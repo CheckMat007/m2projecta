@@ -13,12 +13,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
 
 const portfolioItems = [
-  { id: 1, title: 'Cristo - Taubaté', category: 'Turismo', image: '/assets/portfolio/cristo.JPG', link: '/portfolio/cristo' },
-  { id: 2, title: 'Rodovia Pres. Dutra', category: 'Obra em estrada', image: '/assets/portfolio/dutra.JPG', link: '/portfolio/rodovia-dutra' },
-  { id: 3, title: 'Obra na Av. Italia', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_av_italia.JPG', link: '/portfolio/obra-av-italia' },
-  { id: 4, title: 'Obra na Vila S. José', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_vila_sao_jose.JPG', link: '/portfolio/obra-vila-sao-jose' },
-  { id: 5, title: 'Parque do Quiririm', category: 'Turismo', image: '/assets/portfolio/quiririm.JPG', link: '/portfolio/parque-quiririm' },
-  { id: 1, title: 'Cristo - Taubaté', category: 'Turismo', image: '/assets/portfolio/cristo.JPG', link: '/portfolio/cristo-taubate' },
+  { id: 1, title: 'Obra em Ubatuba', category: 'Acompanhamento de obra', image: '/assets/portfolio/ubatuba.JPG', link: '/portfolio/ubatuba' },
   { id: 2, title: 'Rodovia Pres. Dutra', category: 'Obra em estrada', image: '/assets/portfolio/dutra.JPG', link: '/portfolio/rodovia-dutra' },
   { id: 3, title: 'Obra na Av. Italia', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_av_italia.JPG', link: '/portfolio/obra-av-italia' },
   { id: 4, title: 'Obra na Vila S. José', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_vila_sao_jose.JPG', link: '/portfolio/obra-vila-sao-jose' },
