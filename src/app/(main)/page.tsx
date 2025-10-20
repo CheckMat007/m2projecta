@@ -30,17 +30,17 @@ const faqItems = [
 const testimonialsData = [
     { 
       quote: { start: "O resultado final superou todas as nossas expectativas. As imagens aéreas deram ", highlight: "uma nova dimensão ao nosso empreendimento.", end: "" },
-      name: 'João da Silva', company: 'Diretor de Marketing, Construtora X', image: '/assets/testimonials/equipe-m2-projecta.png',
+      name: 'João da Silva', company: 'Diretor de Marketing, Construtora X', image: '/assets/testimonials/exemplo1.jpg',
       backgroundImage: '/assets/portfolio/obra_vila_sao_jose.JPG'
     },
     { 
       quote: { start: "Profissionalismo impecável do início ao fim. A M2 Projecta entendeu nossa visão e a traduziu em ", highlight: "um vídeo corporativo que impressionou nossos stakeholders.", end: "" },
-      name: 'Maria Oliveira', company: 'CEO, TechCorp', image: '/assets/testimonials/equipe-m2-projecta.png',
+      name: 'Maria Oliveira', company: 'CEO, TechCorp', image: '/assets/testimonials/exemplo2.jpg',
       backgroundImage: '/assets/portfolio/via_vale.JPG'
     },
     { 
       quote: { start: "A cobertura do nosso evento foi espetacular. A perspectiva do drone capturou a energia do momento de uma forma que ", highlight: "câmeras no chão jamais conseguiriam.", end: "" },
-      name: 'Carlos Pereira', company: 'Organizador, Festival MusicVibe', image: '/assets/testimonials/equipe-m2-projecta.png',
+      name: 'Carol Pereira', company: 'Organizador, Festival MusicVibe', image: '/assets/testimonials/exemplo3.jpg',
       backgroundImage: '/assets/portfolio/quiririm.JPG'
     },
 ];
@@ -62,7 +62,7 @@ export default function HomePage() {
               Combinamos tecnologia de ponta e um olhar cinematográfico para capturar a essência do seu projeto. De empreendimentos imobiliários a eventos corporativos, criamos imagens aéreas que geram resultados.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <a href="/contato" className="bg-m2-green text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-white transition-colors duration-300 transform hover:scale-105">
+              <a href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank" rel="noopener noreferrer" className="bg-m2-green text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-white transition-colors duration-300 transform hover:scale-105">
                 Solicite um Orçamento
               </a>
               <a href="/servicos" className="border-2 border-m2-green text-m2-green font-bold py-3 px-8 rounded-lg text-lg hover:bg-m2-green hover:text-black transition-colors duration-300">
