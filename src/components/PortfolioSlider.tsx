@@ -12,20 +12,24 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
 
-const portfolioItems = [
-  { id: 1, title: 'Obra em Ubatuba', category: 'Acompanhamento de obra', image: '/assets/portfolio/ubatuba.JPG', link: '/portfolio/ubatuba' },
-  { id: 2, title: 'Rodovia Pres. Dutra', category: 'Obra em estrada', image: '/assets/portfolio/dutra.JPG', link: '/portfolio/rodovia-dutra' },
-  { id: 3, title: 'Obra na Av. Italia', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_av_italia.JPG', link: '/portfolio/obra-av-italia' },
-  { id: 4, title: 'Obra na Vila S. José', category: 'Acompanhamento de Obra', image: '/assets/portfolio/obra_vila_sao_jose.JPG', link: '/portfolio/obra-vila-sao-jose' },
-  { id: 5, title: 'Parque do Quiririm', category: 'Turismo', image: '/assets/portfolio/quiririm.JPG', link: '/portfolio/parque-quiririm' },
-];
+// MUDANÇA 1: Definindo os tipos para as props
+type PortfolioItem = {
+  id: number;
+  title: string;
+  category: string;
+  image: string;
+  link: string;
+  backgroundImage: string;
+};
 
-export const PortfolioSlider = () => {
+// MUDANÇA 2: O componente agora recebe props
+export const PortfolioSlider = ({ portfolioItems, onActiveIndexChange }: { portfolioItems: PortfolioItem[], onActiveIndexChange: (index: number) => void }) => {
   return (
     <div className="portfolio-slider-full-width">
       <Swiper
         modules={[Navigation, Pagination, A11y, EffectCoverflow]}
         speed={800}
+        spaceBetween={0}
         effect={'coverflow'}
         coverflowEffect={{
           rotate: 50,
@@ -47,10 +51,12 @@ export const PortfolioSlider = () => {
           type: 'bullets', 
         }}
         className="h-full"
+        // MUDANÇA 3: Adicionando o callback onSlideChange
+        onSlideChange={(swiper) => onActiveIndexChange(swiper.realIndex)}
       >
+        {/* MUDANÇA 4: Mapeando sobre a prop `portfolioItems` */}
         {portfolioItems.map((item) => (
           <SwiperSlide key={item.id} className="!w-[80%] md:!w-[50%] lg:!w-[40%]">
-            {/* MUDANÇA 2: Aspect ratio responsivo */}
             <div className="group relative overflow-hidden rounded-lg aspect-[3/4] md:aspect-video">
               <Image 
                 src={item.image} 
@@ -63,8 +69,11 @@ export const PortfolioSlider = () => {
                 <div className="transform transition-transform duration-500 ease-in-out">
                   <h3 className="text-xl font-bold text-white">{item.title}</h3>
                   <p className="text-m2-green">{item.category}</p>
-                  <Link href={item.link} className="text-white font-semibold mt-2 inline-flex items-center gap-2 hover:underline">
-                    Ver Projeto <ArrowRight size={16} />
+                  <Link href={item.link} className="text-white mt-2 inline-flex items-center gap-2">
+                  <span className="relative text-white group-hover:text-m2-green transition-colors">
+              Ver Projeto &rarr;
+             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+            </span>
                   </Link>
                 </div>
               </div>
