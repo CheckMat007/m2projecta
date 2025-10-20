@@ -178,7 +178,14 @@
 .portfolio-slider-full-width .swiper-slide:hover .portfolio-overlay {
   opacity: 1;
 }
-
+.portfolio-bg-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  transition: background-image 0.5s ease-in-out;
+}
 
 /*
 ============================================
