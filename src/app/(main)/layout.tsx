@@ -31,7 +31,7 @@ export default function MainLayout({
           gtag('config', 'G-6F0RMM5CY2');
         `}
       </Script>
-      {/*<DevelopmentBanner />*/}
+      <DevelopmentBanner />
     </>
   );
 }
