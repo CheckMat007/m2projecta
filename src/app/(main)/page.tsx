@@ -31,17 +31,17 @@ const testimonialsData = [
     { 
       quote: { start: "O resultado final superou todas as nossas expectativas. As imagens aéreas deram ", highlight: "uma nova dimensão ao nosso empreendimento.", end: "" },
       name: 'João da Silva', company: 'Diretor de Marketing, Construtora X', image: '/assets/testimonials/equipe-m2-projecta.png',
-      backgroundImage: '/assets/portfolio/obra_vila_sao_jose.jpg'
+      backgroundImage: '/assets/portfolio/obra_vila_sao_jose.JPG'
     },
     { 
       quote: { start: "Profissionalismo impecável do início ao fim. A M2 Projecta entendeu nossa visão e a traduziu em ", highlight: "um vídeo corporativo que impressionou nossos stakeholders.", end: "" },
       name: 'Maria Oliveira', company: 'CEO, TechCorp', image: '/assets/testimonials/equipe-m2-projecta.png',
-      backgroundImage: '/assets/portfolio/via_vale.jpg'
+      backgroundImage: '/assets/portfolio/via_vale.JPG'
     },
     { 
       quote: { start: "A cobertura do nosso evento foi espetacular. A perspectiva do drone capturou a energia do momento de uma forma que ", highlight: "câmeras no chão jamais conseguiriam.", end: "" },
       name: 'Carlos Pereira', company: 'Organizador, Festival MusicVibe', image: '/assets/testimonials/equipe-m2-projecta.png',
-      backgroundImage: '/assets/portfolio/quiririm.jpg'
+      backgroundImage: '/assets/portfolio/quiririm.JPG'
     },
 ];
 
