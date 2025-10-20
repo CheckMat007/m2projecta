@@ -132,7 +132,6 @@ export default function HomePage() {
 
       {/* 3. SEÇÃO DE PORTFÓLIO MODIFICADA */}
       <section id="portfolio-home" className="py-10 bg-m2-dark overflow-hidden">
-        {/* O texto continua dentro do container para manter o alinhamento */}
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold uppercase">Portfólio em <span className="text-m2-green">Destaque</span></h2>
           <p className="text-gray-400 mt-2 max-w-2xl mx-auto">Explore alguns dos nossos projetos mais recentes.</p>
