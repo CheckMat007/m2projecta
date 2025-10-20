@@ -7,7 +7,7 @@ import Logo from '@/components/ui/Logo';
 
 export const Footer = () => {
   return (
-    <footer className="bg-black border-t border-gray-800 pt-16 pb-8">
+    <footer className="bg-black border-t border-gray-800 pt-16 pb-2">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-3 gap-12">
           
@@ -83,9 +83,9 @@ export const Footer = () => {
         </div>
 
         {/* Linha Final: Copyright */}
-        <div className="mt-16 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+        <div className="mt-8 pt-2 border-t border-gray-800 text-center text-gray-500 text-sm">
           <p>
-            © {new Date().getFullYear()} M2 Projecta | Todos os direitos reservados.| Desenvolvido por <a href="https://www.instagram.com/levbrands/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors">LEV.B - Marketing 360º</a>
+            © {new Date().getFullYear()} M2 Projecta - Todos os direitos reservados.| Desenvolvido por <a href="https://www.instagram.com/levbrands/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors">LEV.B - Marketing 360º</a>
           </p>
         </div>
 
