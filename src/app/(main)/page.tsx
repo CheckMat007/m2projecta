@@ -121,7 +121,7 @@ export default function HomePage() {
           </div>
 
           {/* Service Cards */}
-          <div className="container mx-auto px-6 text-center pb-20">
+          <div className="container mx-auto px-6 text-center pb-5">
             <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-12 lg:mt-3">
               <ServiceCard icon={Building} title="Mercado Imobiliário">
                 Imagens e vídeos que valorizam e aceleram a venda de empreendimentos.
@@ -149,13 +149,13 @@ export default function HomePage() {
         </div>
       </section>
       {/* 3. SEÇÃO DE PORTFÓLIO MODIFICADA */}
-      <section id="portfolio-home" className="py-10 bg-m2-dark relative overflow-hidden">
+      <section id="portfolio-home" className="py-6 bg-m2-dark relative overflow-hidden">
         {/* MUDANÇA 3: Adicionado background e overlay para o portfólio */}
         <div 
           className="portfolio-bg-image" 
           style={{ backgroundImage: `url(${portfolioData[activePortfolioIndex].backgroundImage})` }}
         />
-        <div className="absolute inset-0 bg-black/70 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black z-0" />
 
         <div className="container mx-auto px-6 text-center relative z-10">
           <h2 className="text-3xl font-bold uppercase">Portfólio em <span className="text-m2-green">Destaque</span></h2>
@@ -181,7 +181,7 @@ export default function HomePage() {
       </section>
 
 {/* 4. NOVA SEÇÃO DE NÚMEROS */}
-      <section id="stats" className="py-20 bg-black">
+      <section id="stats" className="py-10 bg-black">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold uppercase">Nossa Experiência em <span className="text-m2-green">Números</span></h2>
@@ -206,7 +206,7 @@ export default function HomePage() {
           className="testimonial-bg-image" 
           style={{ backgroundImage: `url(${testimonialsData[activeTestimonialIndex].backgroundImage})` }}
         />
-        <div className="absolute inset-0 bg-black/80 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-m2-dark via-black/60 to-black z-0" />
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold uppercase">Resultados que Geram <span className="text-m2-green">Confiança</span></h2>
