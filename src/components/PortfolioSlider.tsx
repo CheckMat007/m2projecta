@@ -49,6 +49,7 @@ export const PortfolioSlider = ({ portfolioItems, onActiveIndexChange }: { portf
           clickable: true,
           el: '.portfolio-pagination-container',
           type: 'bullets', 
+          
         }}
         className="h-full"
         // MUDANÇA 3: Adicionando o callback onSlideChange

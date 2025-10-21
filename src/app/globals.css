@@ -156,8 +156,7 @@
 
 /* Opcional: Adiciona opacidade aos slides não ativos */
 .portfolio-slider-full-width .swiper-slide {
-  opacity: 0.7;
-  transition: opacity 0.4s ease;
+  opacity: 1;
 }
 
 .portfolio-slider-full-width .swiper-slide-active {

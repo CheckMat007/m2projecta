@@ -1,9 +1,9 @@
 // src/app/(main)/layout.tsx
-
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import DevelopmentBanner from '@/components/ui/DevelopmentBanner'
 import Script from "next/script";
+
 
 export default function MainLayout({
   children,
