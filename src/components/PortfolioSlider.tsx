@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, A11y, EffectCoverflow } from 'swiper/modules';
-import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -49,6 +49,7 @@ export const PortfolioSlider = ({ portfolioItems, onActiveIndexChange }: { portf
           clickable: true,
           el: '.portfolio-pagination-container',
           type: 'bullets', 
+          
         }}
         className="h-full"
         // MUDANÇA 3: Adicionando o callback onSlideChange
