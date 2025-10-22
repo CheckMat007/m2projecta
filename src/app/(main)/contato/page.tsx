@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { FaInstagram, FaEnvelope, FaWhatsapp, FaMapMarkerAlt, FaTiktok } from 'react-icons/fa';
 import InputMask from 'react-input-mask';
 import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
