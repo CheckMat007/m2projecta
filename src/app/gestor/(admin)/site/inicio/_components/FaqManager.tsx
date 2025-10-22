@@ -27,6 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
+  AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -143,7 +144,7 @@ export function FaqManager({ faqItems }: { faqItems: FaqItem[] }) {
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+                      <AlertDialogCancel asChild><Button variant="outline">Cancelar</Button></AlertDialogCancel>
                       <Button variant="destructive" onClick={() => handleDelete(item.id)}>Sim, excluir</Button>
                     </AlertDialogFooter>
                   </AlertDialogContent>
