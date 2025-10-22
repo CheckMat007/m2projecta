@@ -1,3 +1,5 @@
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,19 +9,70 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Modelos de Enumeração
+enum Role {
+  MASTER
+  EDITOR
+}
+
+enum Status {
+  PUBLISHED // Visível no site principal
+  DRAFT     // Apenas visível no painel
+}
+
+// Modelos de Tabela
+
 model User {
   id        String   @id @default(cuid())
   name      String?
   email     String   @unique
   password  String
   image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   phone     String?
   role      Role     @default(EDITOR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-enum Role {
-  MASTER
-  EDITOR
+model HomePage {
+  id             String @id @default(cuid())
+  youtubeVideoId String
+}
+
+model Testimonial {
+  id        String  @id @default(cuid())
+  name      String
+  company   String
+  image     String?
+  quote     String
+  highlight String?
+  order     Int     @default(0)
+}
+
+model FaqItem {
+  id       String @id @default(cuid())
+  question String
+  answer   String @db.Text
+  order    Int    @default(0)
+}
+
+// NOVO: Tabela para os itens do Portfólio
+model PortfolioItem {
+  id               String   @id @default(cuid())
+  title            String
+  shortDescription String   @db.Text // Descrição para os cards
+  longDescription  String   @db.Text // Descrição para a página do projeto
+  coverImage       String   // URL da foto de prévia
+  videoUrl         String?  // URL do vídeo (YouTube, Vimeo, etc.)
+  category         String
+  status           Status   @default(DRAFT) // Começa como Rascunho
+  
+  isFeatured       Boolean  @default(false) // Campo para "Destaque na Home"
+
+  // Campos para SEO
+  seoTitle         String?
+  seoDescription   String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

@@ -9,26 +9,29 @@ export const AnimatedCounter = ({ end }: { end: number }) => {
   const ref = useRef(null);
 
   useEffect(() => {
+    // 1. Copy ref.current to a local variable
+    const node = ref.current;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // Se o elemento estiver visível, atualiza o estado
         if (entry.isIntersecting) {
           setInView(true);
-          observer.disconnect(); // Anima apenas uma vez
+          observer.disconnect();
         }
       },
       {
-        threshold: 0.1, // Ativa quando 10% do elemento está visível
+        threshold: 0.1,
       }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    if (node) {
+      observer.observe(node);
     }
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      // 2. Use the local variable in the cleanup function
+      if (node) {
+        observer.unobserve(node);
       }
     };
   }, []);
