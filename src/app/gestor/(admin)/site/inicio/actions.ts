@@ -86,3 +86,171 @@ export async function updateHeroVideo(formData: FormData) {
     return { success: false, message: 'Erro ao salvar. Tente novamente.' };
   }
 }
+
+// =================================================================
+// NOVAS AÇÕES PARA GERENCIAR DEPOIMENTOS (TESTIMONIALS)
+// =================================================================
+
+// Schema de validação para um novo depoimento
+const testimonialSchema = z.object({
+  name: z.string().min(3, 'O nome é obrigatório.'),
+  company: z.string().min(3, 'A empresa é obrigatória.'),
+  quote: z.string().min(10, 'A citação é obrigatória.'),
+  highlight: z.string().optional(),
+  image: z.string().url('A URL da imagem é obrigatória.').optional().or(z.literal('')),
+});
+
+// AÇÃO PARA CRIAR UM NOVO DEPOIMENTO
+export async function createTestimonial(formData: FormData) {
+  const validatedFields = testimonialSchema.safeParse(Object.fromEntries(formData));
+
+  if (!validatedFields.success) {
+    const errorMessage = validatedFields.error.issues[0]?.message || 'Dados inválidos.';
+    return { success: false, message: errorMessage };
+  }
+
+  try {
+    // Encontra a maior ordem atual para adicionar o novo no final
+    const lastTestimonial = await prisma.testimonial.findFirst({
+      orderBy: { order: 'desc' },
+    });
+    const newOrder = (lastTestimonial?.order || 0) + 1;
+
+    await prisma.testimonial.create({
+      data: {
+        ...validatedFields.data,
+        order: newOrder,
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao criar depoimento:", error);
+    return { success: false, message: 'Erro no banco de dados. Tente novamente.' };
+  }
+
+  revalidatePath('/gestor/site/inicio'); // Atualiza a lista no painel
+  revalidatePath('/'); // Atualiza a home page pública
+  return { success: true, message: 'Depoimento adicionado com sucesso!' };
+}
+
+// AÇÃO PARA EXCLUIR UM DEPOIMENTO
+export async function deleteTestimonial(id: string) {
+  if (!id) {
+    return { success: false, message: 'ID do depoimento não fornecido.' };
+  }
+
+  try {
+    await prisma.testimonial.delete({
+      where: { id: id },
+    });
+  } catch (error) {
+    console.error("Erro ao excluir depoimento:", error);
+    return { success: false, message: 'Erro no banco de dados. Tente novamente.' };
+  }
+
+  revalidatePath('/gestor/site/inicio');
+  revalidatePath('/');
+  return { success: true, message: 'Depoimento excluído com sucesso!' };
+}
+
+// AÇÃO PARA ATUALIZAR UM DEPOIMENTO (será usada na página de edição)
+export async function updateTestimonial(id: string, formData: FormData) {
+  const validatedFields = testimonialSchema.safeParse(Object.fromEntries(formData));
+
+  if (!validatedFields.success) {
+    const errorMessage = validatedFields.error.issues[0]?.message || 'Dados inválidos.';
+    return { success: false, message: errorMessage };
+  }
+  
+  try {
+    await prisma.testimonial.update({
+      where: { id: id },
+      data: validatedFields.data,
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar depoimento:", error);
+    return { success: false, message: 'Erro no banco de dados. Tente novamente.' };
+  }
+
+  revalidatePath('/gestor/site/inicio');
+  revalidatePath('/');
+  return { success: true, message: 'Depoimento atualizado com sucesso!' };
+}
+
+// =================================================================
+// NOVAS AÇÕES PARA GERENCIAR FAQ
+// =================================================================
+
+// Schema de validação para um item de FAQ
+const faqItemSchema = z.object({
+  question: z.string().min(5, 'A pergunta deve ter pelo menos 5 caracteres.'),
+  answer: z.string().min(10, 'A resposta deve ter pelo menos 10 caracteres.'),
+});
+
+// AÇÃO PARA CRIAR UM NOVO ITEM DE FAQ
+export async function createFaqItem(formData: FormData) {
+  const validatedFields = faqItemSchema.safeParse(Object.fromEntries(formData));
+
+  if (!validatedFields.success) {
+    const errorMessage = validatedFields.error.issues[0]?.message || 'Dados inválidos.';
+    return { success: false, message: errorMessage };
+  }
+
+  try {
+    const lastFaqItem = await prisma.faqItem.findFirst({
+      orderBy: { order: 'desc' },
+    });
+    const newOrder = (lastFaqItem?.order || 0) + 1;
+
+    await prisma.faqItem.create({
+      data: {
+        ...validatedFields.data,
+        order: newOrder,
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao criar item de FAQ:", error);
+    return { success: false, message: 'Erro no banco de dados.' };
+  }
+
+  revalidatePath('/gestor/site/inicio');
+  revalidatePath('/');
+  return { success: true, message: 'Pergunta adicionada com sucesso!' };
+}
+
+// AÇÃO PARA EXCLUIR UM ITEM DE FAQ
+export async function deleteFaqItem(id: string) {
+  if (!id) return { success: false, message: 'ID não fornecido.' };
+  try {
+    await prisma.faqItem.delete({ where: { id } });
+  } catch (error) {
+    console.error("Erro ao excluir item de FAQ:", error);
+    return { success: false, message: 'Erro no banco de dados.' };
+  }
+  revalidatePath('/gestor/site/inicio');
+  revalidatePath('/');
+  return { success: true, message: 'Pergunta excluída com sucesso!' };
+}
+
+// AÇÃO PARA ATUALIZAR UM ITEM DE FAQ
+export async function updateFaqItem(id: string, formData: FormData) {
+  const validatedFields = faqItemSchema.safeParse(Object.fromEntries(formData));
+
+  if (!validatedFields.success) {
+    const errorMessage = validatedFields.error.issues[0]?.message || 'Dados inválidos.';
+    return { success: false, message: errorMessage };
+  }
+  
+  try {
+    await prisma.faqItem.update({
+      where: { id },
+      data: validatedFields.data,
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar item de FAQ:", error);
+    return { success: false, message: 'Erro no banco de dados.' };
+  }
+
+  revalidatePath('/gestor/site/inicio');
+  revalidatePath('/');
+  return { success: true, message: 'Pergunta atualizada com sucesso!' };
+}
