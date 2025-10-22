@@ -76,7 +76,7 @@ export const TestimonialsSlider = memo( function TestimonialsSlider({ testimonia
  	 	 </div>
  	 	 <div className="swiper-button-custom next testimonials-next">
  	 	   <ChevronRight />
- 	 	 V </div>
+ 	 	  </div>
 
  	 	 <div className="mt-8 md:mt-12 flex w-full items-center justify-center">
  	 	   <div className="swiper-pagination-capsule testimonials-pagination-container"></div>
