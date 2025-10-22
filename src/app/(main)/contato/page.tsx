@@ -204,8 +204,6 @@ export default function ContatoPage() {
           </div>
         </section>
       </div>
-
-      <Footer />
     </main>
   );
 }
