@@ -1,21 +1,24 @@
 // src/app/gestor/login/_components/login-form.tsx
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // Para redirecionamento
-import { signIn } from 'next-auth/react'; // Função de login do NextAuth
+import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import ReCAPTCHA from 'react-google-recaptcha'; // 1. Importa o componente
 
 export function LoginForm() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState<string | null>(null); // Para mensagens de erro
-  const [isLoading, setIsLoading] = useState(false); // Para o estado de loading
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // 2. Estado para o token do reCAPTCHA
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -26,26 +29,28 @@ export function LoginForm() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
+    // 3. Envia o token do reCAPTCHA junto com as credenciais
     const result = await signIn('credentials', {
-      redirect: false, // Importante: para lidarmos com o erro aqui
+      redirect: false,
       email,
       password,
+      recaptchaToken, // Envia o token para o backend
     });
 
     setIsLoading(false);
 
     if (result?.ok) {
-      // Login bem-sucedido, redireciona para o painel
       router.push('/gestor');
     } else {
-      // Login falhou
       setError('E-mail ou senha inválidos. Tente novamente.');
+      // Reseta o reCAPTCHA em caso de erro
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* ... (campos do formulário como antes) ... */}
       <div className="space-y-2">
         <Label htmlFor="email">E-mail</Label>
         <Input id="email" name="email" type="email" placeholder="seu.email@exemplo.com" required className="bg-gray-800 border-gray-700" />
@@ -61,21 +66,24 @@ export function LoginForm() {
         </div>
       </div>
       
-      {/* Mensagem de erro */}
+      {/* 4. ADICIONA O COMPONENTE RECAPTCHA AO FORMULÁRIO */}
+      <div className="flex justify-center">
+        <ReCAPTCHA
+          ref={recaptchaRef}
+          sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+          onChange={(token) => setRecaptchaToken(token)}
+          theme="dark" // Usa o tema escuro para combinar com seu site
+        />
+      </div>
+      
       {error && (
         <p className="text-sm text-red-400 bg-red-900/30 p-2 rounded-md">
           {error}
         </p>
       )}
 
-      {/* ... (checkbox e o resto do form) ... */}
-       <div className="flex items-center space-x-2">
-        <Checkbox id="remember-me" onCheckedChange={(checked) => setRememberMe(Boolean(checked))}/>
-        <Label htmlFor="remember-me" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Lembrar de mim</Label>
-      </div>
-      {rememberMe && (<p className="text-xs text-yellow-400 bg-yellow-900/30 p-2 rounded-md">Use esta opção somente se estiver em um computador confiável.</p>)}
-
-      <Button type="submit" className="w-full bg-m2-green text-black hover:bg-m2-green/80" disabled={isLoading}>
+      {/* 5. O botão agora é desabilitado se o reCAPTCHA não for preenchido */}
+      <Button type="submit" className="w-full bg-m2-green text-black hover:bg-m2-green/80" disabled={isLoading || !recaptchaToken}>
         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Entrar'}
       </Button>
     </form>

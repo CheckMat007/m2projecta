@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -14,7 +14,7 @@ import 'swiper/css/effect-coverflow';
 
 // MUDANÇA 1: Definindo os tipos para as props
 type PortfolioItem = {
-  id: number;
+  id: string;
   title: string;
   category: string;
   image: string;
@@ -23,7 +23,7 @@ type PortfolioItem = {
 };
 
 // MUDANÇA 2: O componente agora recebe props
-export const PortfolioSlider = ({ portfolioItems, onActiveIndexChange }: { portfolioItems: PortfolioItem[], onActiveIndexChange: (index: number) => void }) => {
+export const PortfolioSlider = memo ( function PortfolioSlider({ portfolioItems, onActiveIndexChange }: { portfolioItems: PortfolioItem[], onActiveIndexChange: (index: number) => void })  {
   return (
     <div className="portfolio-slider-full-width">
       <Swiper
@@ -53,7 +53,8 @@ export const PortfolioSlider = ({ portfolioItems, onActiveIndexChange }: { portf
         }}
         className="h-full"
         // MUDANÇA 3: Adicionando o callback onSlideChange
-        onSlideChange={(swiper) => onActiveIndexChange(swiper.realIndex)}
+       // CORREÇÃO: Usando o evento que dispara APÓS a transição
+onSlideChangeTransitionEnd={(swiper) => onActiveIndexChange(swiper.realIndex)}
       >
         {/* MUDANÇA 4: Mapeando sobre a prop `portfolioItems` */}
         {portfolioItems.map((item) => (
@@ -95,4 +96,4 @@ export const PortfolioSlider = ({ portfolioItems, onActiveIndexChange }: { portf
       </div>
     </div>
   );
-};
+});
