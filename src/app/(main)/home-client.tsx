@@ -44,10 +44,10 @@ type HomeClientPageProps = {
 // --- FIM DAS DEFINIÇÕES DE TIPO ---
 
 const statsData = [
-{ icon: CheckCircle, number: 50, label: 'Projetos Entregues' },
-{ icon: Clock, number: 10, label: 'Anos de Experiência' },
-{ icon: Users, number: 30, label: 'Clientes Satisfeitos' },
-{ icon: Video, number: 200, label: 'Horas de Voo' },
+{ icon: CheckCircle, number: 20, label: 'Projetos feitos' },
+{ icon: Clock, number: 5, label: 'Anos como piloto' },
+{ icon: Users, number: 5, label: 'Certificações' },
+{ icon: Video, number: 160, label: 'Horas de Voo' },
 ];
 
 // Componente para um card de serviço individual
