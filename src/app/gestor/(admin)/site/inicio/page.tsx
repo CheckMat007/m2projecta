@@ -1,17 +1,24 @@
 // src/app/gestor/(admin)/site/inicio/page.tsx
-
 import { Separator } from "@/components/ui/separator";
 import { getHomePageData } from './actions';
 import { InicioForm } from './_components/InicioForm';
+import { TestimonialsManager } from "./_components/TestimonialsManager";
+import { FaqManager } from "./_components/FaqManager"; // 1. Importa o novo gerenciador
+import { prisma } from "@/lib/prisma";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Esta página agora é um Componente de Servidor (async)
 export default async function InicioPage() {
-
-  // 1. Busca os dados no servidor antes de renderizar
   const homeData = await getHomePageData();
-  
-  // 2. Constrói o link completo a partir do ID salvo
   const currentVideoLink = `https://www.youtube.com/watch?v=${homeData.youtubeVideoId}`;
+
+  const testimonials = await prisma.testimonial.findMany({
+    orderBy: { order: 'asc' },
+  });
+
+  // 2. Busca os itens de FAQ
+  const faqItems = await prisma.faqItem.findMany({
+    orderBy: { order: 'asc' },
+  });
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
@@ -22,8 +29,36 @@ export default async function InicioPage() {
 
       <Separator className="bg-gray-700" />
 
-      {/* 3. Renderiza o formulário (Cliente) passando os dados (Servidor) */}
-      <InicioForm currentLink={currentVideoLink} />
+      <Card className="bg-black/30 border-gray-800 text-white">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold">Seção Hero</CardTitle>
+          <p className="text-sm text-gray-400">Gerencie o vídeo principal da sua página inicial.</p>
+        </CardHeader>
+        <CardContent>
+          <InicioForm currentLink={currentVideoLink} />
+        </CardContent>
+      </Card>
+      
+      <Card className="bg-black/30 border-gray-800 text-white">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold">Depoimentos de Clientes</CardTitle>
+          <p className="text-sm text-gray-400">Adicione, edite e organize os depoimentos que aparecem na página inicial.</p>
+        </CardHeader>
+        <CardContent>
+          <TestimonialsManager testimonials={testimonials} />
+        </CardContent>
+      </Card>
+
+      {/* 3. SUBSTITUI O PLACEHOLDER PELO NOVO GERENCIADOR */}
+      <Card className="bg-black/30 border-gray-800 text-white">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold">Perguntas Frequentes (FAQ)</CardTitle>
+          <p className="text-sm text-gray-400">Gerencie as perguntas e respostas da seção FAQ da sua página inicial.</p>
+        </CardHeader>
+        <CardContent>
+          <FaqManager faqItems={faqItems} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
