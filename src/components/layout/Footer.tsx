@@ -7,16 +7,16 @@ import Logo from '@/components/ui/Logo';
 
 export const Footer = () => {
   return (
-    <footer className="bg-black border-t border-gray-800 pt-16 pb-2">
+    <footer className="bg-black border-t border-gray-800 pt-10 pb-2">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-3 gap-12">
-          
-          {/* Coluna 1: Institucional - OTIMIZADA PARA MOBILE */}
-          <div className="space-y-4 text-center md:text-left">
-            <Link href="/" className="inline-block h-auto w-40 mx-auto md:mx-0">
+
+          {/* Coluna 1: Institucional - COM BOTÃO DE ORÇAMENTO */}
+          <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start">
+            <Link href="/" className="inline-block h-auto w-40">
               <Logo />
             </Link>
-            <p className="text-gray-400 text-sm max-w-xs mx-auto md:mx-0">
+            <p className="text-gray-400 text-sm max-w-xs">
               Perspectivas que impressionam, resultados que impactam. Capturamos a essência do seu projeto com imagens aéreas de tirar o fôlego.
             </p>
             <div className="flex items-center justify-center md:justify-start space-x-4 pt-2">
@@ -33,6 +33,17 @@ export const Footer = () => {
                 <FaGoogle size={24} />
               </a>
             </div>
+            
+            {/* NOVO BOTÃO ADICIONADO AQUI */}
+            <div className="pt-4">
+              <Link 
+                href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank"
+                className="bg-m2-green text-black font-bold py-3 px-6 rounded-lg text-base hover:bg-white transition-colors duration-300 transform hover:scale-105 inline-block"
+              >
+                Solicite um Orçamento
+              </Link>
+            </div>
+            
           </div>
 
           {/* Coluna 2: Navegação (Mapa do Site) - OTIMIZADA PARA MOBILE */}

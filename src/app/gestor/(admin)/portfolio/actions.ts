@@ -1,0 +1,237 @@
+// src/app/gestor/(admin)/portfolio/actions.ts
+'use server';
+
+import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { PortfolioItem, Status } from '@prisma/client'; // Importa os tipos
+import { Prisma } from '@prisma/client';
+
+const MAX_FEATURED_ITEMS = 10;
+
+// Função auxiliar para checar o limite
+async function checkFeaturedLimit() {
+  const featuredCount = await prisma.portfolioItem.count({
+    where: { isFeatured: true },
+  });
+  return featuredCount;
+}
+
+// Função auxiliar para extrair o ID do vídeo (versão que aceita youtu.be)
+function extractYouTubeId(url: string): string | null {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  if (match && match[2].length === 11) {
+    return match[2];
+  }
+  if (url.length === 11) { // Permite colar só o ID
+    return url;
+  }
+  return null;
+}
+
+// Schema de validação do Zod para o formulário
+const portfolioItemSchema = z.object({
+  title: z.string().min(3, 'O título deve ter pelo menos 3 caracteres.').max(100, 'O título deve ter no máximo 100 caracteres.'),
+  category: z.string().min(3, 'A categoria é obrigatória.'),
+  shortDescription: z.string().min(10, 'A descrição curta deve ter pelo menos 10 caracteres.').max(200, 'A descrição curta deve ter no máximo 200 caracteres.'),
+  longDescription: z.string().min(20, 'A descrição longa deve ter pelo menos 20 caracteres.'),
+  coverImage: z.string().url('A URL da imagem de capa é inválida.'),
+  videoUrl: z.string().nullable().optional(), // ID do vídeo é opcional
+  status: z.nativeEnum(Status),
+  isFeatured: z.boolean(),
+  seoTitle: z.string().max(60, 'O Título SEO deve ter no máximo 60 caracteres.').optional(),
+  seoDescription: z.string().max(160, 'A Descrição SEO deve ter no máximo 160 caracteres.').optional(),
+});
+
+// Ação de CRIAR (Atualizada com a checagem)
+export async function createPortfolioItem(formData: FormData) {
+  const data = Object.fromEntries(formData);
+  const isFeatured = data.isFeatured === 'on';
+
+  // Checa o limite ANTES de validar/criar
+  if (isFeatured) {
+    const featuredCount = await checkFeaturedLimit();
+    if (featuredCount >= MAX_FEATURED_ITEMS) {
+      return { success: false, message: `Limite de ${MAX_FEATURED_ITEMS} itens em destaque atingido. Desmarque outro item antes de adicionar este.` };
+    }
+  }
+
+  const fullVideoUrl = data.videoUrl as string;
+  let videoId: string | null = null;
+
+  if (fullVideoUrl && fullVideoUrl.trim() !== '') {
+    videoId = extractYouTubeId(fullVideoUrl);
+    if (!videoId) {
+      return { success: false, message: 'A URL do vídeo do YouTube é inválida. Use o link de "Compartilhar".' };
+    }
+  }
+  
+  const parsedData = {
+    ...data,
+    status: data.status as Status,
+    isFeatured: isFeatured,
+    videoUrl: videoId, // Salva SÓ o ID (ou null se estiver vazio)
+  };
+
+  const validatedFields = portfolioItemSchema.safeParse(parsedData);
+
+  if (!validatedFields.success) {
+    const errorMessage = validatedFields.error.issues[0]?.message || 'Dados inválidos.';
+    console.error('Validation Errors:', validatedFields.error.flatten().fieldErrors);
+    return { success: false, message: errorMessage };
+  }
+
+  try {
+    await prisma.portfolioItem.create({
+      data: validatedFields.data,
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return { success: false, message: 'Um item com este título já existe.' };
+    }
+    console.error("Erro ao criar item:", error);
+    return { success: false, message: 'Erro no banco de dados. Tente novamente.' };
+  }
+
+  revalidatePath('/gestor/portfolio');
+  revalidatePath('/portfolio');
+  revalidatePath('/');
+  
+  redirect('/gestor/portfolio');
+}
+
+// Ação de ATUALIZAR (Atualizada com a checagem)
+export async function updatePortfolioItem(id: string, formData: FormData) {
+  const data = Object.fromEntries(formData);
+  const isFeatured = data.isFeatured === 'on';
+
+  // Checa o limite ANTES de validar/atualizar
+  if (isFeatured) {
+    const featuredCount = await checkFeaturedLimit();
+    const isCurrentlyFeatured = await prisma.portfolioItem.findFirst({
+        where: { id: id, isFeatured: true }
+    });
+
+    // Só bloqueia se estivermos tentando ADICIONAR um novo destaque
+    if (featuredCount >= MAX_FEATURED_ITEMS && !isCurrentlyFeatured) {
+      return { success: false, message: `Limite de ${MAX_FEATURED_ITEMS} itens em destaque atingido. Desmarque outro item antes de atualizar este.` };
+    }
+  }
+
+  const fullVideoUrl = data.videoUrl as string;
+  let videoId: string | null = null;
+
+  if (fullVideoUrl && fullVideoUrl.trim() !== '') {
+    videoId = extractYouTubeId(fullVideoUrl);
+    if (!videoId) {
+      return { success: false, message: 'A URL do vídeo do YouTube é inválida.' };
+    }
+  }
+
+  const parsedData = {
+    ...data,
+    status: data.status as Status,
+    isFeatured: isFeatured,
+    videoUrl: videoId,
+  };
+  
+  const validatedFields = portfolioItemSchema.safeParse(parsedData);
+
+  if (!validatedFields.success) {
+    const errorMessage = validatedFields.error.issues[0]?.message || 'Dados inválidos.';
+    return { success: false, message: errorMessage };
+  }
+
+  try {
+    const currentItem = await prisma.portfolioItem.findUnique({
+      where: { id: id },
+    });
+    if (!currentItem) {
+      return { success: false, message: 'Projeto não encontrado.' };
+    }
+
+    const dataToUpdate: Partial<PortfolioItem> = {};
+    const newData = validatedFields.data;
+
+    if (newData.title !== currentItem.title) dataToUpdate.title = newData.title;
+    if (newData.category !== currentItem.category) dataToUpdate.category = newData.category;
+    if (newData.shortDescription !== currentItem.shortDescription) dataToUpdate.shortDescription = newData.shortDescription;
+    if (newData.longDescription !== currentItem.longDescription) dataToUpdate.longDescription = newData.longDescription;
+    if (newData.coverImage !== currentItem.coverImage) dataToUpdate.coverImage = newData.coverImage;
+    if (newData.videoUrl !== currentItem.videoUrl) dataToUpdate.videoUrl = newData.videoUrl;
+    if (newData.status !== currentItem.status) dataToUpdate.status = newData.status;
+    if (newData.isFeatured !== currentItem.isFeatured) dataToUpdate.isFeatured = newData.isFeatured;
+    if (newData.seoTitle !== currentItem.seoTitle) dataToUpdate.seoTitle = newData.seoTitle;
+    if (newData.seoDescription !== currentItem.seoDescription) dataToUpdate.seoDescription = newData.seoDescription;
+
+    if (Object.keys(dataToUpdate).length === 0) {
+      return { success: true, message: 'Nenhuma alteração detectada.' };
+    }
+
+    await prisma.portfolioItem.update({
+      where: { id: id },
+      data: dataToUpdate,
+    });
+
+  } catch (error) {
+    console.error("Erro ao atualizar item:", error);
+    return { success: false, message: 'Erro no banco de dados. Tente novamente.' };
+  }
+
+  revalidatePath('/gestor/portfolio');
+  revalidatePath(`/gestor/portfolio/editar/${id}`);
+  revalidatePath('/portfolio');
+  revalidatePath('/');
+  
+  // Retorna sucesso para o cliente lidar com o redirect
+  return { success: true, message: 'Projeto atualizado com sucesso!' };
+}
+
+// Ação de DELETAR
+export async function deletePortfolioItem(id: string) {
+  if (!id) {
+    return { success: false, message: 'ID do item não fornecido.' };
+  }
+
+  try {
+    await prisma.portfolioItem.delete({
+      where: { id: id },
+    });
+  } catch (error) {
+    console.error("Erro ao deletar item:", error);
+    return { success: false, message: 'Erro no banco de dados. Tente novamente.' };
+  }
+
+  revalidatePath('/gestor/portfolio');
+  revalidatePath('/portfolio');
+  revalidatePath('/');
+  
+  return { success: true, message: 'Projeto excluído com sucesso!' };
+}
+
+// AÇÃO PARA O SWITCH DA TABELA
+export async function toggleFeaturedStatus(id: string, newStatus: boolean) {
+  if (newStatus === true) {
+    const featuredCount = await checkFeaturedLimit();
+    if (featuredCount >= MAX_FEATURED_ITEMS) {
+      return { success: false, message: `Limite de ${MAX_FEATURED_ITEMS} itens em destaque atingido.` };
+    }
+  }
+  
+  try {
+    await prisma.portfolioItem.update({
+      where: { id: id },
+      data: { isFeatured: newStatus },
+    });
+    
+    revalidatePath('/gestor/portfolio');
+    revalidatePath('/');
+    return { success: true, message: `Projeto ${newStatus ? 'destacado' : 'removido dos destaques'}.` };
+
+} catch (error) {
+    console.error("Erro ao atualizar o status:", error); // Adiciona o log do erro
+    return { success: false, message: 'Erro ao atualizar o status.' };
+  }
+}
