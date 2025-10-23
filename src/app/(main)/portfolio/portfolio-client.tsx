@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { PortfolioItem } from '@prisma/client';
 import { PlusCircle } from 'lucide-react';
 
-const categories = ['Todos', 'Imobiliário', 'Corporativo', 'Eventos', 'Turismo', 'Acompanhamento de Obra', 'Outro'];
+const categories = ['Todos', 'Imobiliário', 'Corporativo', 'Eventos', 'Turismo e Hotelaria', 'Acompanhamento de Obra', 'Outro'];
 const ITEMS_PER_PAGE = 6;
 
 export default function PortfolioClientPage({ initialItems }: { initialItems: PortfolioItem[] }) {

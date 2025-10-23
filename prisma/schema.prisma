@@ -9,31 +9,52 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelos de Enumeração
 enum Role {
   MASTER
   EDITOR
 }
 
 enum Status {
-  PUBLISHED // Visível no site principal
-  DRAFT     // Apenas visível no painel
+  PUBLISHED
+  DRAFT
 }
 
-// Modelos de Tabela
-
+// 1. ATUALIZADO: Modelo de Usuário com novos campos para a equipe
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String
-  image     String?
-  phone     String?
-  role      Role     @default(EDITOR)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String   @id @default(cuid())
+  name             String?
+  email            String   @unique
+  password         String
+  image            String?
+  phone            String?
+  role             Role     @default(EDITOR)
+  
+  jobDescription   String?  @db.Text // NOVO: Descrição da função
+  showOnAboutPage  Boolean  @default(false) // NOVO: Controla a visibilidade na página "Sobre"
+  personalQuote    String?  @db.Text // NOVO: Comentário/Citação pessoal
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
+// 2. NOVO: Tabela para gerenciar configurações visuais de cada página
+model PageSettings {
+  id           String @id @default(cuid())
+  pageKey      String @unique // Ex: "HOME", "ABOUT", "PORTFOLIO"
+  heroImageUrl String?
+}
+
+// 3. NOVO: Tabela para o conteúdo específico da página "Sobre Nós"
+model AboutPageContent {
+  id           String   @id @default(cuid())
+  title        String
+  mainText     String   @db.Text
+  mainImageUrl String?
+  updatedAt    DateTime @updatedAt
+}
+
+
+// --- Modelos existentes ---
 model HomePage {
   id             String @id @default(cuid())
   youtubeVideoId String
@@ -56,23 +77,18 @@ model FaqItem {
   order    Int    @default(0)
 }
 
-// NOVO: Tabela para os itens do Portfólio
 model PortfolioItem {
   id               String   @id @default(cuid())
   title            String
-  shortDescription String   @db.Text // Descrição para os cards
-  longDescription  String   @db.Text // Descrição para a página do projeto
-  coverImage       String   // URL da foto de prévia
-  videoUrl         String?  // URL do vídeo (YouTube, Vimeo, etc.)
+  shortDescription String   @db.Text
+  longDescription  String   @db.Text
+  coverImage       String
+  videoUrl         String?
   category         String
-  status           Status   @default(DRAFT) // Começa como Rascunho
-  
-  isFeatured       Boolean  @default(false) // Campo para "Destaque na Home"
-
-  // Campos para SEO
+  status           Status   @default(DRAFT)
+  isFeatured       Boolean  @default(false)
   seoTitle         String?
   seoDescription   String?
-
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }

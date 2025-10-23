@@ -16,7 +16,8 @@ import {
   Home, 
   BookOpen, 
   Contact, 
-  ChevronDown 
+  ChevronDown,
+  Paintbrush 
 } from 'lucide-react';
 import { LogoutButton } from './logout-button';
 import Logo from '@/components/ui/Logo';
@@ -105,6 +106,7 @@ export const Sidebar = () => {
             <NavItem href="/gestor/site/sobre" icon={BookOpen} label="Sobre Nós" />
             <NavItem href="/gestor/site/servicos" icon={Briefcase} label="Serviços" />
             <NavItem href="/gestor/site/contato" icon={Contact} label="Contato" />
+            <NavItem href="/gestor/site/aparencia" icon={Paintbrush} label="Aparência" />
           </CollapsibleContent>
         </Collapsible>
         
