@@ -6,6 +6,7 @@ import { TestimonialsManager } from "./_components/TestimonialsManager";
 import { FaqManager } from "./_components/FaqManager"; // 1. Importa o novo gerenciador
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Info } from "lucide-react";
 
 export default async function InicioPage() {
   const homeData = await getHomePageData();
@@ -28,7 +29,12 @@ export default async function InicioPage() {
       </div>
 
       <Separator className="bg-gray-700" />
-
+      <div className="bg-red-500/30 text-white border border-red-700 p-4 rounded-md flex items-center gap-3">
+        <Info size={20} />
+        <p className="text-sm">
+          <span className="font-semibold">ATENÇÃO:</span> As informações serão exibidas no site público. Altere com cuidado.
+        </p>
+      </div>
       <Card className="bg-black/30 border-gray-800 text-white">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">Seção Hero</CardTitle>
