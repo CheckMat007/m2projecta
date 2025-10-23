@@ -63,7 +63,7 @@ export default function ContatoPage() {
                 <div>
                   <h2 className="text-3xl font-bold uppercase">Fale <span className="text-m2-green">Conosco</span></h2>
                   <p className="text-gray-400 mt-4 max-w-md">
-                    Pronto para iniciar seu projeto? Preencha o formulário ao lado e vamos transformar sua ideia em realidade. Nossa equipe entrará em contato o mais breve possível.
+                    Preencha o formulário ao lado e compartilhe sua ideia conosco. Analisaremos sua proposta e entraremos em contato o mais breve possível
                   </p>
                 </div>
 

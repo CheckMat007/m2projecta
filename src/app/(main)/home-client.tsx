@@ -5,9 +5,9 @@
 import React, { useState } from 'react';
 import Script from 'next/script';
 import { PortfolioSlider } from '@/components/PortfolioSlider';
-import { TestimonialsSlider } from '@/components/TestimonialsSlider';
+// import { TestimonialsSlider } from '@/components/TestimonialsSlider'; //oculta até ter depoimentos reais
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Building, Clapperboard, PartyPopper, Hotel, CheckCircle, Clock, Users, Video, Settings } from 'lucide-react';
+import { Building, Clapperboard, PartyPopper, Hotel, CheckCircle, Clock, Users, Video, Settings, Building2 } from 'lucide-react';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 
 // --- INÍCIO DAS DEFINIÇÕES DE TIPO ---
@@ -61,9 +61,9 @@ const ServiceCard = ({ icon: Icon, title, children }: { icon: React.ElementType,
 
 // DADOS FICTÍCIOS REMOVIDOS - AGORA VÊM DAS PROPS
 
-export default function HomeClientPage({ heroVideoId, portfolioItems, testimonials, faqItems }: HomeClientPageProps) {
+export default function HomeClientPage({ heroVideoId, portfolioItems, faqItems }: HomeClientPageProps) { //antes era da seguinte forma e foi desativado até section de avaliações ser ativada novamente: export default function HomeClientPage({ heroVideoId, portfolioItems, testimonials, faqItems }: HomeClientPageProps) {
  // Estado para o slider de depoimentos
-const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0);
+// desativado temporariamente até section de avaliações estar ativa novamente: const [activeTestimonialIndex] = useState(0); // antes era const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0); e foi desativado pois a section das avaliações está desativada temporariamente até ter comentários reais
 // MUDANÇA 2: Novo estado para o slider de portfólio
 const [activePortfolioIndex, setActivePortfolioIndex] = useState(0);
 
@@ -71,7 +71,7 @@ const [activePortfolioIndex, setActivePortfolioIndex] = useState(0);
   const portfolioBgImage = portfolioItems[activePortfolioIndex]?.backgroundImage || '/assets/hero-image.JPG';
   
   // Ajuste na lógica de fundo dos depoimentos para usar o primeiro item do portfólio como fallback
-  const testimonialBgImage = testimonials[activeTestimonialIndex]?.backgroundImage || portfolioItems[0]?.backgroundImage || '/assets/portfolio/dutra.JPG';
+ // desativado temporariamente até section de avaliações estar ativa novamente: const testimonialBgImage = testimonials[activeTestimonialIndex]?.backgroundImage || portfolioItems[0]?.backgroundImage || '/assets/portfolio/dutra.JPG';
 
 
 return (
@@ -88,7 +88,7 @@ return (
                 Perspectivas que <span className="text-m2-green">Impressionam</span>
               </h1>
               <p className="mt-6 text-lg text-gray-300">
-                Combinamos tecnologia de ponta e um olhar cinematográfico para capturar a essência do seu projeto. De empreendimentos imobiliários a eventos corporativos, criamos imagens aéreas que geram resultados.
+               Aliamos tecnologia de ponta a uma abordagem cinematográfica para capturar com excelência a essência do seu projeto. De empreendimentos imobiliários a eventos corporativos, produzimos imagens aéreas que agregam valor e impulsionam resultados.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                 <a href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank" rel="noopener noreferrer" className="bg-m2-green text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-white transition-colors duration-300 transform hover:scale-105">
@@ -126,24 +126,27 @@ return (
 
           {/* Service Cards */}
           <div className="container mx-auto px-6 text-center pb-5">
-            <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-12 lg:mt-3">
+            <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mt-12 lg:mt-3">
               <ServiceCard icon={Building} title="Mercado Imobiliário">
-                Imagens e vídeos que valorizam e aceleram a venda de empreendimentos.
+                Imagens que valorizam seu empreendimento e ampliam o potencial de venda.
               </ServiceCard>
               <ServiceCard icon={Clapperboard} title="Vídeos Corporativos">
-                Produções com impacto cinematográfico para fortalecer sua marca.
+                Produções com linguagem cinematográfica que reforçam a identidade da sua marca
               </ServiceCard>
               <ServiceCard icon={PartyPopper} title="Cobertura de Eventos">
-                Registre momentos únicos por uma perspectiva inesquecível.
+                Registros que Registros que transformam momentos em lembranças inesquecíveis.
               </ServiceCard>
-              <ServiceCard icon={Hotel} title="Turismo e Hotelaria">
-                Mostre a grandiosidade do seu espaço e atraia mais hóspedes.
+              <ServiceCard icon={Hotel} title="Monitoramento de Obras">
+                Cada etapa da evolução da sua obra com imagens que contam sua história
+              </ServiceCard>
+              <ServiceCard icon={Building2} title="Inpeções e vistorias prediais">
+                Imagens aéreas para medições, vistorias e análises estruturais
               </ServiceCard>
             </div>
             <div className="mt-16">
              <a href="/servicos" className="text-m2-green font-bold text-lg group">
                <span className="relative text-m2-green group-hover:text-m2-green transition-colors">
-                 Veja todos os serviços &rarr;
+                 Nossos serviços &rarr;
                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                </span>
              </a>
@@ -175,7 +178,7 @@ return (
         <div className="container mx-auto px-6 text-center mt-12 relative z-10">
           <a href="/portfolio" className="text-m2-green  font-bold text-lg group">
              <span className="relative text-m2-green group-hover:text-m2-green transition-colors">
-              Veja todos os projetos &rarr;
+              Galeria de projetos &rarr;
              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
             </span>
             </a>
@@ -202,7 +205,7 @@ return (
         </div>
       </section>
 
- {/* 5. SEÇÃO DE AVALIAÇÕES */}
+ {/* 5. SEÇÃO DE AVALIAÇÕES oculta por enquanto
 
       <section id="avaliacoes" className="py-20 bg-black relative overflow-hidden">
         <div
@@ -220,7 +223,7 @@ return (
  		  onActiveIndexChange={setActiveTestimonialIndex} 
  		/>
         </div>
-      </section>
+      </section>*/}
 
       {/* 6. SEÇÃO DE FAQ */}
 
