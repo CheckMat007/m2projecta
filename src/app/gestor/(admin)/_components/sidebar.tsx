@@ -62,7 +62,7 @@ export const Sidebar = () => {
 
       <div className="mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="w-12 h-12 rounded-full border-2 border-m2-green bg-gray-700 flex items-center justify-center overflow-hidden flex-shrink-0">
             {session?.user?.image ? (
               <Image 
                 src={session.user.image} 
@@ -119,9 +119,13 @@ export const Sidebar = () => {
           <NavItem href="/gestor/equipe" icon={UserCog} label="Gerenciar Equipe" />
         )}
       </nav>
-
       <div className="mt-auto">
         <LogoutButton />
+      </div>
+      <div>
+        <p className="text-sm text-center text-gray-400">
+         Versão 0.5.1
+        </p>
       </div>
     </aside>
   );

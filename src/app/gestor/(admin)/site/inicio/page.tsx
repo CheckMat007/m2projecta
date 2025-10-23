@@ -29,10 +29,10 @@ export default async function InicioPage() {
       </div>
 
       <Separator className="bg-gray-700" />
-      <div className="bg-red-500/30 text-white border border-red-700 p-4 rounded-md flex items-center gap-3">
+      <div className="bg-yellow-900/30 text-yellow-300 border border-yellow-400/20 p-4 rounded-md flex items-center gap-3">
         <Info size={20} />
         <p className="text-sm">
-          <span className="font-semibold">ATENÇÃO:</span> As informações serão exibidas no site público. Altere com cuidado.
+          <span className="font-semibold">Aviso:</span> As informações serão exibidas no site público. Altere com cuidado.
         </p>
       </div>
       <Card className="bg-black/30 border-gray-800 text-white">
@@ -47,6 +47,12 @@ export default async function InicioPage() {
       
       <Card className="bg-black/30 border-gray-800 text-white">
         <CardHeader>
+          <div className="bg-red-500/30 text-white border border-red-700 p-4 rounded-md flex items-center gap-3">
+        <Info size={20} />
+        <p className="text-sm">
+          <span className="font-semibold">ATENÇÃO:</span> Esta seção está desativada, mas as informações ainda podem ser adicionadas.
+        </p>
+      </div>
           <CardTitle className="text-xl font-semibold">Depoimentos de Clientes</CardTitle>
           <p className="text-sm text-gray-400">Adicione, edite e organize os depoimentos que aparecem na página inicial.</p>
         </CardHeader>

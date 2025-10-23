@@ -1,6 +1,6 @@
 // src/app/(main)/servicos/page.tsx
 
-import { Building, Clapperboard, PartyPopper, Hotel } from "lucide-react";
+import { Building, Clapperboard, PartyPopper, Hotel, Building2 } from "lucide-react";
 import Link from "next/link";
 
 // Array com os dados dos serviços para facilitar a manutenção
@@ -8,25 +8,31 @@ const servicesData = [
   {
     icon: Building,
     title: "Mercado Imobiliário",
-    description: "Produção de vídeos e fotos aéreas que destacam empreendimentos, aceleram vendas e valorizam seu portfólio imobiliário.",
+    description: "Produção de vídeos e fotos aéreas que valorizam empreendimentos, impulsionam vendas e fortalecem seu portfólio imobiliário.",
     slug: "/servicos/mercado-imobiliario", // Link para a futura sub-página
   },
   {
     icon: Clapperboard,
     title: "Vídeos Corporativos",
-    description: "Crie vídeos institucionais com uma perspectiva cinematográfica. Fortaleça sua marca com imagens aéreas de alto impacto.",
+    description: "Vídeos institucionais com qualidade cinematográfica e destaque de sua marca com imagens aéreas de alto impacto para fortalecer sua comunicação e presença no mercado.",
     slug: "/servicos/videos-corporativos",
   },
   {
     icon: PartyPopper,
     title: "Cobertura de Eventos",
-    description: "Registre a grandiosidade de shows, casamentos, eventos esportivos e festivais com uma cobertura aérea completa e inesquecível.",
+    description: "Cada etapa da evolução da sua obra com imagens que contam sua história.",
     slug: "/servicos/cobertura-de-eventos",
   },
   {
     icon: Hotel,
-    title: "Turismo e Hotelaria",
-    description: "Mostre a beleza e a infraestrutura do seu hotel, pousada ou ponto turístico, atraindo mais visitantes com imagens deslumbrantes.",
+    title: "Monitoramento de obra",
+    description: "Cada etapa da evolução da sua obra com imagens que contam sua história.",
+    slug: "/servicos/turismo-e-hotelaria",
+  },
+  {
+    icon: Building2,
+    title: "Inspeções e vistorias prediais",
+    description: "Imagens aéreas para medições, vistorias e análises estruturais.",
     slug: "/servicos/turismo-e-hotelaria",
   },
 ];
@@ -41,7 +47,7 @@ export default function ServicosPage() {
             Nossos <span className="text-m2-green">Serviços</span>
           </h1>
           <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
-            Soluções completas em imagens aéreas para transformar a visão do seu projeto.
+            Oferecemos soluções completas em imagens aéreas, com foco em qualidade, segurança e inovação. Cada projeto é executado com planejamento rigoroso e em conformidade com as normas legais, garantindo resultados que aliam estética, precisão e confiabilidade.
           </p>
         </div>
       </section>
@@ -70,7 +76,7 @@ export default function ServicosPage() {
       <section className="py-20 bg-m2-dark">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-white max-w-3xl mx-auto">
-            Pronto para Elevar seu Projeto a um Novo Patamar?
+            Pronto para elevar seu projeto a um novo patamar?
           </h2>
           <p className="text-gray-400 mt-4 mb-8 max-w-2xl mx-auto">
             Entre em contato conosco e descubra como nossas imagens aéreas podem gerar valor para o seu negócio.
