@@ -118,10 +118,10 @@ export function ProfileForm({ user }: { user: User }) {
       {/* Formulário de Dados Pessoais */}
       <form ref={profileFormRef} onSubmit={handleUpdateProfile} className="space-y-6">
         <h2 className="text-xl font-semibold">Dados Pessoais</h2>
-        <div className="bg-red-500/30 text-white border border-red-700 p-4 rounded-md flex items-center gap-3">
+        <div className="bg-yellow-900/30 text-yellow-300 border border-yellow-400/20 p-4 rounded-md flex items-center gap-3">
         <Info size={20} />
         <p className="text-sm">
-          <span className="font-semibold">ATENÇÃO:</span> Algumas informações serão exibidas no site público. Altere com cuidado.
+          <span className="font-semibold">Aviso:</span> Algumas informações serão exibidas no site público. Altere com cuidado.
         </p>
       </div>
         <div className="flex items-center gap-6">
