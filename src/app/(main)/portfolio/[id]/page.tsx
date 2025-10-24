@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// Esta função de SEO (pré-renderização) continua a mesma
+// This function for SEO (pre-rendering) remains the same
 export async function generateStaticParams() {
   const items = await prisma.portfolioItem.findMany({
     where: { status: 'PUBLISHED' },
@@ -17,13 +17,16 @@ export async function generateStaticParams() {
   }));
 }
 
-// Esta função de busca de dados continua a mesma
+// 1. UPDATED DATA FETCHING: We now 'include' the related service data
 async function getProjectDetails(id: string) {
   const project = await prisma.portfolioItem.findUnique({
     where: { 
       id: id,
       status: 'PUBLISHED'
     },
+    include: {
+      service: true, // This tells Prisma to also fetch the service data
+    }
   });
 
   if (!project) {
@@ -32,27 +35,24 @@ async function getProjectDetails(id: string) {
   return project;
 }
 
+
 export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
   const project = await getProjectDetails(params.id);
 
-  // --- LÓGICA PARA DIVIDIR O TÍTULO ---
+  // Logic to split the title for the green highlight
   const titleWords = project.title.split(' ');
-  // pop() remove e retorna o último item do array
   const lastWord = titleWords.pop(); 
-  // join() junta o que sobrou
   const titleStart = titleWords.join(' '); 
-  // --- FIM DA LÓGICA ---
 
   return (
     <>
-      {/* Seção 1: O "Hero" Cinematográfico do Projeto */}
+      {/* Section 1: The Project's Cinematic Hero */}
       <section className="relative flex min-h-[50vh] w-full items-center justify-center py-20 text-center">
         
-        {/* Imagem de Fundo (coverImage do projeto) */}
         <div className="absolute inset-0 z-0">
           <Image 
             src={project.coverImage} 
-            alt={`Fundo do projeto ${project.title}`}
+            alt={`Background for project ${project.title}`}
             fill
             className="object-cover"
             priority
@@ -60,15 +60,14 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
           <div className="absolute inset-0 bg-black/60 z-10"></div>
         </div>
         
-        {/* Conteúdo de Texto (sobre o fundo) */}
         <div className="relative z-20 container mx-auto px-6">
           <div className="mb-4">
+            {/* 2. CORRECTED CATEGORY DISPLAY: We now use 'project.service.name' */}
             <span className="inline-block rounded-full bg-m2-green/20 px-4 py-1 text-sm font-semibold text-m2-green uppercase tracking-wider">
-              {project.category}
+              {project.service?.name || 'Categoria'}
             </span>
           </div>
           
-          {/* TÍTULO ATUALIZADO COM A ÚLTIMA PALAVRA EM VERDE */}
           <h1 className="text-4xl md:text-6xl font-black uppercase tracking-wider text-white">
             {titleStart} <span className="text-m2-green">{lastWord}</span>
           </h1>
@@ -79,13 +78,12 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         </div>
       </section>
 
-      {/* Seção 2: O Foco Principal (Conteúdo) */}
+      {/* Section 2: The Main Content */}
       <section className="py-20 bg-black">
         <div className="container mx-auto px-6">
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             
-            {/* Coluna da Esquerda (Maior) - O Vídeo */}
             <div className="md:col-span-2">
               {project.videoUrl ? (
                 <div className="aspect-video w-full overflow-hidden rounded-lg shadow-2xl">
@@ -100,11 +98,10 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                     loading="lazy"
                   ></iframe>
                 </div>
-                
               ) : (
                 <Image
                   src={project.coverImage}
-                  alt={`Imagem de capa do projeto ${project.title}`}
+                  alt={`Cover image for project ${project.title}`}
                   width={1200}
                   height={675}
                   className="rounded-lg shadow-lg w-full h-auto object-cover"
@@ -112,7 +109,6 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
               )}
             </div>
 
-            {/* Coluna da Direita (Menor) - O Contexto */}
             <div className="md:col-span-1">
               <h3 className="text-2xl font-bold text-white mb-4">Sobre o Projeto</h3>
               <div className="prose prose-invert text-gray-300">

@@ -5,12 +5,12 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { PortfolioItem, Status } from '@prisma/client'; // Importa os tipos
+import { PortfolioItem, Status } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
 const MAX_FEATURED_ITEMS = 10;
 
-// Função auxiliar para checar o limite
+// Função auxiliar para checar o limite de destaques
 async function checkFeaturedLimit() {
   const featuredCount = await prisma.portfolioItem.count({
     where: { isFeatured: true },
@@ -18,43 +18,42 @@ async function checkFeaturedLimit() {
   return featuredCount;
 }
 
-// Função auxiliar para extrair o ID do vídeo (versão que aceita youtu.be)
+// Função auxiliar para extrair o ID do vídeo do YouTube
 function extractYouTubeId(url: string): string | null {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
   if (match && match[2].length === 11) {
     return match[2];
   }
-  if (url.length === 11) { // Permite colar só o ID
+  if (url.length === 11) {
     return url;
   }
   return null;
 }
 
-// Schema de validação do Zod para o formulário
+// Schema de validação do Zod ATUALIZADO
 const portfolioItemSchema = z.object({
   title: z.string().min(3, 'O título deve ter pelo menos 3 caracteres.').max(100, 'O título deve ter no máximo 100 caracteres.'),
-  category: z.string().min(3, 'A categoria é obrigatória.'),
+  serviceId: z.string().min(1, 'A categoria (serviço) é obrigatória.'), // ALTERADO de 'category' para 'serviceId'
   shortDescription: z.string().min(10, 'A descrição curta deve ter pelo menos 10 caracteres.').max(200, 'A descrição curta deve ter no máximo 200 caracteres.'),
   longDescription: z.string().min(20, 'A descrição longa deve ter pelo menos 20 caracteres.'),
   coverImage: z.string().url('A URL da imagem de capa é inválida.'),
-  videoUrl: z.string().nullable().optional(), // ID do vídeo é opcional
+  videoUrl: z.string().nullable().optional(),
   status: z.nativeEnum(Status),
   isFeatured: z.boolean(),
   seoTitle: z.string().max(60, 'O Título SEO deve ter no máximo 60 caracteres.').optional(),
   seoDescription: z.string().max(160, 'A Descrição SEO deve ter no máximo 160 caracteres.').optional(),
 });
 
-// Ação de CRIAR (Atualizada com a checagem)
+// Ação de CRIAR (Atualizada)
 export async function createPortfolioItem(formData: FormData) {
   const data = Object.fromEntries(formData);
   const isFeatured = data.isFeatured === 'on';
 
-  // Checa o limite ANTES de validar/criar
   if (isFeatured) {
     const featuredCount = await checkFeaturedLimit();
     if (featuredCount >= MAX_FEATURED_ITEMS) {
-      return { success: false, message: `Limite de ${MAX_FEATURED_ITEMS} itens em destaque atingido. Desmarque outro item antes de adicionar este.` };
+      return { success: false, message: `Limite de ${MAX_FEATURED_ITEMS} itens em destaque atingido.` };
     }
   }
 
@@ -64,7 +63,7 @@ export async function createPortfolioItem(formData: FormData) {
   if (fullVideoUrl && fullVideoUrl.trim() !== '') {
     videoId = extractYouTubeId(fullVideoUrl);
     if (!videoId) {
-      return { success: false, message: 'A URL do vídeo do YouTube é inválida. Use o link de "Compartilhar".' };
+      return { success: false, message: 'A URL do vídeo do YouTube é inválida.' };
     }
   }
   
@@ -72,7 +71,7 @@ export async function createPortfolioItem(formData: FormData) {
     ...data,
     status: data.status as Status,
     isFeatured: isFeatured,
-    videoUrl: videoId, // Salva SÓ o ID (ou null se estiver vazio)
+    videoUrl: videoId,
   };
 
   const validatedFields = portfolioItemSchema.safeParse(parsedData);
@@ -156,7 +155,7 @@ export async function updatePortfolioItem(id: string, formData: FormData) {
     const newData = validatedFields.data;
 
     if (newData.title !== currentItem.title) dataToUpdate.title = newData.title;
-    if (newData.category !== currentItem.category) dataToUpdate.category = newData.category;
+    if (newData.serviceId !== currentItem.serviceId) dataToUpdate.serviceId = newData.serviceId;
     if (newData.shortDescription !== currentItem.shortDescription) dataToUpdate.shortDescription = newData.shortDescription;
     if (newData.longDescription !== currentItem.longDescription) dataToUpdate.longDescription = newData.longDescription;
     if (newData.coverImage !== currentItem.coverImage) dataToUpdate.coverImage = newData.coverImage;
@@ -230,8 +229,8 @@ export async function toggleFeaturedStatus(id: string, newStatus: boolean) {
     revalidatePath('/');
     return { success: true, message: `Projeto ${newStatus ? 'destacado' : 'removido dos destaques'}.` };
 
-} catch (error) {
-    console.error("Erro ao atualizar o status:", error); // Adiciona o log do erro
+  } catch (error) {
+    console.error("Erro ao atualizar o status:", error);
     return { success: false, message: 'Erro ao atualizar o status.' };
   }
 }

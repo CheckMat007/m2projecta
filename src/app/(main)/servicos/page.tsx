@@ -1,82 +1,71 @@
 // src/app/(main)/servicos/page.tsx
 
-import { Building, Clapperboard, PartyPopper, Hotel, Building2 } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { iconMap } from "@/lib/icons";
 import Link from "next/link";
+import { Building } from "lucide-react"; // The missing import is added here
 
-// Array com os dados dos serviços para facilitar a manutenção
-const servicesData = [
-  {
-    icon: Building,
-    title: "Mercado Imobiliário",
-    description: "Produção de vídeos e fotos aéreas que valorizam empreendimentos, impulsionam vendas e fortalecem seu portfólio imobiliário.",
-    slug: "/servicos/mercado-imobiliario", // Link para a futura sub-página
-  },
-  {
-    icon: Clapperboard,
-    title: "Vídeos Corporativos",
-    description: "Vídeos institucionais com qualidade cinematográfica e destaque de sua marca com imagens aéreas de alto impacto para fortalecer sua comunicação e presença no mercado.",
-    slug: "/servicos/videos-corporativos",
-  },
-  {
-    icon: PartyPopper,
-    title: "Cobertura de Eventos",
-    description: "Cada etapa da evolução da sua obra com imagens que contam sua história.",
-    slug: "/servicos/cobertura-de-eventos",
-  },
-  {
-    icon: Hotel,
-    title: "Monitoramento de obra",
-    description: "Cada etapa da evolução da sua obra com imagens que contam sua história.",
-    slug: "/servicos/turismo-e-hotelaria",
-  },
-  {
-    icon: Building2,
-    title: "Inspeções e vistorias prediais",
-    description: "Imagens aéreas para medições, vistorias e análises estruturais.",
-    slug: "/servicos/turismo-e-hotelaria",
-  },
-];
+// This function fetches the data on the server
+async function getServices() {
+  const services = await prisma.service.findMany({
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+  return services;
+}
 
-export default function ServicosPage() {
+export default async function ServicosPage() {
+  const services = await getServices();
+
   return (
     <>
-      {/* Seção de Título */}
+      {/* Title Section */}
       <section className="bg-m2-dark pt-32 pb-16 md:pt-40 md:pb-24 text-center">
         <div className="container mx-auto px-6">
           <h1 className="text-4xl md:text-6xl font-black uppercase tracking-wider text-white">
             Nossos <span className="text-m2-green">Serviços</span>
           </h1>
           <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
-            Oferecemos soluções completas em imagens aéreas, com foco em qualidade, segurança e inovação. Cada projeto é executado com planejamento rigoroso e em conformidade com as normas legais, garantindo resultados que aliam estética, precisão e confiabilidade.
+            Soluções completas em imagens aéreas para transformar a visão do seu projeto.
           </p>
         </div>
       </section>
 
-      {/* Grid com os Cards de Serviços */}
+      {/* Grid with Dynamic Service Cards */}
       <section className="py-20 bg-black">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-8">
-            {servicesData.map((service) => (
-              <Link href={service.slug} key={service.title} className="group block">
-                <div className="bg-m2-dark p-8 rounded-lg border border-gray-800 h-full transition-all duration-300 group-hover:border-m2-green group-hover:-translate-y-2">
-                  <service.icon className="w-12 h-12 text-m2-green mb-4" />
-                  <h3 className="text-2xl font-bold text-white mb-3">{service.title}</h3>
-                  <p className="text-gray-400 mb-6">{service.description}</p>
-                  <span className="font-bold text-m2-green group-hover:underline">
-                    Saiba Mais &rarr;
-                  </span>
-                </div>
-              </Link>
-            ))}
+            {services.map((service) => {
+              // Looks for the corresponding icon component in the map
+              const IconComponent = iconMap[service.icon] || Building; // Uses 'Building' as a fallback
+
+              return (
+                <Link href={`/servicos/${service.id}`} key={service.id} className="group block">
+                  <div className="bg-m2-dark p-8 rounded-lg border border-gray-800 h-full transition-all duration-300 group-hover:border-m2-green group-hover:-translate-y-2">
+                    <IconComponent className="w-12 h-12 text-m2-green mb-4" />
+                    <h3 className="text-2xl font-bold text-white mb-3">{service.name}</h3>
+                    <p className="text-gray-400 mb-6">{service.shortDescription}</p>
+                    <span className="font-bold text-m2-green group-hover:underline">
+                      Saiba Mais &rarr;
+                    </span>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
+          {/* Message if there are no services */}
+          {services.length === 0 && (
+            <p className="text-center text-gray-500">Nenhum serviço cadastrado no momento. Volte em breve!</p>
+          )}
         </div>
       </section>
 
-      {/* Seção de Call to Action (CTA) */}
+      {/* Call to Action (CTA) Section */}
       <section className="py-20 bg-m2-dark">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-white max-w-3xl mx-auto">
-            Pronto para elevar seu projeto a um novo patamar?
+            Pronto para Elevar seu Projeto a um Novo Patamar?
           </h2>
           <p className="text-gray-400 mt-4 mb-8 max-w-2xl mx-auto">
             Entre em contato conosco e descubra como nossas imagens aéreas podem gerar valor para o seu negócio.
