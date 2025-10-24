@@ -15,9 +15,9 @@ import { toast } from 'sonner';
 import { updatePortfolioItem } from '../../../actions';
 import Link from 'next/link';
 import Image from 'next/image';
-import type { PortfolioItem } from '@prisma/client';
+import type { PortfolioItem, Service } from '@prisma/client';
 
-// Botão de Submit
+// Submit Button Component
 function SubmitButton({ isLoading }: { isLoading: boolean }) {
   return (
     <Button className="bg-m2-green text-black hover:bg-m2-green/80" type="submit" disabled={isLoading}>
@@ -26,47 +26,44 @@ function SubmitButton({ isLoading }: { isLoading: boolean }) {
   );
 }
 
-// Componente de Contador
+// Character Counter Component
 const CharCounter = ({ text, max }: { text: string; max: number }) => (
   <p className={`text-xs text-right ${text.length > max ? 'text-red-500' : 'text-gray-500'}`}>
     {text.length} / {max}
   </p>
 );
 
-// O formulário recebe o 'item' e as contagens
-export function EditPortfolioForm({ item, featuredCount, maxFeatured }: { 
-  item: PortfolioItem, 
-  featuredCount: number, 
-  maxFeatured: number 
+// The main form component
+export function EditPortfolioForm({ item, featuredCount, maxFeatured, services }: {
+  item: PortfolioItem,
+  featuredCount: number,
+  maxFeatured: number,
+  services: Service[]
 }) {
-  const router = useRouter(); // Para o redirecionamento
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Estados para os contadores (inicializados com os dados do item)
   const [title, setTitle] = useState(item.title);
   const [shortDesc, setShortDesc] = useState(item.shortDescription);
   const [longDesc, setLongDesc] = useState(item.longDescription);
   const [seoTitle, setSeoTitle] = useState(item.seoTitle || '');
   const [seoDesc, setSeoDesc] = useState(item.seoDescription || '');
-  const [category, setCategory] = useState(item.category);
-  
-  // Estado para o preview da imagem (começa com a imagem salva)
+  const [serviceId, setServiceId] = useState(item.serviceId || '');
+
   const [imagePreview, setImagePreview] = useState(item.coverImage);
 
-  // Lógica de desabilitar o switch
   const isFeaturedDisabled = featuredCount >= maxFeatured && !item.isFeatured;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
 
-    let coverImageUrl = item.coverImage; // Começa com a imagem antiga
+    let coverImageUrl = item.coverImage;
 
-    // 1. Se um NOVO arquivo foi selecionado, faz o upload
     if (file) {
       try {
         const uploadResponse = await fetch(`/api/upload?filename=${file.name}`, { method: 'POST', body: file });
@@ -84,27 +81,24 @@ export function EditPortfolioForm({ item, featuredCount, maxFeatured }: {
 
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
-    formData.set('coverImage', coverImageUrl); // Garante que a URL da imagem (antiga ou nova) esteja no form
-    formData.set('category', category); // Garante que o valor do Select seja enviado
+    formData.set('coverImage', coverImageUrl);
 
-    // Chama a action de ATUALIZAÇÃO, passando o ID
     const result = await updatePortfolioItem(item.id, formData);
-    
-    // Lógica de feedback e redirecionamento
+
     if (result && result.success) {
       if (result.message === 'Nenhuma alteração detectada.') {
         toast.info(result.message);
       } else {
         toast.success(result.message || 'Projeto atualizado!');
       }
-      router.push('/gestor/portfolio'); // Redireciona para a lista
+      router.push('/gestor/portfolio');
     } else if (result && !result.success) {
       toast.error(result.message);
-      setIsSubmitting(false); // Permite tentar novamente
+      setIsSubmitting(false);
     }
   }
 
-  // Funções de Drag and Drop
+  // Corrected Drag and Drop handlers
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
@@ -119,7 +113,7 @@ export function EditPortfolioForm({ item, featuredCount, maxFeatured }: {
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile && droppedFile.type.startsWith('image/')) {
       setFile(droppedFile);
-      setImagePreview(URL.createObjectURL(droppedFile)); // Atualiza o preview
+      setImagePreview(URL.createObjectURL(droppedFile));
     } else {
       toast.error("Por favor, solte apenas arquivos de imagem.");
     }
@@ -134,7 +128,7 @@ export function EditPortfolioForm({ item, featuredCount, maxFeatured }: {
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto">
-      {/* Cabeçalho */}
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Editar Item do Portfólio</h1>
@@ -150,7 +144,7 @@ export function EditPortfolioForm({ item, featuredCount, maxFeatured }: {
 
       <Separator className="bg-gray-700" />
 
-      {/* Seção Principal (com 'defaultValue' dos dados do item) */}
+       {/* Main Info Section */}
        <div className="space-y-6">
          <h2 className="text-xl font-semibold">Informações Principais</h2>
          <div className="space-y-2">
@@ -159,18 +153,15 @@ export function EditPortfolioForm({ item, featuredCount, maxFeatured }: {
            <CharCounter text={title} max={100} />
          </div>
          <div className="space-y-2">
-           <Label htmlFor="category">Categoria</Label>
-           <Select name="category" defaultValue={category} onValueChange={setCategory} required>
+           <Label htmlFor="serviceId">Serviço (Categoria)</Label>
+           <Select name="serviceId" defaultValue={serviceId} onValueChange={setServiceId} required>
               <SelectTrigger className="bg-gray-800 border-gray-700">
-                <SelectValue />
+                <SelectValue placeholder="Selecione o serviço relacionado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Marketing Imobiliário">Marketing Imobiliário</SelectItem>
-                <SelectItem value="Vídeos Corporativos">Vídeos Corporativos</SelectItem>
-                <SelectItem value="Cobertura de Evento">Cobertura de Evento</SelectItem>
-                <SelectItem value="Turismo e Hotelaria">Turismo e Hotelaria</SelectItem>
-                <SelectItem value="Acompanhamento de Obra">Acompanhamento de Obra</SelectItem>
-                <SelectItem value="Outro">Outro</SelectItem>
+                {services.map(service => (
+                  <SelectItem key={service.id} value={service.id}>{service.name}</SelectItem>
+                ))}
               </SelectContent>
            </Select>
          </div>
@@ -186,12 +177,12 @@ export function EditPortfolioForm({ item, featuredCount, maxFeatured }: {
          </div>
        </div>
 
-      {/* Seção de Mídia (com preview da imagem salva) */}
+      {/* Media Section */}
       <div className="space-y-6">
         <h2 className="text-xl font-semibold">Mídia</h2>
         <div className="space-y-2">
           <Label htmlFor="coverImage">Imagem de Capa (Obrigatório)</Label>
-          <div 
+          <div
             className={`w-full h-64 border-2 border-dashed border-gray-700 rounded-lg flex items-center justify-center text-gray-400 relative overflow-hidden transition-colors ${isDragging ? 'bg-gray-800' : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -213,19 +204,19 @@ export function EditPortfolioForm({ item, featuredCount, maxFeatured }: {
         </div>
         <div className="space-y-2">
           <Label htmlFor="videoUrl">URL do Vídeo (YouTube)</Label>
-          <Input id="videoUrl" name="videoUrl" type="text" placeholder="Cole o link de 'Compartilhar'..." className="bg-gray-800 border-gray-700" 
+          <Input id="videoUrl" name="videoUrl" type="text" placeholder="Cole o link de 'Compartilhar'..." className="bg-gray-800 border-gray-700"
             defaultValue={item.videoUrl ? `https://youtu.be/${item.videoUrl}` : ''}
           />
         </div>
       </div>
 
-      {/* Seção de Publicação (com 'defaultValue' do item) */}
+      {/* Publishing & SEO Section */}
        <div className="space-y-6">
          <h2 className="text-xl font-semibold">Publicação & SEO</h2>
          <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-800">
            <div>
              <Label htmlFor="status" className="font-bold">Status do Projeto</Label>
-             <p className="text-sm text-gray-400"> PUBLICADO ficará visível no site. RASCUNHO ficará salvo apenas no painel.</p>
+             <p className="text-sm text-gray-400">‘Publicado’ ficará visível no site. ‘Rascunho’ ficará salvo apenas no painel.</p>
            </div>
            <Select name="status" defaultValue={item.status}>
              <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
@@ -243,9 +234,9 @@ export function EditPortfolioForm({ item, featuredCount, maxFeatured }: {
              <p className="text-sm text-gray-400">Ative para este projeto aparecer no slider da página inicial.</p>
            </div>
            <div>
-             <Switch 
-               id="isFeatured" 
-               name="isFeatured" 
+             <Switch
+               id="isFeatured"
+               name="isFeatured"
                defaultChecked={item.isFeatured}
                disabled={isFeaturedDisabled}
              />

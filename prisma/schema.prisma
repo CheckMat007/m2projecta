@@ -9,6 +9,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Modelos de Enumeração
 enum Role {
   MASTER
   EDITOR
@@ -19,7 +20,8 @@ enum Status {
   DRAFT
 }
 
-// 1. ATUALIZADO: Modelo de Usuário com novos campos para a equipe
+// Modelos de Tabela
+
 model User {
   id               String   @id @default(cuid())
   name             String?
@@ -28,23 +30,19 @@ model User {
   image            String?
   phone            String?
   role             Role     @default(EDITOR)
-  
-  jobDescription   String?  @db.Text // NOVO: Descrição da função
-  showOnAboutPage  Boolean  @default(false) // NOVO: Controla a visibilidade na página "Sobre"
-  personalQuote    String?  @db.Text // NOVO: Comentário/Citação pessoal
-
+  jobDescription   String?  @db.Text
+  showOnAboutPage  Boolean  @default(false)
+  personalQuote    String?  @db.Text
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
 
-// 2. NOVO: Tabela para gerenciar configurações visuais de cada página
 model PageSettings {
   id           String @id @default(cuid())
-  pageKey      String @unique // Ex: "HOME", "ABOUT", "PORTFOLIO"
+  pageKey      String @unique
   heroImageUrl String?
 }
 
-// 3. NOVO: Tabela para o conteúdo específico da página "Sobre Nós"
 model AboutPageContent {
   id           String   @id @default(cuid())
   title        String
@@ -53,8 +51,6 @@ model AboutPageContent {
   updatedAt    DateTime @updatedAt
 }
 
-
-// --- Modelos existentes ---
 model HomePage {
   id             String @id @default(cuid())
   youtubeVideoId String
@@ -77,6 +73,24 @@ model FaqItem {
   order    Int    @default(0)
 }
 
+// NOVO MODELO PARA SERVIÇOS
+model Service {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  shortDescription String   @db.Text
+  longDescription  String   @db.Text
+  icon             String
+  image            String
+  videoUrl         String?
+
+  // Relação: Um serviço pode ter vários itens de portfólio
+  portfolioItems PortfolioItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// MODELO DE PORTFÓLIO ATUALIZADO
 model PortfolioItem {
   id               String   @id @default(cuid())
   title            String
@@ -84,11 +98,15 @@ model PortfolioItem {
   longDescription  String   @db.Text
   coverImage       String
   videoUrl         String?
-  category         String
   status           Status   @default(DRAFT)
   isFeatured       Boolean  @default(false)
   seoTitle         String?
   seoDescription   String?
+  
+  // NOVA RELAÇÃO: Um item de portfólio pertence a UM serviço
+  serviceId        String?
+  service          Service?  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }

@@ -7,11 +7,12 @@ import Logo from '@/components/ui/Logo';
 
 export const Footer = () => {
   return (
-    <footer className="bg-black border-t border-gray-800 pt-10 pb-2">
+    <footer className="bg-black border-t border-gray-800 pt-16 pb-8">
       <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-3 gap-12">
-
-          {/* Coluna 1: Institucional - COM BOTÃO DE ORÇAMENTO */}
+        {/* Container principal com 3 colunas para desktop */}
+        <div className="grid md:grid-cols-3 gap-12 text-center md:text-left">
+          
+          {/* Coluna 1: Institucional (com botão) */}
           <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start">
             <Link href="/" className="inline-block h-auto w-40">
               <Logo />
@@ -33,33 +34,39 @@ export const Footer = () => {
                 <FaGoogle size={24} />
               </a>
             </div>
-            
-            {/* NOVO BOTÃO ADICIONADO AQUI */}
             <div className="pt-4">
               <Link 
-                href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank"
+                href="/contato" 
                 className="bg-m2-green text-black font-bold py-3 px-6 rounded-lg text-base hover:bg-white transition-colors duration-300 transform hover:scale-105 inline-block"
               >
                 Solicite um Orçamento
               </Link>
             </div>
-            
           </div>
 
-          {/* Coluna 2: Navegação (Mapa do Site) - OTIMIZADA PARA MOBILE */}
-          <div className="text-center md:text-left">
+          {/* Coluna 2: Navegação (DIVIDIDA EM DUAS SUB-COLUNAS) */}
+          <div>
             <h3 className="font-bold text-lg text-white mb-4 uppercase tracking-wider">Navegação</h3>
-            <ul className="space-y-3">
-              <li><Link href="/" className="text-gray-400 hover:text-m2-green transition-colors">Início</Link></li>
-              <li><Link href="/sobre" className="text-gray-400 hover:text-m2-green transition-colors">Sobre Nós</Link></li>
-              <li><Link href="/servicos" className="text-gray-400 hover:text-m2-green transition-colors">Serviços</Link></li>
-              <li><Link href="/portfolio" className="text-gray-400 hover:text-m2-green transition-colors">Portfólio</Link></li>
-              <li><Link href="/blog" className="text-gray-400 hover:text-m2-green transition-colors">Blog</Link></li>
-              <li><Link href="/contato" className="text-gray-400 hover:text-m2-green transition-colors">Contato</Link></li>
-            </ul>
+            {/* Container para as duas listas de links */}
+            <div className="grid grid-cols-2 gap-2">
+              {/* Sub-coluna 1: Links Principais */}
+              <ul className="space-y-3">
+                <li><Link href="/" className="text-gray-400 hover:text-m2-green transition-colors">Início</Link></li>
+                <li><Link href="/sobre" className="text-gray-400 hover:text-m2-green transition-colors">Sobre Nós</Link></li>
+                <li><Link href="/servicos" className="text-gray-400 hover:text-m2-green transition-colors">Serviços</Link></li>
+                <li><Link href="/portfolio" className="text-gray-400 hover:text-m2-green transition-colors">Portfólio</Link></li>
+                <li><Link href="/blog" className="text-gray-400 hover:text-m2-green transition-colors">Blog</Link></li>
+                <li><Link href="/contato" className="text-gray-400 hover:text-m2-green transition-colors">Contato</Link></li>
+              </ul>
+              {/* Sub-coluna 2: Links Legais */}
+              <ul className="space-y-3">
+                <li><Link href="/politica-de-privacidade" className="text-gray-400 hover:text-m2-green transition-colors">Política de Privacidade</Link></li>
+                <li><Link href="/termos-e-condicoes" className="text-gray-400 hover:text-m2-green transition-colors">Termos e Condições</Link></li>
+              </ul>
+            </div>
           </div>
 
-          {/* Coluna 3: Contato e Mapa - OTIMIZADA PARA MOBILE */}
+          {/* Coluna 3: Contato e Mapa */}
           <div className="text-center md:text-left">
             <h3 className="font-bold text-lg text-white mb-4 uppercase tracking-wider">Contato</h3>
             <ul className="space-y-4">
@@ -76,17 +83,15 @@ export const Footer = () => {
                 <span className="text-gray-400">Taubaté - SP e Região</span>
               </li>
             </ul>
-            
             <div className="mt-4 overflow-hidden rounded-lg border border-gray-800">
                 <iframe 
-                    src="https://maps.google.com/maps?q=Av.%20Dom%20Duarte%20Leopoldo%20e%20Silva,%20131%20-%20Vila%20S%C3%A3o%20Jos%C3%A9,%20Taubat%C3%A9%20-%20SP,%2012070-590&t=&z=12&ie=UTF8&iwloc=&output=embed"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3674.398698544431!2d-45.576088!3d-22.935759!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ccf8a3e7e2f5f7%3A0x8670e3e5c9a0b1c9!2sAv.%20Dom%20Duarte%20Leopoldo%20e%20Silva%2C%20131%20-%20Vila%20S%C3%A3o%20Jos%C3%A9%2C%20Taubat%C3%A9%20-%20SP%2C%2012070-590!5e0!3m2!1spt-BR!2sbr!4v1700000000000!5m2!1spt-BR!2sbr"
                     width="100%" 
                     height="150" 
                     style={{ border: 0 }} 
                     allowFullScreen={false} 
                     loading="lazy" 
                     referrerPolicy="no-referrer-when-downgrade"
-                    // Filtro CSS para deixar o mapa com tema escuro
                     className="filter invert(1) hue-rotate(180deg)"
                 ></iframe>
             </div>
@@ -94,9 +99,9 @@ export const Footer = () => {
         </div>
 
         {/* Linha Final: Copyright */}
-        <div className="mt-8 pt-2 border-t border-gray-800 text-center text-gray-500 text-sm">
+        <div className="mt-16 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
           <p>
-            © {new Date().getFullYear()} M2 Projecta - Todos os direitos reservados.| Desenvolvido por <a href="https://www.instagram.com/levbrands/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors">LEV.B - Marketing 360º</a>
+            © {new Date().getFullYear()} M2 Projecta | Todos os direitos reservados.| Desenvolvido por <a href="https://www.instagram.com/levbrands/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors">LEV.B - Marketing 360º</a>
           </p>
         </div>
 

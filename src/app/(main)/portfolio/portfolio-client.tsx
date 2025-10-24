@@ -6,25 +6,36 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { PortfolioItem } from '@prisma/client';
 import { PlusCircle } from 'lucide-react';
+// Importa os tipos completos do Prisma
+import type { PortfolioItem, Service } from '@prisma/client';
 
-const categories = ['Todos', 'Imobiliário', 'Corporativo', 'Eventos', 'Turismo e Hotelaria', 'Acompanhamento de Obra', 'Outro'];
 const ITEMS_PER_PAGE = 6;
 
-export default function PortfolioClientPage({ initialItems }: { initialItems: PortfolioItem[] }) {
+// Define o tipo para os itens do portfólio que incluem o serviço
+type PortfolioItemWithService = PortfolioItem & {
+  service: Service | null;
+};
+
+export default function PortfolioClientPage({ initialItems, services }: { 
+  initialItems: PortfolioItemWithService[],
+  services: { id: string; name: string }[]
+}) {
   const [activeFilter, setActiveFilter] = useState('Todos');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
+  // Cria a lista de categorias dinamicamente a partir dos serviços
+  const categories = ['Todos', ...services.map(s => s.name)];
+
+  // Lógica de filtragem ATUALIZADA
   const filteredItems = activeFilter === 'Todos'
     ? initialItems
-    : initialItems.filter(item => item.category === activeFilter);
+    : initialItems.filter(item => item.service?.name === activeFilter);
   
   const visibleItems = filteredItems.slice(0, visibleCount);
 
   return (
     <>
-      {/* Seção 1: O "Hero" Cinematográfico */}
       <section className="relative flex min-h-[50vh] w-full items-center justify-center py-20 text-center">
         <div className="absolute inset-0 z-0">
           <Image 
@@ -46,10 +57,8 @@ export default function PortfolioClientPage({ initialItems }: { initialItems: Po
         </div>
       </section>
 
-      {/* Seção 2: A Galeria e Filtros */}
       <section className="py-20 bg-black">
         <div className="container mx-auto px-6">
-          {/* Botões de Filtro */}
           <div className="flex justify-center flex-wrap gap-4 mb-12">
             {categories.map((category) => (
               <Button
@@ -66,7 +75,6 @@ export default function PortfolioClientPage({ initialItems }: { initialItems: Po
             ))}
           </div>
 
-          {/* Grid de Projetos Animado */}
           <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <AnimatePresence>
               {visibleItems.map((item) => (
@@ -90,7 +98,8 @@ export default function PortfolioClientPage({ initialItems }: { initialItems: Po
                       <div className="absolute inset-0 bg-black/70 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                         <div>
                           <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                          <p className="text-m2-green">{item.category}</p>
+                          {/* CORREÇÃO AQUI */}
+                          <p className="text-m2-green">{item.service?.name || 'Sem categoria'}</p>
                           <span className="mt-2 inline-flex items-center text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             Ver Projeto <PlusCircle size={18} className="ml-2" />
                           </span>
@@ -103,7 +112,6 @@ export default function PortfolioClientPage({ initialItems }: { initialItems: Po
             </AnimatePresence>
           </motion.div>
 
-          {/* Botão "Carregar Mais" */}
           {visibleCount < filteredItems.length && (
             <div className="text-center mt-12">
               <Button 
@@ -115,6 +123,18 @@ export default function PortfolioClientPage({ initialItems }: { initialItems: Po
               </Button>
             </div>
           )}
+
+          <div className="mt-20 text-center border-t border-gray-800 pt-12">
+            <h3 className="text-2xl font-bold text-white mb-6">Pronto para dar vida ao seu projeto?</h3>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a href="/contato" className="bg-m2-green text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-white transition-colors duration-300 transform hover:scale-105">
+                Solicite um Orçamento
+              </a>
+              <a href="/servicos" className="border-2 border-m2-green text-m2-green font-bold py-3 px-8 rounded-lg text-lg hover:bg-m2-green hover:text-black transition-colors duration-300">
+                Conheça Nossos Serviços
+              </a>
+            </div>
+          </div>
         </div>
       </section>
     </>

@@ -3,18 +3,21 @@
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Info, PlusCircle, Edit } from "lucide-react";
+import { Info, PlusCircle, Edit } from "lucide-react"; // CORREÇÃO AQUI
 import Link from "next/link";
 import { prisma } from '@/lib/prisma';
 import { DeletePortfolioButton } from './_components/DeletePortfolioButton';
-import { FeaturedSwitch } from './_components/FeaturedSwitch'; // 1. Importa o novo componente
+import { FeaturedSwitch } from './_components/FeaturedSwitch';
 
 const MAX_FEATURED_ITEMS = 10;
 
-// 2. A função agora busca os itens E a contagem de destaques
+// The function now fetches items AND the featured count
 async function getPortfolioData() {
   const items = await prisma.portfolioItem.findMany({
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    include: {
+      service: true,
+    },
   });
   const featuredCount = await prisma.portfolioItem.count({
     where: { isFeatured: true }
@@ -27,7 +30,7 @@ export default async function PortfolioPage() {
 
   return (
     <div className="space-y-8">
-      {/* Cabeçalho e Botão de Ação */}
+      {/* Header and Action Button */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Gerenciar Portfólio</h1>
@@ -41,7 +44,7 @@ export default async function PortfolioPage() {
         </Link>
       </div>
 
-      {/* 3. AVISO ATUALIZADO com a contagem de destaques */}
+      {/* Featured Items Notice */}
       <div className="bg-blue-900/30 text-blue-300 border border-blue-400/20 p-4 rounded-md flex items-center gap-3">
         <Info size={20} />
         <p className="text-sm">
@@ -49,14 +52,8 @@ export default async function PortfolioPage() {
           Atualmente, você tem **{featuredCount}** item(ns) em destaque.
         </p>
       </div>
-      <div className="bg-blue-900/30 text-blue-300 border border-blue-400/20 p-4 rounded-md flex items-center gap-3">
-        <Info size={20} />
-        <p className="text-sm">
-          <span className="font-semibold">Regra de Destaques:</span> Você deve destacar ao menos 5 projetos para o slide da Homepage funcionar corretamente.
-        </p>
-      </div>
 
-      {/* Tabela de Itens do Portfólio */}
+      {/* Portfolio Items Table */}
       <div className="border border-gray-800 rounded-lg">
         <Table>
           <TableHeader>
@@ -69,7 +66,6 @@ export default async function PortfolioPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {/* Se não houver itens, exibe uma mensagem */}
             {items.length === 0 && (
               <TableRow className="border-gray-800">
                 <TableCell colSpan={5} className="text-center text-gray-500 py-10">
@@ -78,13 +74,13 @@ export default async function PortfolioPage() {
               </TableRow>
             )}
 
-            {/* Lista os itens do banco de dados */}
             {items.map((item) => (
               <TableRow key={item.id} className="border-gray-800 hover:bg-gray-900/50">
                 <TableCell className="font-medium">{item.title}</TableCell>
-                <TableCell className="text-gray-400">{item.category}</TableCell>
+                <TableCell className="text-gray-400">
+                  {item.service?.name || 'Sem categoria'}
+                </TableCell>
                 <TableCell>
-                  {/* 4. SWITCH INTERATIVO SUBSTITUI O ÍCONE */}
                   <FeaturedSwitch
                     item={item}
                     featuredCount={featuredCount}
@@ -96,7 +92,7 @@ export default async function PortfolioPage() {
                     variant={item.status === 'PUBLISHED' ? 'default' : 'outline'}
                     className={item.status === 'PUBLISHED' 
                       ? 'bg-green-900/50 text-green-400 border-green-700' 
-                      : 'bg-yellow-400 text-white border-yellow-600'}
+                      : 'bg-gray-700 text-gray-300 border-gray-600'}
                   >
                     {item.status === 'PUBLISHED' ? 'Publicado' : 'Rascunho'}
                   </Badge>

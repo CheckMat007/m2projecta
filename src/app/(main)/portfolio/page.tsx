@@ -1,29 +1,43 @@
 // src/app/(main)/portfolio/page.tsx
-// Este é o novo Componente de Servidor
+// Este é o Componente de Servidor
 
 import { prisma } from '@/lib/prisma';
-import PortfolioClientPage from './portfolio-client'; // Importa nosso componente cliente
+import PortfolioClientPage from './portfolio-client';
 
-// Esta função busca todos os itens de portfólio PUBLICADOS
-async function getPublishedPortfolioItems() {
-  const portfolioItems = await prisma.portfolioItem.findMany({
+// Esta função agora busca os itens E os serviços relacionados
+async function getPortfolioPageData() {
+  const items = await prisma.portfolioItem.findMany({
     where: { 
-      status: 'PUBLISHED' // Só busca itens publicados
+      status: 'PUBLISHED'
     },
     orderBy: { 
       createdAt: 'desc' 
     },
+    // A MÁGICA ACONTECE AQUI: Inclui os dados do serviço
+    include: {
+      service: true,
+    }
   });
 
-  return portfolioItems;
+  // Busca todos os nomes de serviço para usar nos filtros
+  const services = await prisma.service.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      name: 'asc'
+    }
+  });
+
+  return { items, services };
 }
 
 export default async function Page() {
-  // 1. Busca os dados no servidor
-  const items = await getPublishedPortfolioItems();
+  const { items, services } = await getPortfolioPageData();
 
-  // 2. Passa os dados para o componente cliente, que lida com o filtro
+  // Passa os itens e a lista de serviços para o componente cliente
   return (
-    <PortfolioClientPage initialItems={items} />
+    <PortfolioClientPage initialItems={items} services={services} />
   );
 }

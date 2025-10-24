@@ -40,7 +40,8 @@ export const PortfolioSlider = memo ( function PortfolioSlider({ portfolioItems,
         }}
         loop={true}
         centeredSlides={true}
-        slidesPerView={'auto'}
+        slidesPerView={ 'auto' }
+        slidesPerGroupSkip={ 1 }
         navigation={{
           nextEl: '.portfolio-full-width-next',
           prevEl: '.portfolio-full-width-prev',

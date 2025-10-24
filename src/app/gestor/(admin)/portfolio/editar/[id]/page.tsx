@@ -1,38 +1,42 @@
 // src/app/gestor/(admin)/portfolio/editar/[id]/page.tsx
-// Este é o Componente de Servidor
 
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { EditPortfolioForm } from './_components/EditPortfolioForm'; // Importa o formulário
+import { EditPortfolioForm } from './_components/EditPortfolioForm';
 
 const MAX_FEATURED_ITEMS = 10;
 
-// Função para buscar o item específico
-async function getPortfolioItem(id: string) {
+// Função para buscar todos os dados necessários para o formulário
+async function getPageData(id: string) {
   const item = await prisma.portfolioItem.findUnique({
     where: { id },
   });
+
   if (!item) {
     notFound();
   }
-  return item;
-}
 
-export default async function EditPortfolioPage({ params }: { params: { id: string } }) {
-  // 1. Busca o item que queremos editar
-  const item = await getPortfolioItem(params.id);
-  
-  // 2. Busca a contagem de destaques
   const featuredCount = await prisma.portfolioItem.count({
     where: { isFeatured: true }
   });
+  
+  const services = await prisma.service.findMany({
+    orderBy: { name: 'asc' }
+  });
 
-  // 3. Renderiza o formulário (cliente) e passa todos os dados
+  return { item, featuredCount, services };
+}
+
+export default async function EditPortfolioPage({ params }: { params: { id: string } }) {
+  const { item, featuredCount, services } = await getPageData(params.id);
+
+  // Renderiza o formulário (cliente) e passa todos os dados
   return (
     <EditPortfolioForm 
       item={item} 
       featuredCount={featuredCount} 
       maxFeatured={MAX_FEATURED_ITEMS} 
+      services={services}
     />
   );
 }
