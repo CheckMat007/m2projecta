@@ -11,9 +11,10 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, UploadCloud } from 'lucide-react';
 import { toast } from 'sonner';
-import { createPortfolioItem } from '../../actions'; // Ajusta o caminho para ../../actions
+import { createPortfolioItem } from '../../actions';
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Service } from '@prisma/client'; // Importa o tipo 'Service'
 
 // Botão de Submit com estado de loading
 function SubmitButton({ isLoading }: { isLoading: boolean }) {
@@ -31,8 +32,12 @@ const CharCounter = ({ text, max }: { text: string; max: number }) => (
   </p>
 );
 
-// O formulário recebe a contagem de destaques do "pai" (Componente de Servidor)
-export function NovoPortfolioItemForm({ featuredCount, maxFeatured }: { featuredCount: number, maxFeatured: number }) {
+// O formulário agora recebe a lista de SERVIÇOS
+export function NovoPortfolioItemForm({ featuredCount, maxFeatured, services }: { 
+  featuredCount: number, 
+  maxFeatured: number,
+  services: Service[] 
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,9 +50,8 @@ export function NovoPortfolioItemForm({ featuredCount, maxFeatured }: { featured
   const [longDesc, setLongDesc] = useState('');
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDesc, setSeoDesc] = useState('');
-  const [category, setCategory] = useState('');
+  const [serviceId, setServiceId] = useState(''); // Alterado de 'category' para 'serviceId'
 
-  // Lógica de desabilitar o switch
   const isFeaturedDisabled = featuredCount >= maxFeatured;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -77,28 +81,22 @@ export function NovoPortfolioItemForm({ featuredCount, maxFeatured }: { featured
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
     formData.set('coverImage', coverImageUrl);
-    formData.set('category', category); // Garante que o valor do Select seja enviado
-
+    // Não precisamos mais de formData.set('category', ...) porque o 'name' do Select é 'serviceId'
+    
     const result = await createPortfolioItem(formData);
     
     if (result && !result.success) {
       toast.error(result.message);
       setIsSubmitting(false);
-    } else {
-      toast.success('Projeto criado com sucesso!');
-      // O 'redirect' na action já cuida de nos levar de volta
+    } else if (result) {
+      toast.success(result.message);
+      // O redirect na action cuidará do resto
     }
   }
 
   // Funções para Drag and Drop
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsDragging(false); };
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
@@ -129,40 +127,38 @@ export function NovoPortfolioItemForm({ featuredCount, maxFeatured }: { featured
       <Separator className="bg-gray-700" />
 
       {/* Seção Principal de Dados */}
-       <div className="space-y-6">
-         <h2 className="text-xl font-semibold">Informações Principais</h2>
-         <div className="space-y-2">
-           <Label htmlFor="title">Título do Projeto</Label>
-           <Input id="title" name="title" placeholder="Ex: Vídeo Institucional TechCorp" className="bg-gray-800 border-gray-700" required value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} />
-           <CharCounter text={title} max={100} />
-         </div>
-         <div className="space-y-2">
-           <Label htmlFor="category">Categoria</Label>
-           <Select name="category" value={category} onValueChange={setCategory} required>
-              <SelectTrigger className="bg-gray-800 border-gray-700">
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Marketing Imobiliário">Marketing Imobiliário</SelectItem>
-                <SelectItem value="Vídeos Corporativos">Vídeos Corporativos</SelectItem>
-                <SelectItem value="Cobertura de Evento">Cobertura de Evento</SelectItem>
-                <SelectItem value="Turismo e Hotelaria">Turismo e Hotelaria</SelectItem>
-                <SelectItem value="Acompanhamento de Obra">Acompanhamento de Obra</SelectItem>
-                <SelectItem value="Outro">Outro</SelectItem>
-              </SelectContent>
-           </Select>
-         </div>
-         <div className="space-y-2">
-           <Label htmlFor="shortDescription">Descrição Curta (para o card)</Label>
-           <Input id="shortDescription" name="shortDescription" placeholder="Uma breve descrição que aparece no card do portfólio." className="bg-gray-800 border-gray-700" required value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} maxLength={200} />
-           <CharCounter text={shortDesc} max={200} />
-         </div>
-         <div className="space-y-2">
-           <Label htmlFor="longDescription">Descrição Longa (para a página do projeto)</Label>
-           <Textarea id="longDescription" name="longDescription" placeholder="Descreva o desafio, a solução e os resultados do projeto..." className="bg-gray-800 border-gray-700" rows={6} required value={longDesc} onChange={(e) => setLongDesc(e.target.value)} />
-           <p className="text-xs text-gray-500 text-right">{longDesc.length} caracteres</p>
-         </div>
-       </div>
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold">Informações Principais</h2>
+        <div className="space-y-2">
+          <Label htmlFor="title">Título do Projeto</Label>
+          <Input id="title" name="title" placeholder="Ex: Vídeo Institucional TechCorp" className="bg-gray-800 border-gray-700" required value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} />
+          <CharCounter text={title} max={100} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="serviceId">Serviço (Categoria)</Label>
+          {/* O SELETOR AGORA É DINÂMICO */}
+          <Select name="serviceId" value={serviceId} onValueChange={setServiceId} required>
+            <SelectTrigger className="bg-gray-800 border-gray-700">
+              <SelectValue placeholder="Selecione o serviço relacionado" />
+            </SelectTrigger>
+            <SelectContent>
+              {services.map(service => (
+                <SelectItem key={service.id} value={service.id}>{service.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="shortDescription">Descrição Curta (para o card)</Label>
+          <Input id="shortDescription" name="shortDescription" placeholder="Uma breve descrição que aparece no card do portfólio." className="bg-gray-800 border-gray-700" required value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} maxLength={200} />
+          <CharCounter text={shortDesc} max={200} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="longDescription">Descrição Longa (para a página do projeto)</Label>
+          <Textarea id="longDescription" name="longDescription" placeholder="Descreva o desafio, a solução e os resultados do projeto..." className="bg-gray-800 border-gray-700" rows={6} required value={longDesc} onChange={(e) => setLongDesc(e.target.value)} />
+          <p className="text-xs text-gray-500 text-right">{longDesc.length} caracteres</p>
+        </div>
+      </div>
 
       {/* Seção de Mídia */}
       <div className="space-y-6">
@@ -208,52 +204,52 @@ export function NovoPortfolioItemForm({ featuredCount, maxFeatured }: { featured
       </div>
 
       {/* Seção de Publicação e SEO */}
-       <div className="space-y-6">
-         <h2 className="text-xl font-semibold">Publicação & SEO</h2>
-         <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-800">
-           <div>
-             <Label htmlFor="status" className="font-bold">Status do Projeto</Label>
-             <p className="text-sm text-gray-400">PUBLICADO ficará visível no site. RASCUNHO ficará salvo apenas no painel.</p>
-           </div>
-           <Select name="status" defaultValue="DRAFT">
-             <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
-               <SelectValue />
-             </SelectTrigger>
-             <SelectContent>
-               <SelectItem value="PUBLISHED">Publicado</SelectItem>
-               <SelectItem value="DRAFT">Rascunho</SelectItem>
-             </SelectContent>
-           </Select>
-         </div>
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold">Publicação & SEO</h2>
+        <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-800">
+          <div>
+            <Label htmlFor="status" className="font-bold">Status do Projeto</Label>
+            <p className="text-sm text-gray-400">‘Publicado’ ficará visível no site. ‘Rascunho’ ficará salvo apenas no painel.</p>
+          </div>
+          <Select name="status" defaultValue="DRAFT">
+            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="PUBLISHED">Publicado</SelectItem>
+              <SelectItem value="DRAFT">Rascunho</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-         <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-800">
-           <div>
-             <Label htmlFor="isFeatured" className={`font-bold ${isFeaturedDisabled ? 'text-gray-500' : ''}`}>Destaque na Página Inicial</Label>
-             <p className="text-sm text-gray-400">Ative para este projeto aparecer no slider da página inicial.</p>
-           </div>
-           <div>
-             <Switch 
-               id="isFeatured" 
-               name="isFeatured" 
-               disabled={isFeaturedDisabled} 
-             />
-             {isFeaturedDisabled && (
-                <p className="text-xs text-yellow-500 text-right mt-1">Limite atingido.</p>
-             )}
-           </div>
-         </div>
+        <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-800">
+          <div>
+            <Label htmlFor="isFeatured" className={`font-bold ${isFeaturedDisabled ? 'text-gray-500' : ''}`}>Destaque na Página Inicial</Label>
+            <p className="text-sm text-gray-400">Ative para este projeto aparecer no slider da página inicial.</p>
+          </div>
+          <div>
+            <Switch 
+              id="isFeatured" 
+              name="isFeatured" 
+              disabled={isFeaturedDisabled} 
+            />
+            {isFeaturedDisabled && (
+              <p className="text-xs text-yellow-500 text-right mt-1">Limite atingido.</p>
+            )}
+          </div>
+        </div>
 
-         <div className="space-y-2">
-           <Label htmlFor="seoTitle">Título SEO (Opcional)</Label>
-           <Input id="seoTitle" name="seoTitle" placeholder="Título que aparecerá no Google (máx 60 caracteres)" className="bg-gray-800 border-gray-700" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} maxLength={60} />
-           <CharCounter text={seoTitle} max={60} />
-         </div>
-         <div className="space-y-2">
-           <Label htmlFor="seoDescription">Descrição SEO (Opcional)</Label>
-           <Textarea id="seoDescription" name="seoDescription" placeholder="Descrição que aparecerá no Google (máx 160 caracteres)" className="bg-gray-800 border-gray-700" rows={3} value={seoDesc} onChange={(e) => setSeoDesc(e.target.value)} maxLength={160} />
-           <CharCounter text={seoDesc} max={160} />
-         </div>
-       </div>
+        <div className="space-y-2">
+          <Label htmlFor="seoTitle">Título SEO (Opcional)</Label>
+          <Input id="seoTitle" name="seoTitle" placeholder="Título que aparecerá no Google (máx 60 caracteres)" className="bg-gray-800 border-gray-700" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} maxLength={60} />
+          <CharCounter text={seoTitle} max={60} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="seoDescription">Descrição SEO (Opcional)</Label>
+          <Textarea id="seoDescription" name="seoDescription" placeholder="Descrição que aparecerá no Google (máx 160 caracteres)" className="bg-gray-800 border-gray-700" rows={3} value={seoDesc} onChange={(e) => setSeoDesc(e.target.value)} maxLength={160} />
+          <CharCounter text={seoDesc} max={160} />
+        </div>
+      </div>
     </form>
   );
 }

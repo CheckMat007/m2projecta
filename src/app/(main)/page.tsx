@@ -1,38 +1,44 @@
 // src/app/(main)/page.tsx
-// Este é o Componente de Servidor
+// Este é o novo Componente de Servidor
 
 import { prisma } from '@/lib/prisma';
-import HomeClientPage from './home-client'; // <-- CORREÇÃO AQUI (removido .tsx)
+import HomeClientPage from './home-client'; // Importa o nosso componente cliente
 
 // Esta função busca todos os dados para a página inicial
-async function getHomeData() {
+async function getHomePageData() {
   // 1. Busca o ID do vídeo da Hero
   const homeData = await prisma.homePage.findFirst();
   
-  // 2. Busca os 5 itens de portfólio marcados como "Destaque"
+  // 2. Busca os itens de portfólio, incluindo o serviço relacionado
   const portfolioItems = await prisma.portfolioItem.findMany({
     where: { isFeatured: true, status: 'PUBLISHED' },
     take: 5,
     orderBy: { createdAt: 'desc' },
+    include: { service: true }, // Inclui os dados do serviço
   });
 
-  // 3. Busca os 5 primeiros depoimentos
+  // 3. Busca os depoimentos
   const testimonials = await prisma.testimonial.findMany({
     take: 5,
     orderBy: { order: 'asc' },
   });
 
-  // 4. Busca os 8 primeiros itens do FAQ
+  // 4. Busca os itens do FAQ
   const faqItems = await prisma.faqItem.findMany({
     take: 8,
     orderBy: { order: 'asc' },
   });
 
-  // Mapeia os dados do banco para o formato que o componente cliente espera
+  // 5. Busca todos os serviços para os cards
+  const services = await prisma.service.findMany({
+    orderBy: { createdAt: 'asc' },
+  });
+
+  // Formata os dados para o formato que o componente cliente espera
   const formattedPortfolio = portfolioItems.map(item => ({
     id: item.id,
     title: item.title,
-    category: item.category,
+    category: item.service?.name || 'Sem Categoria', // Usa o nome do serviço
     image: item.coverImage,
     link: `/portfolio/${item.id}`,
     backgroundImage: item.coverImage,
@@ -42,34 +48,29 @@ async function getHomeData() {
     quote: { start: item.quote, highlight: item.highlight || '', end: '' },
     name: item.name,
     company: item.company,
-    image: item.image || '/assets/testimonials/exemplo1.jpg', // Imagem padrão
-    backgroundImage: '', // Este campo não será mais buscado do banco
+    image: item.image || '/assets/testimonials/exemplo1.jpg',
+    backgroundImage: portfolioItems.find(p => p.service?.name === item.company)?.coverImage || '/assets/portfolio/dutra.JPG',
   }));
   
-  const faqData = faqItems.length > 0 ? faqItems : [
-      { id: '1', question: "Nenhum FAQ encontrado.", answer: "Por favor, adicione perguntas e respostas no painel do gestor." }
-  ];
-
   return {
-    heroVideoId: homeData?.youtubeVideoId || 'xk4lN3K5jzg', // ID padrão
+    heroVideoId: homeData?.youtubeVideoId || 'xk4lN3K5jzg',
     portfolioItems: formattedPortfolio,
     testimonials: formattedTestimonials,
-    faqItems: faqData,
+    faqItems,
+    services, // Passa a lista de serviços completa
   };
 }
 
-
 export default async function Page() {
-  // 1. Busca todos os dados no servidor
-  const { heroVideoId, portfolioItems, testimonials, faqItems } = await getHomeData();
+  const { heroVideoId, portfolioItems, testimonials, faqItems, services } = await getHomePageData();
 
-  // 2. Passa os dados para o componente cliente, que lida com a interatividade
   return (
     <HomeClientPage
       heroVideoId={heroVideoId}
       portfolioItems={portfolioItems}
       testimonials={testimonials}
       faqItems={faqItems}
+      services={services} // Passa os serviços para o cliente
     />
   );
 }
