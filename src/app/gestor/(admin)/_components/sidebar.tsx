@@ -1,132 +1,68 @@
 // src/app/gestor/(admin)/_components/sidebar.tsx
-'use client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { SidebarClient } from './sidebar-client';
+import type { User, Permission } from '@prisma/client';
+import * as LucideIcons from 'lucide-react'; // 1. Importar todos os ícones
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useSession } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react'; // 1. IMPORTAMOS O 'useState'
-import { 
-  User, 
-  Briefcase, 
-  Users, 
-  LayoutDashboard, 
-  FileText, 
-  UserCog, 
-  Home, 
-  BookOpen, 
-  Contact, 
-  ChevronDown,
-  Paintbrush 
-} from 'lucide-react';
-import { LogoutButton } from './logout-button';
-import Logo from '@/components/ui/Logo';
-import { 
-  Collapsible, 
-  CollapsibleContent, 
-  CollapsibleTrigger 
-} from "@/components/ui/collapsible";
+// 2. Definir os tipos aqui também para validação
+type IconName = keyof typeof LucideIcons;
 
-// Componente NavItem (sem alterações)
-const NavItem = ({ href, icon: Icon, label }: { href: string; icon: React.ElementType; label: string }) => {
-  const pathname = usePathname();
-  const isActive = pathname.startsWith(href);
+interface MenuItem {
+  href?: string;
+  icon: IconName;
+  label: string;
+  permission?: string;
+  subItems?: Omit<MenuItem, 'subItems' | 'permission'>[];
+}
 
-  return (
-    <Link 
-      href={href} 
-      className={`flex items-center gap-3 p-2 rounded-md transition-colors ${isActive ? 'bg-m2-green text-black' : 'hover:bg-gray-800'}`}
-    >
-      <Icon size={20} /> {label}
-    </Link>
-  );
+type UserWithPermissions = User & {
+  permissions: Permission[];
 };
 
-export const Sidebar = () => {
-  const { data: session } = useSession();
-  const pathname = usePathname();
-
-  const isSiteMenuActive = pathname.startsWith('/gestor/site');
-  
-  // 2. CRIAMOS UM ESTADO PARA CONTROLAR O CLIQUE
-  // Ele já começa aberto se a rota estiver ativa
-  const [isSiteMenuOpen, setIsSiteMenuOpen] = useState(isSiteMenuActive);
-
-  return (
-    <aside className="w-64 bg-black/50 h-screen flex flex-col p-4 border-r border-gray-800 sticky top-0">
-      <div className="mb-8 text-center">
-        <Link href="/" className="inline-block h-auto w-40">
-          <Logo />
-        </Link>
-      </div>
-
-      <div className="mb-8">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-2 border-m2-green bg-gray-700 flex items-center justify-center overflow-hidden flex-shrink-0">
-            {session?.user?.image ? (
-              <Image 
-                src={session.user.image} 
-                alt="Foto de perfil" 
-                width={48} 
-                height={48} 
-                className="object-cover w-full h-full" 
-              />
-            ) : (
-              <User className="text-gray-400" />
-            )}
-          </div>
-          <div>
-            <p className="font-bold text-white truncate">{session?.user?.name || 'Usuário'}</p>
-            <Link href="/gestor/perfil" className="text-sm text-gray-400 hover:text-m2-green">
-              Editar perfil
-            </Link>
-          </div>
-        </div>
-      </div>
-      
-      <nav className="flex-1 space-y-2 overflow-y-auto">
-        <NavItem href="/gestor" icon={LayoutDashboard} label="Dashboard" />
-
-        {/* 3. O COMPONENTE COLAPSÁVEL FOI ATUALIZADO */}
-        <Collapsible 
-          open={isSiteMenuOpen} // Agora usa o estado de clique
-          onOpenChange={setIsSiteMenuOpen} // Atualiza o estado no clique
-          className="space-y-1"
-        >
-          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded-md transition-colors hover:bg-gray-800">
-            <div className="flex items-center gap-3">
-              <Home size={20} />
-              Gerenciar Site
-            </div>
-            {/* O ícone da seta agora é controlado pelo estado 'isSiteMenuOpen' */}
-            <ChevronDown size={16} className={`transition-transform ${isSiteMenuOpen ? 'rotate-180' : ''}`} />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pl-8 space-y-1">
-            <NavItem href="/gestor/site/inicio" icon={Home} label="Início" />
-            <NavItem href="/gestor/site/sobre" icon={BookOpen} label="Sobre Nós" />
-            <NavItem href="/gestor/site/servicos" icon={Briefcase} label="Serviços" />
-            <NavItem href="/gestor/site/contato" icon={Contact} label="Contato" />
-            <NavItem href="/gestor/site/aparencia" icon={Paintbrush} label="Aparência" />
-          </CollapsibleContent>
-        </Collapsible>
-        
-        <NavItem href="/gestor/clientes" icon={Users} label="Gerenciar Clientes" />
-        <NavItem href="/gestor/projetos" icon={Briefcase} label="Gerenciar Projetos" />
-        <NavItem href="/gestor/portfolio" icon={LayoutDashboard} label="Gerenciar Portfólio" />
-        <NavItem href="/gestor/contratos" icon={FileText} label="Gerenciar Contratos" />
-        
-        {session?.user?.role === 'MASTER' && (
-          <NavItem href="/gestor/equipe" icon={UserCog} label="Gerenciar Equipe" />
-        )}
-      </nav>
-      <div className="mt-auto">
-        <LogoutButton />
-      </div>
-      <div>
-        <p className="text-sm text-center text-gray-400">
-         Versão 0.5.1
-        </p>
-      </div>
-    </aside>
-  );
+const hasPermission = (user: UserWithPermissions | null, permissionName: string): boolean => {
+  if (!user) return false;
+  if (user.role === 'MASTER') return true;
+  return user.permissions?.some(p => p.name === permissionName);
 };
+
+export async function Sidebar() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { permissions: true },
+  });
+
+  // 3. Aplicar o tipo MenuItem[] ao array
+  const menuItems: MenuItem[] = [
+    { href: "/gestor", icon: 'LayoutDashboard', label: "Dashboard", permission: 'any' },
+    {
+      label: "Gerenciar Site",
+      icon: 'Home',
+      permission: 'manage_site',
+      subItems: [
+        { href: "/gestor/site/inicio", icon: 'Home', label: "Início" },
+        { href: "/gestor/site/sobre", icon: 'BookOpen', label: "Sobre Nós" },
+        { href: "/gestor/site/servicos", icon: 'Briefcase', label: "Serviços" },
+        { href: "/gestor/site/contato", icon: 'Contact', label: "Contato" },
+        { href: "/gestor/site/aparencia", icon: 'Paintbrush', label: "Aparência" },
+      ],
+    },
+    { href: "/gestor/clientes", icon: 'Users', label: "Gerenciar Clientes", permission: 'manage_clients' },
+    { href: "/gestor/projetos", icon: 'Briefcase', label: "Gerenciar Projetos", permission: 'manage_projects' },
+    { href: "/gestor/portfolio", icon: 'LayoutDashboard', label: "Gerenciar Portfólio", permission: 'manage_portfolio' },
+    { href: "/gestor/contratos", icon: 'FileText', label: "Gerenciar Contratos", permission: 'manage_contracts' },
+    { href: "/gestor/equipe", icon: 'UserCog', label: "Gerenciar Equipe", permission: 'manage_team' },
+  ];
+
+ const accessibleMenuItems = menuItems.filter(item =>
+  item.permission === 'any' || (item.permission && hasPermission(user, item.permission))
+);
+
+  return <SidebarClient user={session.user} menuItems={accessibleMenuItems} />;
+}

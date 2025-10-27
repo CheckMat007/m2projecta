@@ -9,7 +9,6 @@ import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 import { Prisma } from '@prisma/client';
 
-// 1. ATUALIZA O SCHEMA COM O NOVO CAMPO
 const profileSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   email: z.string().email('Formato de e-mail inválido.'),
@@ -17,7 +16,7 @@ const profileSchema = z.object({
   image: z.string().url('URL da imagem inválida.').optional(),
   jobDescription: z.string().optional(),
   showOnAboutPage: z.boolean(),
-  personalQuote: z.string().optional(), // Novo campo
+  personalQuote: z.string().optional(),
 });
 
 export async function updateProfile(formData: FormData) {
@@ -27,6 +26,7 @@ export async function updateProfile(formData: FormData) {
   }
 
   const data = Object.fromEntries(formData);
+  // O valor do switch vem como 'on' ou não existe. Convertemos para boolean.
   const parsedData = {
     ...data,
     showOnAboutPage: data.showOnAboutPage === 'on',
@@ -38,7 +38,6 @@ export async function updateProfile(formData: FormData) {
     return { success: false, message: errorMessage };
   }
   
-  // 2. ADICIONA O NOVO CAMPO AOS DADOS
   const { name, email, phone, image, jobDescription, showOnAboutPage, personalQuote } = validatedFields.data;
 
   try {
@@ -50,16 +49,17 @@ export async function updateProfile(formData: FormData) {
     }
 
     const dataToUpdate: Partial<typeof currentUser> = {};
-
     if (name !== currentUser.name) dataToUpdate.name = name;
     if (email !== currentUser.email) dataToUpdate.email = email;
     if ((phone || null) !== currentUser.phone) dataToUpdate.phone = phone || null;
     if ((image || null) !== currentUser.image) dataToUpdate.image = image || null;
     if ((jobDescription || null) !== currentUser.jobDescription) dataToUpdate.jobDescription = jobDescription || null;
-    if (showOnAboutPage !== currentUser.showOnAboutPage) dataToUpdate.showOnAboutPage = showOnAboutPage;
-    
-    // 3. ADICIONA O NOVO CAMPO À LÓGICA DE UPDATE
     if ((personalQuote || null) !== currentUser.personalQuote) dataToUpdate.personalQuote = personalQuote || null;
+    if (session.user.role === 'MASTER') {
+      if (showOnAboutPage !== currentUser.showOnAboutPage) {
+        dataToUpdate.showOnAboutPage = showOnAboutPage;
+      }
+    }
     
     if (Object.keys(dataToUpdate).length === 0) {
       return { success: true, message: 'Nenhuma alteração detectada.' };
@@ -71,10 +71,11 @@ export async function updateProfile(formData: FormData) {
     });
 
     revalidatePath('/gestor/perfil');
-    revalidatePath('/sobre'); // Revalida a página "Sobre Nós" também
+    revalidatePath('/sobre');
     return { success: true, message: 'Perfil atualizado com sucesso!' };
 
   } catch (error) {
+    // ESTA É A VALIDAÇÃO EXISTENTE E CORRETA
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return { success: false, message: 'Este e-mail já está em uso por outra conta.' };
     }
@@ -82,7 +83,7 @@ export async function updateProfile(formData: FormData) {
     return { success: false, message: 'Erro ao atualizar o perfil.' };
   }
 }
-// A função updatePassword continua a mesma
+
 const passwordSchema = z.object({
   currentPassword: z.string(),
   newPassword: z.string().min(10),
