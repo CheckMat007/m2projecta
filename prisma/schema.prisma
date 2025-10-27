@@ -9,7 +9,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelos de Enumeração
 enum Role {
   MASTER
   EDITOR
@@ -20,7 +19,36 @@ enum Status {
   DRAFT
 }
 
-// Modelos de Tabela
+// 1. NOVO MODELO PARA NOTIFICAÇÕES
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+
+  // NOVO: Relação para saber quem enviou a notificação
+  senderId  String?
+  sender    User?    @relation("SentNotifications", fields: [senderId], references: [id], onDelete: SetNull)
+
+  // Relação existente: Um status de leitura por usuário que recebe
+  readStatuses UserNotificationStatus[]
+}
+
+// 2. NOVO MODELO PARA RASTREAR A LEITURA DE NOTIFICAÇÕES
+// Tabela de junção entre User e Notification
+model UserNotificationStatus {
+  id             String       @id @default(cuid())
+  isRead         Boolean      @default(false)
+  
+  // Relações
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, notificationId]) // Garante que um usuário só tenha um status por notificação
+}
+
 
 model User {
   id               String   @id @default(cuid())
@@ -30,11 +58,29 @@ model User {
   image            String?
   phone            String?
   role             Role     @default(EDITOR)
+  
   jobDescription   String?  @db.Text
   showOnAboutPage  Boolean  @default(false)
   personalQuote    String?  @db.Text
+  
+  // 3. NOVO CAMPO PARA FORÇAR A TROCA DE SENHA
+  mustChangePassword Boolean @default(true)
+
+  // Relação: Um usuário pode ter vários status de notificação
+  notifications UserNotificationStatus[]
+  sentNotifications  Notification[] @relation("SentNotifications")
+  permissions      Permission[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+// --- Modelos existentes (sem alterações) ---
+
+model Permission {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String
+  users       User[]
 }
 
 model PageSettings {
@@ -73,7 +119,6 @@ model FaqItem {
   order    Int    @default(0)
 }
 
-// NOVO MODELO PARA SERVIÇOS
 model Service {
   id               String   @id @default(cuid())
   name             String   @unique
@@ -82,15 +127,11 @@ model Service {
   icon             String
   image            String
   videoUrl         String?
-
-  // Relação: Um serviço pode ter vários itens de portfólio
-  portfolioItems PortfolioItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  portfolioItems   PortfolioItem[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
-// MODELO DE PORTFÓLIO ATUALIZADO
 model PortfolioItem {
   id               String   @id @default(cuid())
   title            String
@@ -102,11 +143,8 @@ model PortfolioItem {
   isFeatured       Boolean  @default(false)
   seoTitle         String?
   seoDescription   String?
-  
-  // NOVA RELAÇÃO: Um item de portfólio pertence a UM serviço
   serviceId        String?
-  service          Service?  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-
+  service          Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull) // Alterado para SetNull
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
