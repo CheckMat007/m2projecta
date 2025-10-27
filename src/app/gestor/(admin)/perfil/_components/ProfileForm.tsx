@@ -45,7 +45,7 @@ export function ProfileForm({ user }: { user: User }) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/.test(newPassword);
+  const isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&=+#])[A-Za-z\d@$!%*?&=+#]{10,}$/.test(newPassword);
   const passwordsMatch = newPassword === confirmPassword;
 
   // Função para atualizar o perfil
@@ -119,11 +119,11 @@ export function ProfileForm({ user }: { user: User }) {
       <form ref={profileFormRef} onSubmit={handleUpdateProfile} className="space-y-6">
         <h2 className="text-xl font-semibold">Dados Pessoais</h2>
         <div className="bg-yellow-900/30 text-yellow-300 border border-yellow-400/20 p-4 rounded-md flex items-center gap-3">
-        <Info size={20} />
-        <p className="text-sm">
-          <span className="font-semibold">Aviso:</span> Algumas informações serão exibidas no site público. Altere com cuidado.
-        </p>
-      </div>
+          <Info size={20} />
+          <p className="text-sm">
+            <span className="font-semibold">Aviso:</span> Algumas informações serão exibidas no site público. Altere com cuidado.
+          </p>
+        </div>
         <div className="flex items-center gap-6">
           <div className="w-24 h-24 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center overflow-hidden">
             {file ? <Image src={URL.createObjectURL(file)} alt="Preview" width={96} height={96} className="object-cover w-full h-full" /> : user.image ? <Image src={user.image} alt="Foto de perfil" width={96} height={96} className="object-cover w-full h-full" /> : <UserIcon size={40} className="text-gray-500" />}
@@ -146,40 +146,42 @@ export function ProfileForm({ user }: { user: User }) {
           <InputMask mask="(99) 99999-9999" id="phone" name="phone" defaultValue={user.phone || ''} placeholder="(12) 99999-9999" className="flex h-10 w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm" />
         </div>
 
-        {/* NOVA SEÇÃO: APENAS PARA O MASTER */}
-        {session?.user?.role === 'MASTER' && (
-          <>
-            <Separator className="bg-gray-700" />
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold">Informações da Equipe</h2>
-              <p className="text-sm text-gray-400">
-                Estes campos definem como este perfil aparecerá na página SOBRE NÓS do site.
-              </p>
-              
-              <div className="space-y-2">
-                <Label htmlFor="jobDescription">Descrição da Função</Label>
-                <Textarea 
-                  id="jobDescription" 
-                  name="jobDescription" 
-                  placeholder="Ex: Fundador & Piloto de Drone" 
-                  className="bg-gray-800 border-gray-700"
-                  defaultValue={user.jobDescription || ''}
-                />
-              </div>
+        {/* --- CORREÇÃO APLICADA AQUI --- */}
+        {/* A seção agora é visível para TODOS, não apenas para o MASTER */}
+        <>
+          <Separator className="bg-gray-700" />
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold">Informações da Equipe</h2>
+            <p className="text-sm text-gray-400">
+              Estes campos definem como este perfil aparecerá na página SOBRE NÓS do site.
+            </p>
+            
+            <div className="space-y-2">
+              <Label htmlFor="jobDescription">Descrição da Função</Label>
+              <Textarea 
+                id="jobDescription" 
+                name="jobDescription" 
+                placeholder="Ex: Fundador & Piloto de Drone" 
+                className="bg-gray-800 border-gray-700"
+                defaultValue={user.jobDescription || ''}
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="personalQuote">Comentário Pessoal (Opcional)</Label>
-                <Textarea 
-                  id="personalQuote" 
-                  name="personalQuote" 
-                  placeholder="Ex: Apaixonado por drones e novas perspectivas." 
-                  className="bg-gray-800 border-gray-700"
-                  rows={2}
-                  defaultValue={user.personalQuote || ''}
-                />
-                 <p className="text-xs text-gray-500">Uma frase curta que aparecerá abaixo da sua função.</p>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="personalQuote">Comentário Pessoal (Opcional)</Label>
+              <Textarea 
+                id="personalQuote" 
+                name="personalQuote" 
+                placeholder="Ex: Apaixonado por drones e novas perspectivas." 
+                className="bg-gray-800 border-gray-700"
+                rows={2}
+                defaultValue={user.personalQuote || ''}
+              />
+              <p className="text-xs text-gray-500">Uma frase curta que aparecerá abaixo da sua função.</p>
+            </div>
 
+            {/* A CONDIÇÃO AGORA ENVOLVE APENAS O SWITCH */}
+            {session?.user?.role === 'MASTER' && (
               <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-800">
                 <div>
                   <Label htmlFor="showOnAboutPage" className="font-bold">Aparecer na Página SOBRE NÓS</Label>
@@ -191,9 +193,9 @@ export function ProfileForm({ user }: { user: User }) {
                   defaultChecked={user.showOnAboutPage} 
                 />
               </div>
-            </div>
-          </>
-        )}
+            )}
+          </div>
+        </>
 
         <div className="pt-6">
           <Button className="bg-m2-green text-black hover:bg-m2-green/80" type="submit" disabled={isSubmittingProfile}>
@@ -208,11 +210,11 @@ export function ProfileForm({ user }: { user: User }) {
       <form ref={passwordFormRef} id="password-form" action={handleUpdatePassword} className="space-y-6">
         <h2 className="text-xl font-semibold">Alterar Senha</h2>
         <div className="bg-red-500/30 text-white border border-red-700 p-4 rounded-md flex items-center gap-3">
-        <Info size={20} />
-        <p className="text-sm">
-          <span className="font-semibold">ATENÇÃO:</span> Salve sua nova senha em um lugar seguro!
-        </p>
-      </div>
+          <Info size={20} />
+          <p className="text-sm">
+            <span className="font-semibold">ATENÇÃO:</span> Salve sua nova senha em um lugar seguro!
+          </p>
+        </div>
         <div className="space-y-2">
           <Label htmlFor="currentPassword">Senha Atual</Label>
           <div className="relative">

@@ -7,7 +7,7 @@ import Logo from '@/components/ui/Logo';
 
 export const Footer = () => {
   return (
-    <footer className="bg-black border-t border-gray-800 pt-16 pb-8">
+    <footer className="bg-black border-t border-gray-800 pt-8 pb-2">
       <div className="container mx-auto px-6">
         {/* Container principal com 3 colunas para desktop */}
         <div className="grid md:grid-cols-3 gap-12 text-center md:text-left">
@@ -36,10 +36,10 @@ export const Footer = () => {
             </div>
             <div className="pt-4">
               <Link 
-                href="/contato" 
+                href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank" rel="noopener noreferrer" 
                 className="bg-m2-green text-black font-bold py-3 px-6 rounded-lg text-base hover:bg-white transition-colors duration-300 transform hover:scale-105 inline-block"
               >
-                Solicite um Orçamento
+                Solicite um Orçament
               </Link>
             </div>
           </div>
@@ -99,9 +99,9 @@ export const Footer = () => {
         </div>
 
         {/* Linha Final: Copyright */}
-        <div className="mt-16 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+        <div className="mt-8 pt-2 border-t border-gray-800 text-center text-gray-500 text-sm">
           <p>
-            © {new Date().getFullYear()} M2 Projecta | Todos os direitos reservados.| Desenvolvido por <a href="https://www.instagram.com/levbrands/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors">LEV.B - Marketing 360º</a>
+            © {new Date().getFullYear()} M2 Projecta - Todos os direitos reservados. | Desenvolvido por <a href="https://www.instagram.com/levbrands/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors">LEV.B - Marketing 360º</a>
           </p>
         </div>
 
