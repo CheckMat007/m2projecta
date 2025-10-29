@@ -39,7 +39,7 @@ export const Footer = () => {
                 href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank" rel="noopener noreferrer" 
                 className="bg-m2-green text-black font-bold py-3 px-6 rounded-lg text-base hover:bg-white transition-colors duration-300 transform hover:scale-105 inline-block"
               >
-                Solicite um Orçament
+                Solicite um Orçamento
               </Link>
             </div>
           </div>

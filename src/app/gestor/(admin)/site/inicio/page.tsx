@@ -45,6 +45,7 @@ export default async function InicioPage() {
         </CardContent>
       </Card>
       
+      
       <Card className="bg-black/30 border-gray-800 text-white">
         <CardHeader>
           <div className="bg-red-500/30 text-white border border-red-700 p-4 rounded-md flex items-center gap-3">
