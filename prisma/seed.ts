@@ -14,6 +14,7 @@ async function main() {
     { name: 'manage_team', description: 'Acesso a Gerenciar Equipe' },
     { name: 'manage_blog', description: 'Acesso a Gerenciar Blog' }, // <-- ADICIONADO
     { name: 'send_notifications', description: 'Pode enviar notificações manuais para a equipe' }, // <-- ADICIONADO
+    { name: 'manage_notifications', description: 'Pode gerenciar e ver o histórico de notificações' },
   ];
 
   for (const p of permissions) {

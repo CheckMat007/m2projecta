@@ -1,24 +1,78 @@
 // src/app/gestor/(admin)/layout.tsx
+// Este é um Server Component novamente.
 
-import { Sidebar } from './_components/sidebar';
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import type { User, Permission } from '@prisma/client';
+import * as LucideIcons from 'lucide-react';
+import { AdminLayoutClient } from './_components/AdminLayoutClient';
+import { getNotificationsForBell } from './notifications/actions'; // Importamos a action de notificações
 
+// Tipos e helper movidos para cá
+type IconName = keyof typeof LucideIcons;
+interface MenuItem { href?: string; icon: IconName; label: string; permission?: string; subItems?: Omit<MenuItem, 'subItems' | 'permission'>[];}
+type UserWithPermissions = User & { permissions: Permission[]; };
+const hasPermission = (user: UserWithPermissions | null, permissionName: string): boolean => {
+  if (!user) return false;
+  if (user.role === 'MASTER') return true;
+  return user.permissions?.some(p => p.name === permissionName);
+};
 
-// O Layout agora é um componente simples, sem 'async' e sem buscar dados
-export default function GestorLayout({
+export default async function GestorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // 1. BUSCA DE DADOS CENTRALIZADA
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    redirect('/gestor/login');
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { permissions: true },
+  });
+
+  const { notifications, unreadCount } = await getNotificationsForBell();
+
+  const menuItems: MenuItem[] = [
+    { href: "/gestor", icon: 'LayoutDashboard', label: "Dashboard", permission: 'any' },
+    { href: "/gestor/notifications", icon: 'Bell', label: "Notificações", permission: 'manage_notifications' },
+    {
+      label: "Gerenciar Site", icon: 'Home', permission: 'manage_site',
+      subItems: [
+        { href: "/gestor/site/inicio", icon: 'Home', label: "Início" },
+        { href: "/gestor/site/sobre", icon: 'BookOpen', label: "Sobre Nós" },
+        { href: "/gestor/site/servicos", icon: 'Briefcase', label: "Serviços" },
+        { href: "/gestor/site/contato", icon: 'Contact', label: "Contato" },
+        { href: "/gestor/site/aparencia", icon: 'Paintbrush', label: "Aparência" },
+      ],
+    },
+    { href: "/gestor/clientes", icon: 'Users', label: "Gerenciar Clientes", permission: 'manage_clients' },
+    { href: "/gestor/projetos", icon: 'Briefcase', label: "Gerenciar Projetos", permission: 'manage_projects' },
+    { href: "/gestor/portfolio", icon: 'LayoutDashboard', label: "Gerenciar Portfólio", permission: 'manage_portfolio' },
+    { href: "/gestor/contratos", icon: 'FileText', label: "Gerenciar Contratos", permission: 'manage_contracts' },
+    { href: "/gestor/equipe", icon: 'UserCog', label: "Gerenciar Equipe", permission: 'manage_team' },
+  ];
+
+  const accessibleMenuItems = menuItems.filter(item =>
+    item.permission === 'any' || (item.permission && hasPermission(user, item.permission))
+  );
+
+  // 2. RENDERIZA O CLIENT COMPONENT E PASSA TODOS OS DADOS
   return (
     <div className="min-h-screen bg-m2-dark text-white">
-      <div className="flex">
-        {/* Não passamos mais a prop 'user' */}
-        <Sidebar />
-        <main className="flex-1 p-8 overflow-y-auto">
-          {children}
-        </main>
-      </div>
-      
+      <AdminLayoutClient
+        user={session.user}
+        menuItems={accessibleMenuItems}
+        initialNotifications={notifications}
+        initialUnreadCount={unreadCount}
+      >
+        {children}
+      </AdminLayoutClient>
     </div>
   );
 }

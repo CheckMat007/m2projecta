@@ -26,6 +26,9 @@ model Notification {
   message   String   @db.Text
   createdAt DateTime @default(now())
 
+  // SUGESTÃO ADICIONADA: Campo para identificar notificações globais
+  isBroadcast Boolean @default(false)
+
   // NOVO: Relação para saber quem enviou a notificação
   senderId  String?
   sender    User?    @relation("SentNotifications", fields: [senderId], references: [id], onDelete: SetNull)

@@ -153,7 +153,7 @@ export function ProfileForm({ user }: { user: User }) {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold">Informações da Equipe</h2>
             <p className="text-sm text-gray-400">
-              Estes campos definem como este perfil aparecerá na página SOBRE NÓS do site.
+              Estes campos definem como este perfil aparecerá na página &quot;Sobre Nós&quot; do site.
             </p>
             
             <div className="space-y-2">
@@ -184,7 +184,7 @@ export function ProfileForm({ user }: { user: User }) {
             {session?.user?.role === 'MASTER' && (
               <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-800">
                 <div>
-                  <Label htmlFor="showOnAboutPage" className="font-bold">Aparecer na Página SOBRE NÓS</Label>
+                  <Label htmlFor="showOnAboutPage" className="font-bold">Aparecer na Página &quot;Sobre Nós&quot;</Label>
                   <p className="text-sm text-gray-400">Ative para que este membro da equipe seja exibido publicamente.</p>
                 </div>
                 <Switch 

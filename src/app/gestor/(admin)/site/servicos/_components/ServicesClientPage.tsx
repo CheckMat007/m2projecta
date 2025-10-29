@@ -49,6 +49,7 @@ function ServiceForm({ onFormSubmit, service }: { onFormSubmit: () => void, serv
       return;
     }
 
+    
     let imageUrl = service?.image || '';
     if (file) {
       try {
