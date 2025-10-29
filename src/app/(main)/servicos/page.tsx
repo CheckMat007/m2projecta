@@ -71,7 +71,7 @@ export default async function ServicosPage() {
             Entre em contato conosco e descubra como nossas imagens aéreas podem gerar valor para o seu negócio.
           </p>
           <Link 
-            href="/contato" 
+            href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank" rel="noopener noreferrer" 
             className="bg-m2-green text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-white transition-colors duration-300 transform hover:scale-105 inline-block"
           >
             Solicite um Orçamento
