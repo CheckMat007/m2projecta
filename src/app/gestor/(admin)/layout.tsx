@@ -1,5 +1,5 @@
 // src/app/gestor/(admin)/layout.tsx
-// Este é um Server Component novamente.
+// Este é um Server Component.
 
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
@@ -8,9 +8,9 @@ import { prisma } from '@/lib/prisma';
 import type { User, Permission } from '@prisma/client';
 import * as LucideIcons from 'lucide-react';
 import { AdminLayoutClient } from './_components/AdminLayoutClient';
-import { getNotificationsForBell } from './notifications/actions'; // Importamos a action de notificações
+import { getNotificationsForBell } from './notifications/actions';
 
-// Tipos e helper movidos para cá
+// Tipos e helper (sem alterações)
 type IconName = keyof typeof LucideIcons;
 interface MenuItem { href?: string; icon: IconName; label: string; permission?: string; subItems?: Omit<MenuItem, 'subItems' | 'permission'>[];}
 type UserWithPermissions = User & { permissions: Permission[]; };
@@ -25,22 +25,27 @@ export default async function GestorLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 1. BUSCA DE DADOS CENTRALIZADA
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect('/gestor/login');
   }
 
+  // Buscamos o usuário completo e mais recente do banco de dados
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: { permissions: true },
   });
 
+  // Adicionamos uma verificação de segurança: se o usuário da sessão não existe mais no banco, desloga ele.
+  if (!user) {
+    redirect('/gestor/login');
+  }
+
   const { notifications, unreadCount } = await getNotificationsForBell();
 
   const menuItems: MenuItem[] = [
     { href: "/gestor", icon: 'LayoutDashboard', label: "Dashboard", permission: 'any' },
-    { href: "/gestor/notifications", icon: 'Bell', label: "Notificações", permission: 'manage_notifications' },
+    { href: "/gestor/notifications", icon: 'Bell', label: "Gerenciar Notificações", permission: 'manage_notifications' },
     {
       label: "Gerenciar Site", icon: 'Home', permission: 'manage_site',
       subItems: [
@@ -62,11 +67,12 @@ export default async function GestorLayout({
     item.permission === 'any' || (item.permission && hasPermission(user, item.permission))
   );
 
-  // 2. RENDERIZA O CLIENT COMPONENT E PASSA TODOS OS DADOS
   return (
     <div className="min-h-screen bg-m2-dark text-white">
       <AdminLayoutClient
-        user={session.user}
+        // --- CORREÇÃO APLICADA AQUI ---
+        // Passamos o objeto 'user' fresco do banco de dados, em vez do 'session.user' obsoleto.
+        user={user}
         menuItems={accessibleMenuItems}
         initialNotifications={notifications}
         initialUnreadCount={unreadCount}
