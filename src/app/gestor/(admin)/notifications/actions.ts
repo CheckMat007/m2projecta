@@ -245,3 +245,43 @@ export async function refreshNotificationsAction() {
 
   return { notifications: formattedNotifications, unreadCount };
 }
+
+// --- NOVA ACTION: MARCAR UMA ÚNICA NOTIFICAÇÃO COMO LIDA ---
+export async function markSingleNotificationAsReadAction(notificationId: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return { success: false, message: "Usuário não autenticado." };
+    }
+    const userId = session.user.id;
+
+    // Usamos 'upsert' (update or insert). Esta é a lógica chave:
+    // 1. Tenta ENCONTRAR um status de leitura para este usuário e notificação.
+    // 2. Se ENCONTRAR, ele ATUALIZA 'isRead' para 'true'.
+    // 3. Se NÃO ENCONTRAR (caso de uma notificação broadcast), ele CRIA um novo status já com 'isRead: true'.
+    await prisma.userNotificationStatus.upsert({
+      where: {
+        userId_notificationId: {
+          userId,
+          notificationId,
+        },
+      },
+      update: {
+        isRead: true,
+      },
+      create: {
+        userId,
+        notificationId,
+        isRead: true,
+      },
+    });
+
+    // Revalida o layout para que, se o usuário atualizar a página, o estado de 'lida' persista.
+    revalidatePath('/gestor', 'layout');
+
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao marcar notificação única como lida:", error);
+    return { success: false, message: "Erro no servidor." };
+  }
+}

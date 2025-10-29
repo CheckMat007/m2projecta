@@ -6,7 +6,8 @@ import { Bell, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { markNotificationsAsReadAction, refreshNotificationsAction } from '../notifications/actions';
+// Importamos a nova action
+import { markNotificationsAsReadAction, refreshNotificationsAction, markSingleNotificationAsReadAction } from '../notifications/actions';
 import { toast } from 'sonner';
 
 // Tipos
@@ -32,9 +33,19 @@ export function NotificationBellClient({ initialNotifications, initialUnreadCoun
     }
   };
 
+  // --- FUNÇÃO ATUALIZADA ---
   const handleNotificationClick = (notification: NotificationWithReadStatus) => {
+    // 1. Abre o modal para leitura
     setSelectedNotification(notification);
-    setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, isRead: true } : n));
+    
+    // 2. Se a notificação ainda não foi lida, atualiza a UI e o banco de dados
+    if (!notification.isRead) {
+      // Atualização otimista da UI para feedback instantâneo
+      setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, isRead: true } : n));
+      
+      // Chama a nova action para salvar a mudança no banco de dados "em segundo plano"
+      markSingleNotificationAsReadAction(notification.id);
+    }
   };
   
   const handleRefresh = async () => {
