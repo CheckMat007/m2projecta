@@ -203,3 +203,8 @@
     padding-right: 1rem;
   }
 }
+
+.prose mark {
+  background-color: theme('colors.m2-green / 30%');
+  color: theme('colors.m2-green');
+}
