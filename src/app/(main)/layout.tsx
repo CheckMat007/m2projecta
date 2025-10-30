@@ -3,7 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 //import DevelopmentBanner from '@/components/ui/DevelopmentBanner'
 import Script from "next/script";
-
+import { CookieConsentBanner } from '@/components/CookieConsentBanner';
 
 export default function MainLayout({
   children,
@@ -32,6 +32,7 @@ export default function MainLayout({
         `}
       </Script>
       {/*<DevelopmentBanner />*/}
+      <CookieConsentBanner />
     </>
   );
 }

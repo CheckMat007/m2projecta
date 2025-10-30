@@ -46,6 +46,7 @@ export default async function GestorLayout({
   const menuItems: MenuItem[] = [
     { href: "/gestor", icon: 'LayoutDashboard', label: "Dashboard", permission: 'any' },
     { href: "/gestor/notifications", icon: 'Bell', label: "Gerenciar Notificações", permission: 'manage_notifications' },
+    { href: "/gestor/blog", icon: 'BookText', label: "Blog", permission: 'manage_blog' },
     {
       label: "Gerenciar Site", icon: 'Home', permission: 'manage_site',
       subItems: [

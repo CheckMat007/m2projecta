@@ -19,66 +19,58 @@ enum Status {
   DRAFT
 }
 
-// 1. NOVO MODELO PARA NOTIFICAÇÕES
+// --- MODELOS DE NOTIFICAÇÃO ---
 model Notification {
-  id        String   @id @default(cuid())
-  title     String
-  message   String   @db.Text
-  createdAt DateTime @default(now())
-
-  // SUGESTÃO ADICIONADA: Campo para identificar notificações globais
-  isBroadcast Boolean @default(false)
-
-  // NOVO: Relação para saber quem enviou a notificação
-  senderId  String?
-  sender    User?    @relation("SentNotifications", fields: [senderId], references: [id], onDelete: SetNull)
-
-  // Relação existente: Um status de leitura por usuário que recebe
+  id           String                   @id @default(cuid())
+  title        String
+  message      String                   @db.Text
+  createdAt    DateTime                 @default(now())
+  isBroadcast  Boolean                  @default(false)
+  senderId     String?
+  sender       User?                    @relation("SentNotifications", fields: [senderId], references: [id], onDelete: SetNull)
   readStatuses UserNotificationStatus[]
 }
 
-// 2. NOVO MODELO PARA RASTREAR A LEITURA DE NOTIFICAÇÕES
-// Tabela de junção entre User e Notification
 model UserNotificationStatus {
   id             String       @id @default(cuid())
   isRead         Boolean      @default(false)
-  
-  // Relações
   userId         String
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   notificationId String
   notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, notificationId]) // Garante que um usuário só tenha um status por notificação
+  @@unique([userId, notificationId])
 }
 
-
+// --- MODELO DE USUÁRIO ---
 model User {
-  id               String   @id @default(cuid())
-  name             String?
-  email            String   @unique
-  password         String
-  image            String?
-  phone            String?
-  role             Role     @default(EDITOR)
+  id                 String    @id @default(cuid())
+  name               String?
+  email              String    @unique
+  password           String
+  image              String?
+  phone              String?
+  role               Role      @default(EDITOR)
+  jobDescription     String?   @db.Text
+  showOnAboutPage    Boolean   @default(false)
+  personalQuote      String?   @db.Text
+  mustChangePassword Boolean   @default(true)
   
-  jobDescription   String?  @db.Text
-  showOnAboutPage  Boolean  @default(false)
-  personalQuote    String?  @db.Text
+  notifications      UserNotificationStatus[]
+  sentNotifications  Notification[]           @relation("SentNotifications")
+  permissions        Permission[]
   
-  // 3. NOVO CAMPO PARA FORÇAR A TROCA DE SENHA
-  mustChangePassword Boolean @default(true)
+  authoredPosts      Post[]                   @relation("AuthoredPosts")
+  editedPosts        Post[]                   @relation("EditedPosts")
+  
+  votes              PostVote[]
+  comments           Comment[]
 
-  // Relação: Um usuário pode ter vários status de notificação
-  notifications UserNotificationStatus[]
-  sentNotifications  Notification[] @relation("SentNotifications")
-  permissions      Permission[]
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 }
 
-// --- Modelos existentes (sem alterações) ---
-
+// --- MODELOS DE CONTEÚDO DO SITE ---
 model Permission {
   id          String @id @default(cuid())
   name        String @unique
@@ -87,8 +79,8 @@ model Permission {
 }
 
 model PageSettings {
-  id           String @id @default(cuid())
-  pageKey      String @unique
+  id           String  @id @default(cuid())
+  pageKey      String  @unique
   heroImageUrl String?
 }
 
@@ -123,16 +115,16 @@ model FaqItem {
 }
 
 model Service {
-  id               String   @id @default(cuid())
-  name             String   @unique
-  shortDescription String   @db.Text
-  longDescription  String   @db.Text
+  id               String        @id @default(cuid())
+  name             String        @unique
+  shortDescription String        @db.Text
+  longDescription  String        @db.Text
   icon             String
   image            String
   videoUrl         String?
   portfolioItems   PortfolioItem[]
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 }
 
 model PortfolioItem {
@@ -147,7 +139,83 @@ model PortfolioItem {
   seoTitle         String?
   seoDescription   String?
   serviceId        String?
-  service          Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull) // Alterado para SetNull
+  service          Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+// --- MODELOS DO BLOG ---
+model Post {
+  id                   String    @id @default(cuid())
+  slug                 String    @unique
+  title                String
+  content              String    @db.Text
+  featuredImageUrl     String?
+  featuredImageAlt     String?
+  featuredImageSource  String?
+  status               Status    @default(DRAFT)
+  seoTitle             String?
+  seoDescription       String?
+  estimatedReadingTime Int?
+  isFeatured           Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  authorId             String
+  author               User      @relation("AuthoredPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  lastEditorId         String?
+  lastEditor           User?     @relation("EditedPosts", fields: [lastEditorId], references: [id], onDelete: SetNull)
+  categories           Category[]
+  tags                 Tag[]
+  votes                PostVote[]
+  comments             Comment[]
+}
+
+model Category {
+  id    String @id @default(cuid())
+  slug  String @unique
+  name  String @unique
+  posts Post[]
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  slug  String @unique
+  name  String @unique
+  posts Post[]
+}
+
+// --- MODELOS DE ENGAJAMENTO ---
+enum VoteType {
+  LIKE
+  DISLIKE
+}
+
+model PostVote {
+  id     String   @id @default(cuid())
+  type   VoteType
+  
+  postId String
+  post   Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  // Alterações para Votação Anônima
+  userId String?  // 1. Tornamos o userId opcional
+  user   User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  voterId String? @db.Uuid // 2. Adicionamos o identificador anônimo
+  
+  // 3. Adicionamos um índice para melhorar a performance da busca por votos anônimos
+  @@index([voterId, postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
 }
