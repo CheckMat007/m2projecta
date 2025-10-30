@@ -62,7 +62,7 @@ export default function HomeClientPage({ heroVideoId, portfolioItems, faqItems, 
   return (
     <>
       <section id="home" className="relative w-full hero-image-bg">
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/60 z-0"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent z-0"></div>
         <div className="relative z-10">
           <div className="container mx-auto px-6 grid md:grid-cols-2 gap-x-12 items-center pt-28 pb-20 md:pt-40 md:pb-10">
             <div className="text-center md:text-left">
@@ -76,7 +76,7 @@ export default function HomeClientPage({ heroVideoId, portfolioItems, faqItems, 
                 <a href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank" rel="noopener noreferrer" className="bg-m2-green text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-white transition-colors duration-300 transform hover:scale-105">
                   Solicite um Orçamento
                 </a>
-                <a href="/servicos" className="border-2 border-m2-green text-m2-green font-bold py-3 px-8 rounded-lg text-lg hover:bg-m2-green hover:text-black transition-colors duration-300">
+                <a href="/servicos" className="bg-white text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-m2-green transition-colors duration-300 transform hover:scale-105">
                   Conheça Nossos Serviços
                 </a>
               </div>
