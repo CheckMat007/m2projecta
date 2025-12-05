@@ -16,6 +16,6 @@ export default async function ServicosPage() {
   const services = await getServices();
 
   return (
-    <ServicesClientPage services={services} />
+    <ServicesClientPage initialServices={services} />
   );
 }
