@@ -1,24 +1,30 @@
+// src/types/next-auth.d.ts
 import { Role } from '@prisma/client';
-import { DefaultSession } from 'next-auth';
+import NextAuth, { DefaultSession, DefaultUser } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
 
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
       role: Role;
-      mustChangePassword: boolean; // <-- ADICIONE ESTA LINHA
+      mustChangePassword: boolean;
+      // authMethod foi removido
     } & DefaultSession['user'];
   }
-  interface User {
+
+  interface User extends DefaultUser {
     role: Role;
-    mustChangePassword: boolean; // <-- ADICIONE ESTA LINHA
+    mustChangePassword: boolean;
+    // authMethod foi removido
   }
 }
 
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
     role: Role;
-    mustChangePassword: boolean; // <-- ADICIONE ESTA LINHA
+    mustChangePassword: boolean;
+    // authMethod foi removido
   }
 }

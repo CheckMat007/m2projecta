@@ -1,24 +1,24 @@
-// src/app/(main)/servicos/[id]/page.tsx
+// src/app/(main)/servicos/[slug]/page.tsx
 
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { iconMap } from "@/lib/icons";
-import { Building } from "lucide-react"; // Ícone de fallback
+import { Building } from "lucide-react";
 
-// A função de SEO (pré-renderização) continua a mesma
+// Função de SEO para gerar as rotas estáticas no build
 export async function generateStaticParams() {
-  const services = await prisma.service.findMany({ select: { id: true } });
+  const services = await prisma.service.findMany({ select: { slug: true } });
   return services.map((service) => ({
-    id: service.id,
+    slug: service.slug, // Mudança: id -> slug
   }));
 }
 
-// A função de busca de dados continua a mesma
-async function getServiceDetails(id: string) {
+// Função de busca de dados
+async function getServiceDetails(slug: string) {
   const service = await prisma.service.findUnique({
-    where: { id: id },
+    where: { slug: slug }, // Mudança: id -> slug
     include: {
       portfolioItems: {
         where: { status: 'PUBLISHED' },
@@ -33,9 +33,8 @@ async function getServiceDetails(id: string) {
   return service;
 }
 
-
-export default async function ServiceDetailPage({ params }: { params: { id: string } }) {
-  const service = await getServiceDetails(params.id);
+export default async function ServiceDetailPage({ params }: { params: { slug: string } }) {
+  const service = await getServiceDetails(params.slug); // Mudança: params.id -> params.slug
   const IconComponent = iconMap[service.icon] || Building;
 
   return (
@@ -102,18 +101,16 @@ export default async function ServiceDetailPage({ params }: { params: { id: stri
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {service.portfolioItems.map((item) => (
                 <Link href={`/portfolio/${item.id}`} key={item.id} className="group block">
-                  <div className="relative overflow-hidden rounded-lg">
+                  <div className="relative overflow-hidden rounded-lg aspect-video">
                     <Image 
                       src={item.coverImage} 
                       alt={item.title} 
-                      width={600} 
-                      height={400} 
+                      fill
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                     />
                     <div className="absolute inset-0 bg-black/70 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                       <div>
                         <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                        {/* A CORREÇÃO ESTÁ AQUI */}
                         <p className="text-m2-green">{service.name}</p>
                       </div>
                     </div>

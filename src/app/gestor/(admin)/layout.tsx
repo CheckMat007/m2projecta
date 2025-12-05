@@ -58,9 +58,9 @@ export default async function GestorLayout({
       ],
     },
     { href: "/gestor/clientes", icon: 'Users', label: "Gerenciar Clientes", permission: 'manage_clients' },
+    { href: "/gestor/contratos", icon: 'FileText', label: "Gerenciar Contratos", permission: 'manage_contracts' },
     { href: "/gestor/projetos", icon: 'Briefcase', label: "Gerenciar Projetos", permission: 'manage_projects' },
     { href: "/gestor/portfolio", icon: 'LayoutDashboard', label: "Gerenciar Portfólio", permission: 'manage_portfolio' },
-    { href: "/gestor/contratos", icon: 'FileText', label: "Gerenciar Contratos", permission: 'manage_contracts' },
     { href: "/gestor/equipe", icon: 'UserCog', label: "Gerenciar Equipe", permission: 'manage_team' },
   ];
 
