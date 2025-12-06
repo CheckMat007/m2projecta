@@ -1,118 +1,187 @@
 // src/app/gestor/(admin)/page.tsx
-
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { Users, FileText, Calendar, TrendingUp, Info, PlusCircle, Briefcase } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProjectChart } from "./_components/ProjectChart";
+import { Users, Briefcase, FileText, DollarSign } from 'lucide-react';
+import { DashboardCharts } from './_components/DashboardCharts'; // Componente de Gráfico
+import { format } from 'date-fns';
 
-// Componente para os cards de estatísticas (CORRIGIDO)
-const StatCard = ({ title, value, change, icon: Icon }: { title: string, value: string, change: string, icon: React.ElementType }) => {
-  return (
-    <div className="bg-black/30 p-6 rounded-lg border border-gray-800 flex flex-col gap-4">
-      <div className="flex justify-between items-start">
-        <h3 className="text-sm font-medium text-gray-400">{title}</h3>
-        <Icon className="w-5 h-5 text-gray-500" />
-      </div>
-      <div>
-        <p className="text-4xl font-bold">{value}</p>
-        <p className="text-xs text-gray-500 mt-1">{change}</p>
-      </div>
-    </div>
-  );
+// Função auxiliar de formatação
+const formatMoney = (value: number) => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
 };
 
-export default async function GestorPage() {
+async function getDashboardMetrics() {
+  const now = new Date();
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  // 1. Total de Clientes
+  const totalClients = await prisma.client.count();
+
+  // 2. Projetos em Andamento (Exclui concluídos, publicados e cancelados)
+  const activeProjects = await prisma.project.count({
+    where: {
+      status: {
+        in: ['BRIEFING', 'IN_PROGRESS', 'REVIEW']
+      }
+    }
+  });
+
+  // 3. Contratos do Mês (Novos contratos gerados)
+  const newContractsCount = await prisma.contract.count({
+    where: {
+      createdAt: { gte: firstDayOfMonth }
+    }
+  });
+
+  // 4. Receita do Mês (Soma de contratos PAGOS atualizados este mês)
+  const revenueAgg = await prisma.contract.aggregate({
+    _sum: { value: true },
+    where: {
+      status: 'PAID',
+      updatedAt: { gte: firstDayOfMonth } 
+    }
+  });
+  const monthlyRevenue = revenueAgg._sum.value || 0;
+
+  // 5. Timeline Global (últimas 10 atualizações de qualquer projeto)
+  const globalTimeline = await prisma.projectUpdate.findMany({
+    take: 10,
+    orderBy: { createdAt: 'desc' },
+    include: {
+        project: { include: { client: { select: { tradeName: true } } } },
+        createdBy: { select: { name: true } }
+    }
+  });
+
+  // 6. Dados para o Gráfico (Receita Semestral - Contratos pagos recentes)
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+  
+  const paidContracts = await prisma.contract.findMany({
+      where: { 
+          status: 'PAID',
+          updatedAt: { gte: sixMonthsAgo }
+      },
+      select: { value: true, updatedAt: true }
+  });
+
+  return {
+    totalClients,
+    activeProjects,
+    newContractsCount,
+    monthlyRevenue,
+    globalTimeline,
+    paidContracts
+  };
+}
+
+export default async function AdminDashboard() {
   const session = await getServerSession(authOptions);
-  const userName = session?.user?.name?.split(' ')[0] || 'Gestor';
+  
+  if (!session) {
+    redirect('/gestor/login');
+  }
 
-  const statsData = [
-    { title: 'Clientes Ativos', value: '42', change: '+3 no último mês', icon: Users },
-    { title: 'Contratos Fechados', value: '17', change: '+1 este mês', icon: FileText },
-    { title: 'Agendamentos (Mês)', value: '8', change: '2 na próxima semana', icon: Calendar },
-    { title: 'Receita (Mês)', value: 'R$ 7.850', change: '+15% vs. mês anterior', icon: TrendingUp },
-  ];
-
-  const recentActivities = [
-    { icon: Users, text: 'Novo cliente "Construtora Alfa" cadastrado.', time: '2h atrás' },
-    { icon: FileText, text: 'Nova mensagem de contato recebida.', time: '5h atrás' },
-    { icon: Briefcase, text: 'Projeto "Edifício SkyTower" marcado como concluído.', time: 'Ontem' },
-  ];
-
-  const upcomingAppointments = [
-    { date: '18/10', title: 'Reunião de briefing - Cliente Beta', time: '10:00' },
-    { date: '21/10', title: 'Filmagem aérea - Evento MusicVibe', time: '14:00' },
-    { date: '23/10', title: 'Apresentação de proposta - Imobiliária Gama', time: '11:00' },
-  ];
+  const metrics = await getDashboardMetrics();
+  const firstName = session.user.name?.split(' ')[0] || 'Gestor';
 
   return (
     <div className="space-y-8">
-      {/* Saudação e Aviso */}
       <div>
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-gray-400">Bem-vindo de volta, {userName}!</p>
-      </div>
-      <div className="bg-yellow-900/30 text-yellow-300 border border-yellow-400/20 p-4 rounded-md flex items-center gap-3">
-        <Info size={20} />
-        <p className="text-sm"><span className="font-semibold">Aviso:</span> Os dados exibidos são apenas exemplos para demonstração.</p>
+        <p className="text-gray-400">Bem-vindo de volta, {firstName}!</p>
       </div>
 
-      {/* Grid de Cards com Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statsData.map((stat) => <StatCard key={stat.title} {...stat} />)}
+      {/* Cards de Métricas */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-gray-900/50 border-gray-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-400">Clientes Totais</CardTitle>
+            <Users className="h-4 w-4 text-m2-green" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{metrics.totalClients}</div>
+            <p className="text-xs text-gray-500">Base ativa de clientes</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-400">Contratos (Mês)</CardTitle>
+            <FileText className="h-4 w-4 text-blue-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{metrics.newContractsCount}</div>
+            <p className="text-xs text-gray-500">Novos contratos este mês</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-400">Projetos Ativos</CardTitle>
+            <Briefcase className="h-4 w-4 text-yellow-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{metrics.activeProjects}</div>
+            <p className="text-xs text-gray-500">Em andamento ou revisão</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-400">Receita (Mês)</CardTitle>
+            <DollarSign className="h-4 w-4 text-green-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{formatMoney(metrics.monthlyRevenue)}</div>
+            <p className="text-xs text-gray-500">Pagamentos confirmados</p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Acesso Rápido */}
-      <div className="flex flex-wrap items-center gap-4">
-        <h3 className="text-lg font-semibold mr-4">Acesso Rápido:</h3>
-        <Link href="/gestor/portfolio/novo"><Button className="bg-m2-green/90 text-black hover:bg-m2-green"><PlusCircle size={18} className="mr-2" /> Adicionar Portfólio</Button></Link>
-        <Link href="/gestor/clientes/novo"><Button variant="outline" className="bg-transparent border-gray-600 hover:bg-gray-800 hover:text-white"><PlusCircle size={18} className="mr-2" /> Cadastrar Cliente</Button></Link>
-      </div>
+      {/* Seção Inferior: Gráfico e Timeline */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        
+        {/* Gráfico de Receita */}
+        <Card className="col-span-4 bg-gray-900/50 border-gray-800">
+          <CardHeader>
+            <CardTitle>Receita Semestral</CardTitle>
+          </CardHeader>
+          <CardContent className="pl-2">
+             <DashboardCharts contracts={metrics.paidContracts} />
+          </CardContent>
+        </Card>
 
-      {/* Layout de duas colunas para Gráfico e Listas */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <ProjectChart />
-        </div>
-        <div className="space-y-6">
-          <Card className="bg-black/30 border-gray-800 text-white">
-            <CardHeader><CardTitle>Atividade Recente</CardTitle></CardHeader>
-            <CardContent>
-              <ul className="space-y-4">
-                {recentActivities.map((activity, index) => (
-                  <li key={index} className="flex items-start gap-4 text-sm">
-                    <activity.icon className="w-5 h-5 text-gray-500 mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="text-gray-300">{activity.text}</p>
-                      <p className="text-xs text-gray-500">{activity.time}</p>
+        {/* Timeline Global */}
+        <Card className="col-span-3 bg-gray-900/50 border-gray-800">
+          <CardHeader>
+            <CardTitle>Atualizações Recentes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-8 relative border-l border-gray-800 ml-2 pl-6">
+              {metrics.globalTimeline.map((update) => (
+                <div key={update.id} className="relative">
+                  <span className="absolute -left-[1.9rem] top-1 h-3 w-3 rounded-full bg-blue-500 border-2 border-gray-900" />
+                  <div className="flex flex-col gap-1">
+                    <div className="flex justify-between items-start">
+                        <span className="text-xs text-m2-green font-bold">{update.project.client.tradeName}</span>
+                        <span className="text-[10px] text-gray-500">{format(new Date(update.createdAt), "dd/MM HH:mm")}</span>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-          <Card className="bg-black/30 border-gray-800 text-white">
-            <CardHeader><CardTitle>Próximos Agendamentos</CardTitle></CardHeader>
-            <CardContent>
-              <ul className="space-y-4">
-                {upcomingAppointments.map((appt, index) => (
-                  <li key={index} className="flex items-center gap-4 text-sm">
-                    <div className="bg-gray-800 p-2 rounded-md text-center">
-                      <p className="font-bold text-m2-green">{appt.date.split('/')[0]}</p>
-                      <p className="text-xs text-gray-400">{appt.date.split('/')[1]}</p>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-200">{appt.title}</p>
-                      <p className="text-xs text-gray-400">{appt.time}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
+                    <p className="text-sm text-white font-medium">{update.project.name}</p>
+                    <p className="text-xs text-gray-400">{update.title}</p>
+                  </div>
+                </div>
+              ))}
+              {metrics.globalTimeline.length === 0 && <p className="text-sm text-gray-500">Nenhuma atualização.</p>}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

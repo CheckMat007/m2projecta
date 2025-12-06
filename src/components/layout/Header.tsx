@@ -48,7 +48,7 @@ export const Header = () => {
           })}
         </nav>
 
-        <a href="/area-do-cliente" className="hidden md:inline-block bg-m2-green text-black font-bold py-2 px-4 rounded-lg hover:bg-white transition-colors duration-300">
+        <a href="/cliente/login" className="hidden md:inline-block bg-m2-green text-black font-bold py-2 px-4 rounded-lg hover:bg-white transition-colors duration-300">
           Área do Cliente
         </a>
         

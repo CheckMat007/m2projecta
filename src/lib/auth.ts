@@ -9,26 +9,25 @@ import { prisma } from "@/lib/prisma";
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
+    // Apenas o provedor de credenciais
     CredentialsProvider({
       name: "Credentials",
       credentials: { email: { label: "Email", type: "email" }, password: { label: "Password", type: "password" } },
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials.password) return null;
-
           const user = await prisma.user.findUnique({ where: { email: credentials.email } });
           if (!user) return null;
-
           const valid = await bcrypt.compare(credentials.password, user.password);
           if (!valid) return null;
 
-          // 1. ADICIONADO: Retornar o campo 'mustChangePassword' do banco de dados
           return {
             id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
-            mustChangePassword: user.mustChangePassword, // <-- Adicionado aqui
+            mustChangePassword: user.mustChangePassword,
+            // authMethod REMOVIDO
           };
         } catch (err) {
           console.error("Authorize error:", err);
@@ -39,14 +38,14 @@ export const authOptions: NextAuthOptions = {
   ],
   session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET,
-  pages: { signIn: "/gestor/login" },
+  // Removemos pages.signIn para evitar redirecionamentos globais automáticos
   callbacks: {
-    async jwt({ token, user }) { // Simplificado para clareza, mas pode incluir trigger/session
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        // 2. ADICIONADO: Inserir o campo no token JWT
-        token.mustChangePassword = user.mustChangePassword; // <-- Adicionado aqui
+        token.mustChangePassword = user.mustChangePassword;
+        // authMethod REMOVIDO DAQUI
       }
       return token;
     },
@@ -54,11 +53,10 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
-        // 3. ADICIONADO: Inserir o campo no objeto da sessão final
-        session.user.mustChangePassword = token.mustChangePassword as boolean; // <-- Adicionado aqui
+        session.user.mustChangePassword = token.mustChangePassword as boolean;
+        // authMethod REMOVIDO DAQUI
       }
       return session;
     },
   },
-  debug: false, // Recomendo desabilitar o debug em produção
 };

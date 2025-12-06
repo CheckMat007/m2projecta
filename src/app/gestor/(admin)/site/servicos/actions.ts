@@ -3,10 +3,23 @@
 
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
-import { Prisma, Service } from '@prisma/client'; // Importa o tipo Service
 
-// Função auxiliar para extrair o ID do vídeo
+// --- HELPER DE SEGURANÇA ---
+async function canManageServices() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return false;
+  // Ajuste conforme suas regras (MASTER ou permissão específica)
+  if (session.user.role === 'MASTER') return true;
+  // Se tiver permissão específica, adicione aqui
+  return false; 
+}
+
+// --- FUNÇÕES UTILITÁRIAS ---
+
+// Extrair ID do YouTube
 function extractYouTubeId(url: string): string | null {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
@@ -15,127 +28,120 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-// Schema de validação para o formulário de serviço
+// Gerar Slug (URL amigável)
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+// --- SCHEMA DE VALIDAÇÃO ---
 const serviceSchema = z.object({
+  serviceId: z.string().optional(),
   name: z.string().min(3, 'O nome do serviço é obrigatório.'),
   icon: z.string().min(2, 'A seleção do ícone é obrigatória.'),
   shortDescription: z.string().min(10, 'A descrição curta é obrigatória.'),
   longDescription: z.string().min(20, 'A descrição longa é obrigatória.'),
   image: z.string().url('A URL da imagem de destaque é inválida.'),
-  videoUrl: z.string().nullable().optional(), // ID do vídeo (pode ser nulo)
+  videoUrl: z.string().nullable().optional(),
 });
 
-// AÇÃO PARA CRIAR UM NOVO SERVIÇO
-export async function createService(formData: FormData) {
-  const data = Object.fromEntries(formData);
-  const fullVideoUrl = data.videoUrl as string;
-  let videoId: string | null = null;
-
-  if (fullVideoUrl && fullVideoUrl.trim() !== '') {
-    videoId = extractYouTubeId(fullVideoUrl);
-    if (!videoId) {
-      return { success: false, message: 'A URL do vídeo do YouTube é inválida.' };
-    }
-  }
-
-  const parsedData = { ...data, videoUrl: videoId };
-  const validatedFields = serviceSchema.safeParse(parsedData);
-
-  if (!validatedFields.success) {
-    const errorMessage = validatedFields.error.issues[0]?.message || 'Dados inválidos.';
-    return { success: false, message: errorMessage };
-  }
-
+// --- ACTION: CRIAR OU ATUALIZAR SERVIÇO (UPSERT) ---
+export async function upsertServiceAction(formData: FormData) {
   try {
-    await prisma.service.create({
-      data: validatedFields.data,
-    });
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return { success: false, message: 'Um serviço com este nome já existe.' };
+    if (!(await canManageServices())) {
+      return { success: false, message: "Acesso negado." };
     }
-    console.error("Erro ao criar serviço:", error);
-    return { success: false, message: 'Erro no banco de dados.' };
-  }
 
-  revalidatePath('/gestor/site/servicos');
-  revalidatePath('/servicos');
-  return { success: true, message: 'Serviço criado com sucesso!' };
+    const rawData = Object.fromEntries(formData);
+    const fullVideoUrl = rawData.videoUrl as string;
+    let videoId: string | null = null;
+
+    if (fullVideoUrl && fullVideoUrl.trim() !== '') {
+      videoId = extractYouTubeId(fullVideoUrl);
+      if (!videoId) {
+        return { success: false, message: 'A URL do vídeo do YouTube é inválida.' };
+      }
+    }
+
+    const parsedData = { ...rawData, videoUrl: videoId };
+    const validatedFields = serviceSchema.safeParse(parsedData);
+
+    if (!validatedFields.success) {
+      return { success: false, message: validatedFields.error.issues[0].message };
+    }
+
+    const { serviceId, name, ...rest } = validatedFields.data;
+    const slug = generateSlug(name);
+
+    // --- MODO ATUALIZAÇÃO ---
+    if (serviceId) {
+      const currentService = await prisma.service.findUnique({ where: { id: serviceId } });
+      if (!currentService) return { success: false, message: "Serviço não encontrado." };
+
+      // Verifica se o novo slug colide com outro serviço (que não seja este mesmo)
+      if (slug !== currentService.slug) {
+          const existingSlug = await prisma.service.findUnique({ where: { slug } });
+          if (existingSlug) return { success: false, message: "Já existe um serviço com este nome." };
+      }
+
+      await prisma.service.update({
+        where: { id: serviceId },
+        data: { name, slug, ...rest }
+      });
+
+      // Revalida a página antiga e a nova (caso o slug mude)
+      revalidatePath(`/servicos/${currentService.slug}`); 
+      revalidatePath(`/servicos/${slug}`);
+      
+      // Revalida as listagens
+      revalidatePath('/servicos');
+      revalidatePath('/gestor/site/servicos');
+      
+      return { success: true, message: 'Serviço atualizado com sucesso!' };
+    } 
+    
+    // --- MODO CRIAÇÃO ---
+    else {
+       const existingSlug = await prisma.service.findUnique({ where: { slug } });
+       if (existingSlug) return { success: false, message: "Já existe um serviço com este nome." };
+
+       await prisma.service.create({
+         data: { name, slug, ...rest }
+       });
+
+       revalidatePath('/servicos');
+       revalidatePath('/gestor/site/servicos');
+       return { success: true, message: 'Serviço criado com sucesso!' };
+    }
+
+  } catch (error) {
+    console.error("Erro ao salvar serviço:", error);
+    return { success: false, message: "Erro no banco de dados." };
+  }
 }
 
-// AÇÃO PARA EXCLUIR UM SERVIÇO
+// --- ACTION: DELETAR SERVIÇO ---
 export async function deleteService(id: string) {
-  if (!id) {
-    return { success: false, message: "ID do serviço não fornecido." };
-  }
+  if (!id) return { success: false, message: "ID do serviço não fornecido." };
+  
   try {
+    if (!(await canManageServices())) {
+        return { success: false, message: "Acesso negado." };
+    }
+
     await prisma.service.delete({ where: { id } });
+    
     revalidatePath('/gestor/site/servicos');
     revalidatePath('/servicos');
     return { success: true, message: 'Serviço excluído com sucesso!' };
   } catch (error) {
     console.error("Erro ao excluir serviço:", error);
-    return { success: false, message: 'Erro ao excluir o serviço. Verifique se não há portfólios associados.' };
+    return { success: false, message: 'Erro ao excluir. Verifique se há portfólios associados.' };
   }
-}
-
-// =================================================================
-// AÇÃO PARA ATUALIZAR UM SERVIÇO (LÓGICA COMPLETA E CORRIGIDA)
-// =================================================================
-export async function updateService(id: string, formData: FormData) {
-  const data = Object.fromEntries(formData);
-  const fullVideoUrl = data.videoUrl as string;
-  let videoId: string | null = null;
-
-  if (fullVideoUrl && fullVideoUrl.trim() !== '') {
-    videoId = extractYouTubeId(fullVideoUrl);
-    if (!videoId) {
-      return { success: false, message: 'A URL do vídeo do YouTube é inválida.' };
-    }
-  }
-
-  const parsedData = { ...data, videoUrl: videoId };
-  const validatedFields = serviceSchema.safeParse(parsedData);
-
-  if (!validatedFields.success) {
-    const errorMessage = validatedFields.error.issues[0]?.message || 'Dados inválidos.';
-    return { success: false, message: errorMessage };
-  }
-
-  try {
-    const currentService = await prisma.service.findUnique({ where: { id } });
-    if (!currentService) {
-      return { success: false, message: "Serviço não encontrado." };
-    }
-
-    const dataToUpdate: Partial<Service> = {};
-    const newData = validatedFields.data;
-
-    if (newData.name !== currentService.name) dataToUpdate.name = newData.name;
-    if (newData.icon !== currentService.icon) dataToUpdate.icon = newData.icon;
-    if (newData.shortDescription !== currentService.shortDescription) dataToUpdate.shortDescription = newData.shortDescription;
-    if (newData.longDescription !== currentService.longDescription) dataToUpdate.longDescription = newData.longDescription;
-    if (newData.image !== currentService.image) dataToUpdate.image = newData.image;
-    if (newData.videoUrl !== currentService.videoUrl) dataToUpdate.videoUrl = newData.videoUrl;
-
-    if (Object.keys(dataToUpdate).length === 0) {
-      return { success: true, message: 'Nenhuma alteração detectada.' };
-    }
-
-    await prisma.service.update({
-      where: { id: id },
-      data: dataToUpdate,
-    });
-
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return { success: false, message: 'Um serviço com este nome já existe.' };
-    }
-    console.error("Erro ao atualizar serviço:", error);
-    return { success: false, message: "Erro ao atualizar o serviço." };
-  }
-
-  revalidatePath('/gestor/site/servicos');
-  revalidatePath('/servicos');
-  return { success: true, message: 'Serviço atualizado com sucesso!' };
 }

@@ -12,11 +12,27 @@ datasource db {
 enum Role {
   MASTER
   EDITOR
+  CLIENT // <--- NOVO ROLE
 }
 
 enum Status {
   PUBLISHED
   DRAFT
+}
+
+enum ContractStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+enum ProjectStatus {
+  BRIEFING
+  IN_PROGRESS
+  REVIEW
+  DONE
+  PUBLISHED
+  CANCELLED
 }
 
 // --- MODELOS DE NOTIFICAÇÃO ---
@@ -66,9 +82,91 @@ model User {
   votes              PostVote[]
   comments           Comment[]
 
+  // Relação com o Cliente (Se este usuário for um cliente)
+  clientProfile      Client?
+
+  // Relação com atualizações de projeto (quem fez a atualização)
+  projectUpdates     ProjectUpdate[]
+
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 }
+
+// --- NOVOS MODELOS PARA O SISTEMA DE GESTÃO ---
+
+model Client {
+  id             String   @id @default(cuid())
+  tradeName      String   // Nome Fantasia (Nome principal exibido)
+  companyName    String?  // Razão Social
+  cnpj           String?  // CNPJ ou CPF
+  address        String?
+  phone          String?
+  logoUrl        String?
+  observations   String?  @db.Text
+
+  // Vínculo com o Usuário de Login
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  contracts      Contract[]
+  projects       Project[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Contract {
+  id             String         @id @default(cuid())
+  contractNumber String         @unique // Ex: M2-2025-001
+  value          Float
+  status         ContractStatus @default(PENDING)
+  fileUrl        String?        // PDF do contrato
+  observations   String?        @db.Text
+
+  clientId       String
+  client         Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  projects       Project[]
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  name           String
+  serviceType    String        // Ex: Filmagem de Obra, Evento, etc.
+  deliveryDate   DateTime?
+  status         ProjectStatus @default(IN_PROGRESS)
+  downloadUrl    String?       // Link para arquivos finais
+  observations   String?       @db.Text
+
+  clientId       String
+  client         Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  contractId     String?
+  contract       Contract?     @relation(fields: [contractId], references: [id], onDelete: SetNull)
+
+  updates        ProjectUpdate[] // Timeline do projeto
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+// Modelo para a Timeline do Cliente (Atualizações automáticas e manuais)
+model ProjectUpdate {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  createdAt   DateTime @default(now())
+
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+}
+
 
 // --- MODELOS DE CONTEÚDO DO SITE ---
 model Permission {
@@ -117,6 +215,7 @@ model FaqItem {
 model Service {
   id               String        @id @default(cuid())
   name             String        @unique
+  slug             String        @unique
   shortDescription String        @db.Text
   longDescription  String        @db.Text
   icon             String

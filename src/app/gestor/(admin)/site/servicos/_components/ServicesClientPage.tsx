@@ -1,228 +1,266 @@
 // src/app/gestor/(admin)/site/servicos/_components/ServicesClientPage.tsx
 'use client';
 
-import { useState, useRef } from 'react'; // 1. 'useEffect' foi removido daqui
-import { useRouter } from 'next/navigation';
-import type { Service } from '@prisma/client';
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { AlertDialog,AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, PlusCircle, Trash2, Edit, UploadCloud, Building, Building2, Trees, Clapperboard, PartyPopper, Hotel, Info } from 'lucide-react';
-import { toast } from 'sonner';
-import { createService, deleteService, updateService } from '../actions';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
+import type { Service } from '@prisma/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { toast } from 'sonner';
+import * as LucideIcons from 'lucide-react'; 
+import { PlusCircle, Edit, Trash2, Image as ImageIcon, HelpCircle } from 'lucide-react';
+import { upsertServiceAction, deleteService } from '../actions';
 
-const iconOptions = [
-  { value: 'Building', label: 'Imobiliário (Prédio 1)', icon: Building },
-  { value: 'Building2', label: 'Imobiliário (Prédio 2)', icon: Building2 },
-  { value: 'Hotel', label: 'Hotelaria', icon: Hotel },
-  { value: 'Clapperboard', label: 'Corporativo (Claquete)', icon: Clapperboard },
-  { value: 'PartyPopper', label: 'Eventos (Festa)', icon: PartyPopper },
-  { value: 'Trees', label: 'Turismo (Árvores)', icon: Trees },
-];
+function normalizeIconName(input: string): string {
+  if (!input) return '';
+  const clean = input.trim();
 
-function ServiceForm({ onFormSubmit, service }: { onFormSubmit: () => void, service?: Service }) {
-  const router = useRouter();
+  // CORREÇÃO 1: Adicionada descrição
+  // @ts-expect-error - Verificando dinamicamente se a chave existe no objeto LucideIcons
+  if (LucideIcons[clean]) return clean;
+
+  const pascalCase = clean
+    .split(/[-_\s]+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('');
+
+  return pascalCase;
+}
+
+function ServiceForm({ service, onFormSubmit }: { service?: Service, onFormSubmit: () => void }) {
+  const isEditing = !!service;
   const [isLoading, setIsLoading] = useState(false);
+  
+  const [iconInput, setIconInput] = useState(service?.icon || '');
+  const normalizedIconName = normalizeIconName(iconInput);
+  
+  // CORREÇÃO 2: Adicionada descrição
+  // @ts-expect-error - Acesso dinâmico à biblioteca de ícones pode não ter tipagem exata
+  const PreviewIcon = LucideIcons[normalizedIconName] || null;
+
   const [file, setFile] = useState<File | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [preview, setPreview] = useState<string | null>(service?.image || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [icon, setIcon] = useState(service?.icon || '');
-  const [preview, setPreview] = useState(service?.image || null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
+    const formData = new FormData(event.currentTarget);
 
-    if (!icon) {
-      toast.error("Por favor, selecione um ícone.");
-      setIsLoading(false);
-      return;
-    }
-    if (!file && !service) {
-      toast.error("Por favor, selecione uma imagem de destaque.");
-      setIsLoading(false);
-      return;
-    }
+    formData.set('icon', normalizedIconName);
 
-    
     let imageUrl = service?.image || '';
     if (file) {
       try {
         const uploadResponse = await fetch(`/api/upload?filename=${file.name}`, { method: 'POST', body: file });
-        if (!uploadResponse.ok) throw new Error('Falha no upload.');
+        if (!uploadResponse.ok) throw new Error("Falha no upload");
         const newBlob = await uploadResponse.json();
         imageUrl = newBlob.url;
       } catch (error) {
-        console.error("Erro ao fazer upload da imagem:", error); // 2. 'error' agora está sendo usado
+        console.error(error);
         toast.error("Erro ao fazer upload da imagem.");
         setIsLoading(false);
         return;
       }
     }
-
-    if (!formRef.current) return;
-    const formData = new FormData(formRef.current);
     formData.set('image', imageUrl);
-    formData.set('icon', icon);
 
-    const result = service 
-      ? await updateService(service.id, formData) 
-      : await createService(formData);
-    
-    if (result && result.success) {
+    const result = await upsertServiceAction(formData);
+
+    if (result.success) {
       toast.success(result.message);
       onFormSubmit();
-      router.refresh();
-    } else if (result) {
+    } else {
       toast.error(result.message);
     }
     setIsLoading(false);
   };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {isEditing && <input type="hidden" name="serviceId" value={service.id} />}
+
       <div className="space-y-2">
         <Label htmlFor="name">Nome do Serviço</Label>
-        <Input id="name" name="name" required defaultValue={service?.name || ''} className="bg-gray-800 border-gray-700" />
+        <Input id="name" name="name" defaultValue={service?.name} required className="bg-gray-800 border-gray-700" />
       </div>
-      <div className="space-y-2">
-        <Label>Ícone</Label>
-        <div className="bg-blue-900/30 text-blue-300 border border-blue-400/20 p-3 rounded-md flex items-center gap-3 text-sm">
-          <Info size={20} />
-          <p>Clique em um dos ícones abaixo para selecioná-lo.</p>
-        </div>
-        <div className="grid grid-cols-3 gap-4 mt-2">
-          {iconOptions.map((option) => (
-            <div 
-              key={option.value}
-              onClick={() => setIcon(option.value)}
-              className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 cursor-pointer transition-colors ${icon === option.value ? 'border-m2-green bg-m2-green/10' : 'border-gray-800 hover:bg-gray-800/50'}`}
-            >
-              <option.icon className="w-8 h-8 text-m2-green" />
-              <p className="text-xs text-center">{option.label}</p>
+
+      <div className="grid grid-cols-2 gap-4">
+         <div className="space-y-2">
+            <Label htmlFor="icon">Ícone (Lucide)</Label>
+            <div className="flex gap-2">
+                <Input 
+                    id="icon" 
+                    name="icon" 
+                    value={iconInput}
+                    onChange={(e) => setIconInput(e.target.value)}
+                    required 
+                    className="bg-gray-800 border-gray-700" 
+                    placeholder="Ex: arrow-right" 
+                />
+                <div className="w-10 h-10 flex items-center justify-center bg-gray-800 border border-gray-700 rounded-md shrink-0">
+                    {PreviewIcon ? <PreviewIcon size={20} className="text-m2-green" /> : <HelpCircle size={20} className="text-gray-500" />}
+                </div>
             </div>
-          ))}
+            <p className="text-xs text-gray-500">
+                {PreviewIcon ? 
+                    <span className="text-green-400">Ícone válido: {normalizedIconName}</span> : 
+                    "Digite o nome do ícone do site Lucide (ex: camera, video)"}
+            </p>
+         </div>
+         <div className="space-y-2">
+            <Label htmlFor="videoUrl">ID do Vídeo (YouTube)</Label>
+            <Input id="videoUrl" name="videoUrl" defaultValue={service?.videoUrl || ''} className="bg-gray-800 border-gray-700" placeholder="Ex: dQw4w9WgXcQ" />
+         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Imagem de Destaque (Hero)</Label>
+        <Input type="file" name="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+        
+        <div className="w-full aspect-video relative rounded-md overflow-hidden border border-gray-700 bg-gray-900 flex items-center justify-center group">
+            {preview ? (
+                <>
+                    <Image src={preview} alt="Preview" fill className="object-cover" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                         <Button type="button" variant="secondary" onClick={() => fileInputRef.current?.click()}>Trocar Imagem</Button>
+                    </div>
+                </>
+            ) : (
+                <Button type="button" variant="ghost" className="flex flex-col gap-2" onClick={() => fileInputRef.current?.click()}>
+                    <ImageIcon size={32} className="text-gray-500" />
+                    <span className="text-gray-500">Selecionar Imagem</span>
+                </Button>
+            )}
         </div>
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="shortDescription">Descrição Curta</Label>
-        <Textarea id="shortDescription" name="shortDescription" required defaultValue={service?.shortDescription || ''} rows={3} className="bg-gray-800 border-gray-700" />
+        <Textarea id="shortDescription" name="shortDescription" defaultValue={service?.shortDescription} required className="bg-gray-800 border-gray-700" rows={2} />
       </div>
+
       <div className="space-y-2">
-        <Label htmlFor="longDescription">Descrição Longa</Label>
-        <Textarea id="longDescription" name="longDescription" required defaultValue={service?.longDescription || ''} rows={6} className="bg-gray-800 border-gray-700" />
+        <Label htmlFor="longDescription">Descrição Longa (Detalhes)</Label>
+        <Textarea id="longDescription" name="longDescription" defaultValue={service?.longDescription} required className="bg-gray-800 border-gray-700" rows={5} />
       </div>
-      <div className="space-y-2">
-        <Label>Imagem de Destaque</Label>
-        <div className="w-full h-40 border-2 border-dashed border-gray-700 rounded-lg flex items-center justify-center relative overflow-hidden">
-          {preview ? <Image src={preview} alt="Preview" fill className="object-cover" /> : <UploadCloud size={32} />}
-        </div>
-        <Input type="file" className="hidden" ref={fileInputRef} onChange={(e) => { const file = e.target.files?.[0]; if(file) { setFile(file); setPreview(URL.createObjectURL(file)); } }} accept="image/*" />
-        <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-          {service ? 'Trocar Imagem' : 'Selecionar Imagem'}
-        </Button>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="videoUrl">URL do Vídeo do YouTube (Opcional)</Label>
-        <Input id="videoUrl" name="videoUrl" defaultValue={service?.videoUrl ? `https://youtu.be/${service.videoUrl}` : ''} className="bg-gray-800 border-gray-700" />
-      </div>
+
       <DialogFooter>
-        <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-        <Button type="submit" disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Salvar Serviço'}</Button>
+        <Button type="button" variant="outline" onClick={onFormSubmit}>Cancelar</Button>
+        <Button type="submit" disabled={isLoading} className="bg-m2-green text-black hover:bg-m2-green/80">
+            {isLoading ? 'Salvando...' : (isEditing ? 'Atualizar Serviço' : 'Criar Serviço')}
+        </Button>
       </DialogFooter>
     </form>
   );
 }
 
-export function ServicesClientPage({ services }: { services: Service[] }) {
+export function ServicesClientPage({ initialServices }: { initialServices: Service[] }) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingService, setEditingService] = useState<Service | null>(null);
 
-  const handleDelete = async (id: string) => {
-    toast.promise(deleteService(id), {
-      loading: 'Excluindo serviço...',
-      success: (result) => {
-        if (result.success) return result.message;
-        throw new Error(result.message);
-      },
-      error: (result) => result.message,
-    });
-  };
+  const handleDelete = (id: string) => {
+      toast.promise(deleteService(id), {
+          loading: 'Deletando...',
+          success: (result) => {
+             if(!result.success) throw new Error(result.message);
+             return result.message;
+          },
+          error: (error) => error.message
+      })
+  }
+
+  const renderTableIcon = (iconName: string) => {
+      // CORREÇÃO 3: Adicionada descrição
+      // @ts-expect-error - Acesso dinâmico à biblioteca de ícones
+      const Icon = LucideIcons[iconName] || HelpCircle;
+      return <Icon size={16} />;
+  }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Gerenciar Serviços</h1>
-          <p className="text-gray-400">Crie e edite os serviços oferecidos no site.</p>
-        </div>
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-m2-green/90 text-black hover:bg-m2-green">
-              <PlusCircle size={18} className="mr-2" />
-              Adicionar Novo Serviço
+    <>
+        <div className="text-right">
+            <Button onClick={() => setIsCreateOpen(true)} className="bg-m2-green text-black hover:bg-m2-green/80">
+                <PlusCircle size={18} className="mr-2" />
+                Novo Serviço
             </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>Novo Serviço</DialogTitle></DialogHeader>
-            <ServiceForm onFormSubmit={() => setIsCreateOpen(false)} />
-          </DialogContent>
-        </Dialog>
-      </div>
+        </div>
 
-      <div className="border border-gray-800 rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-gray-800 hover:bg-gray-900/50">
-              <TableHead>Nome</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {services.length === 0 ? (
-              <TableRow><TableCell colSpan={2} className="text-center text-gray-500 py-10">Nenhum serviço cadastrado.</TableCell></TableRow>
-            ) : (
-              services.map((service) => (
-                <TableRow key={service.id} className="border-gray-800">
-                  <TableCell className="font-medium">{service.name}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="icon"><Edit size={16} /></Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-                          <DialogHeader><DialogTitle>Editar Serviço</DialogTitle></DialogHeader>
-                          <ServiceForm onFormSubmit={() => {}} service={service} />
-                        </DialogContent>
-                      </Dialog>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="icon"><Trash2 size={16} /></Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-                            <AlertDialogDescription>Esta ação não pode ser desfeita e excluirá o serviço permanentemente.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel asChild><Button variant="outline">Cancelar</Button></AlertDialogCancel>
-                            <Button variant="destructive" onClick={() => handleDelete(service.id)}>Sim, excluir</Button>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+        <div className="border border-gray-800 rounded-lg mt-4">
+            <Table>
+                <TableHeader>
+                    <TableRow className="border-gray-800 hover:bg-gray-900/50">
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Ícone</TableHead>
+                        <TableHead>Descrição Curta</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {initialServices.map((service) => (
+                        <TableRow key={service.id} className="border-gray-800">
+                            <TableCell className="font-medium flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-md overflow-hidden relative bg-gray-800">
+                                    <Image src={service.image} alt={service.name} fill className="object-cover" />
+                                </div>
+                                {service.name}
+                            </TableCell>
+                            <TableCell className="text-gray-400">
+                                {renderTableIcon(service.icon)}
+                            </TableCell>
+                            <TableCell className="max-w-md truncate text-gray-400">{service.shortDescription}</TableCell>
+                            <TableCell className="text-right flex justify-end gap-2">
+                                <Button variant="outline" size="icon" onClick={() => setEditingService(service)}>
+                                    <Edit size={16} />
+                                </Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="destructive" size="icon"><Trash2 size={16} /></Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Excluir Serviço</AlertDialogTitle>
+                                            <AlertDialogDescription>Esta ação não pode ser desfeita. Isso removerá o serviço e desvinculará os itens de portfólio associados.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDelete(service.id)}>Confirmar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader><DialogTitle>Novo Serviço</DialogTitle></DialogHeader>
+                <ServiceForm onFormSubmit={() => setIsCreateOpen(false)} />
+            </DialogContent>
+        </Dialog>
+
+        <Dialog open={!!editingService} onOpenChange={(isOpen) => !isOpen && setEditingService(null)}>
+            <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader><DialogTitle>Editar Serviço</DialogTitle></DialogHeader>
+                {editingService && <ServiceForm service={editingService} onFormSubmit={() => setEditingService(null)} />}
+            </DialogContent>
+        </Dialog>
+    </>
   );
 }
