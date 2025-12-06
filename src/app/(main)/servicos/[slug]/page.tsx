@@ -1,24 +1,27 @@
 // src/app/(main)/servicos/[slug]/page.tsx
-
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { iconMap } from "@/lib/icons";
-import { Building } from "lucide-react";
+// CORREÇÃO 1: Removemos 'iconMap' e importamos tudo do lucide-react
+import * as LucideIcons from "lucide-react"; 
+import { Service, PortfolioItem } from "@prisma/client";
 
-// Função de SEO para gerar as rotas estáticas no build
+// Definir um tipo composto para o Serviço com Portfólio
+type ServiceWithPortfolio = Service & {
+  portfolioItems: PortfolioItem[];
+};
+
 export async function generateStaticParams() {
   const services = await prisma.service.findMany({ select: { slug: true } });
   return services.map((service) => ({
-    slug: service.slug, // Mudança: id -> slug
+    slug: service.slug,
   }));
 }
 
-// Função de busca de dados
-async function getServiceDetails(slug: string) {
+async function getServiceDetails(slug: string): Promise<ServiceWithPortfolio | null> {
   const service = await prisma.service.findUnique({
-    where: { slug: slug }, // Mudança: id -> slug
+    where: { slug: slug },
     include: {
       portfolioItems: {
         where: { status: 'PUBLISHED' },
@@ -27,19 +30,25 @@ async function getServiceDetails(slug: string) {
     },
   });
 
-  if (!service) {
-    notFound();
-  }
+  if (!service) return null;
   return service;
 }
 
 export default async function ServiceDetailPage({ params }: { params: { slug: string } }) {
-  const service = await getServiceDetails(params.slug); // Mudança: params.id -> params.slug
-  const IconComponent = iconMap[service.icon] || Building;
+  const service = await getServiceDetails(params.slug);
+
+  if (!service) {
+    notFound();
+  }
+
+  // CORREÇÃO 2: Lógica dinâmica para pegar o ícone
+  // O nome no banco já está salvo como 'ArrowRight', 'Camera', etc.
+  // @ts-expect-error - Acesso dinâmico à biblioteca de ícones
+  const IconComponent = LucideIcons[service.icon] || LucideIcons.Building;
 
   return (
     <>
-      {/* Seção 1: O "Hero" do Serviço */}
+      {/* Hero Section */}
       <section className="relative flex min-h-[50vh] w-full items-center justify-center py-20 text-center">
         <div className="absolute inset-0 z-0">
           <Image 
@@ -62,7 +71,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
         </div>
       </section>
 
-      {/* Seção 2: Conteúdo Detalhado do Serviço */}
+      {/* Conteúdo */}
       <section className="py-20 bg-black">
         <div className="container mx-auto px-6 max-w-4xl">
           <div className="prose prose-invert prose-lg max-w-none text-gray-300">
@@ -91,15 +100,15 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
         </div>
       </section>
 
-      {/* Seção 3: Projetos Relacionados */}
-      {service.portfolioItems.length > 0 && (
+      {/* Projetos Relacionados */}
+      {service.portfolioItems && service.portfolioItems.length > 0 && (
         <section className="py-20 bg-m2-dark">
           <div className="container mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold uppercase text-white">Conheça alguns projetos sobre <span className="text-m2-green">{service.name}</span></h2>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {service.portfolioItems.map((item) => (
+              {service.portfolioItems.map((item: PortfolioItem) => (
                 <Link href={`/portfolio/${item.id}`} key={item.id} className="group block">
                   <div className="relative overflow-hidden rounded-lg aspect-video">
                     <Image 
