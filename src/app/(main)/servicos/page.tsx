@@ -1,9 +1,8 @@
 // src/app/(main)/servicos/page.tsx
 
 import { prisma } from "@/lib/prisma";
-import { iconMap } from "@/lib/icons";
 import Link from "next/link";
-import { Building } from "lucide-react"; // The missing import is added here
+import * as LucideIcons from "lucide-react"; // CORREÇÃO 1: Importar tudo do lucide-react
 
 // This function fetches the data on the server
 async function getServices() {
@@ -37,8 +36,9 @@ export default async function ServicosPage() {
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-8">
             {services.map((service) => {
-              // Looks for the corresponding icon component in the map
-              const IconComponent = iconMap[service.icon] || Building; // Uses 'Building' as a fallback
+              // CORREÇÃO 2: Lógica dinâmica para pegar o ícone
+              // @ts-expect-error - Acesso dinâmico à biblioteca de ícones
+              const IconComponent = LucideIcons[service.icon] || LucideIcons.Building;
 
               return (
                 <Link href={`/servicos/${service.slug}`} key={service.slug} className="group block">
