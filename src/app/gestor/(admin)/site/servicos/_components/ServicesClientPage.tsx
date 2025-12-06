@@ -20,7 +20,6 @@ function normalizeIconName(input: string): string {
   if (!input) return '';
   const clean = input.trim();
 
-  // CORREÇÃO 1: Adicionada descrição
   // @ts-expect-error - Verificando dinamicamente se a chave existe no objeto LucideIcons
   if (LucideIcons[clean]) return clean;
 
@@ -39,7 +38,6 @@ function ServiceForm({ service, onFormSubmit }: { service?: Service, onFormSubmi
   const [iconInput, setIconInput] = useState(service?.icon || '');
   const normalizedIconName = normalizeIconName(iconInput);
   
-  // CORREÇÃO 2: Adicionada descrição
   // @ts-expect-error - Acesso dinâmico à biblioteca de ícones pode não ter tipagem exata
   const PreviewIcon = LucideIcons[normalizedIconName] || null;
 
