@@ -12,15 +12,35 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
-import { PlusCircle, Edit, Trash2, Image as ImageIcon } from 'lucide-react';
-// CORREÇÃO AQUI: Importamos a nova action unificada 'upsertServiceAction'
+import * as LucideIcons from 'lucide-react'; 
+import { PlusCircle, Edit, Trash2, Image as ImageIcon, HelpCircle } from 'lucide-react';
 import { upsertServiceAction, deleteService } from '../actions';
+
+function normalizeIconName(input: string): string {
+  if (!input) return '';
+  const clean = input.trim();
+
+  // @ts-expect-error - Verificando dinamicamente se a chave existe no objeto LucideIcons
+  if (LucideIcons[clean]) return clean;
+
+  const pascalCase = clean
+    .split(/[-_\s]+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('');
+
+  return pascalCase;
+}
 
 function ServiceForm({ service, onFormSubmit }: { service?: Service, onFormSubmit: () => void }) {
   const isEditing = !!service;
   const [isLoading, setIsLoading] = useState(false);
   
-  // Estados de Upload
+  const [iconInput, setIconInput] = useState(service?.icon || '');
+  const normalizedIconName = normalizeIconName(iconInput);
+  
+  // @ts-expect-error - Acesso dinâmico à biblioteca de ícones pode não ter tipagem exata
+  const PreviewIcon = LucideIcons[normalizedIconName] || null;
+
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(service?.image || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,7 +58,8 @@ function ServiceForm({ service, onFormSubmit }: { service?: Service, onFormSubmi
     setIsLoading(true);
     const formData = new FormData(event.currentTarget);
 
-    // 1. Upload da Imagem (se houver novo arquivo)
+    formData.set('icon', normalizedIconName);
+
     let imageUrl = service?.image || '';
     if (file) {
       try {
@@ -55,7 +76,6 @@ function ServiceForm({ service, onFormSubmit }: { service?: Service, onFormSubmi
     }
     formData.set('image', imageUrl);
 
-    // 2. Enviar para a nova Server Action unificada (Upsert)
     const result = await upsertServiceAction(formData);
 
     if (result.success) {
@@ -78,9 +98,26 @@ function ServiceForm({ service, onFormSubmit }: { service?: Service, onFormSubmi
 
       <div className="grid grid-cols-2 gap-4">
          <div className="space-y-2">
-            <Label htmlFor="icon">Nome do Ícone (Lucide)</Label>
-            <Input id="icon" name="icon" defaultValue={service?.icon} required className="bg-gray-800 border-gray-700" placeholder="Ex: Camera, Video, Box" />
-            <p className="text-xs text-gray-500">Nome exato do ícone da biblioteca Lucide React.</p>
+            <Label htmlFor="icon">Ícone (Lucide)</Label>
+            <div className="flex gap-2">
+                <Input 
+                    id="icon" 
+                    name="icon" 
+                    value={iconInput}
+                    onChange={(e) => setIconInput(e.target.value)}
+                    required 
+                    className="bg-gray-800 border-gray-700" 
+                    placeholder="Ex: arrow-right" 
+                />
+                <div className="w-10 h-10 flex items-center justify-center bg-gray-800 border border-gray-700 rounded-md shrink-0">
+                    {PreviewIcon ? <PreviewIcon size={20} className="text-m2-green" /> : <HelpCircle size={20} className="text-gray-500" />}
+                </div>
+            </div>
+            <p className="text-xs text-gray-500">
+                {PreviewIcon ? 
+                    <span className="text-green-400">Ícone válido: {normalizedIconName}</span> : 
+                    "Digite o nome do ícone do site Lucide (ex: camera, video)"}
+            </p>
          </div>
          <div className="space-y-2">
             <Label htmlFor="videoUrl">ID do Vídeo (YouTube)</Label>
@@ -88,7 +125,6 @@ function ServiceForm({ service, onFormSubmit }: { service?: Service, onFormSubmi
          </div>
       </div>
 
-      {/* Upload de Imagem */}
       <div className="space-y-2">
         <Label>Imagem de Destaque (Hero)</Label>
         <Input type="file" name="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
@@ -145,6 +181,13 @@ export function ServicesClientPage({ initialServices }: { initialServices: Servi
       })
   }
 
+  const renderTableIcon = (iconName: string) => {
+      // CORREÇÃO 3: Adicionada descrição
+      // @ts-expect-error - Acesso dinâmico à biblioteca de ícones
+      const Icon = LucideIcons[iconName] || HelpCircle;
+      return <Icon size={16} />;
+  }
+
   return (
     <>
         <div className="text-right">
@@ -159,6 +202,7 @@ export function ServicesClientPage({ initialServices }: { initialServices: Servi
                 <TableHeader>
                     <TableRow className="border-gray-800 hover:bg-gray-900/50">
                         <TableHead>Nome</TableHead>
+                        <TableHead>Ícone</TableHead>
                         <TableHead>Descrição Curta</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
@@ -171,6 +215,9 @@ export function ServicesClientPage({ initialServices }: { initialServices: Servi
                                     <Image src={service.image} alt={service.name} fill className="object-cover" />
                                 </div>
                                 {service.name}
+                            </TableCell>
+                            <TableCell className="text-gray-400">
+                                {renderTableIcon(service.icon)}
                             </TableCell>
                             <TableCell className="max-w-md truncate text-gray-400">{service.shortDescription}</TableCell>
                             <TableCell className="text-right flex justify-end gap-2">

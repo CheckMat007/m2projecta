@@ -41,7 +41,7 @@ export default async function ServicosPage() {
               const IconComponent = iconMap[service.icon] || Building; // Uses 'Building' as a fallback
 
               return (
-                <Link href={`/servicos/${service.id}`} key={service.id} className="group block">
+                <Link href={`/servicos/${service.slug}`} key={service.slug} className="group block">
                   <div className="bg-m2-dark p-8 rounded-lg border border-gray-800 h-full transition-all duration-300 group-hover:border-m2-green group-hover:-translate-y-2">
                     <IconComponent className="w-12 h-12 text-m2-green mb-4" />
                     <h3 className="text-2xl font-bold text-white mb-3">{service.name}</h3>
