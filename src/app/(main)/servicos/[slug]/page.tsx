@@ -3,9 +3,42 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-// CORREÇÃO 1: Removemos 'iconMap' e importamos tudo do lucide-react
+import { Metadata, ResolvingMetadata } from "next";
 import * as LucideIcons from "lucide-react"; 
 import { Service, PortfolioItem } from "@prisma/client";
+
+
+// FUNÇÃO NOVA: Gera o SEO dinamicamente
+export async function generateMetadata(
+  { params }: { params: { slug: string } },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // busca o serviço (podemos usar uma query leve, só os campos necessários)
+  const service = await prisma.service.findUnique({
+    where: { slug: params.slug },
+    select: { name: true, shortDescription: true, image: true }
+  });
+
+  if (!service) {
+    return {
+      title: "Serviço não encontrado",
+    };
+  }
+
+  // Pega as imagens anteriores (do layout pai) para não perder o logo, se quiser
+  const previousImages = (await parent).openGraph?.images || [];
+
+  return {
+    title: service.name, // Vai ficar: "Nome do Serviço | M2 Projecta"
+    description: service.shortDescription, // A descrição curta do banco de dados
+    keywords: [service.name, "serviços drone", "imagens aéreas", "M2 Projecta"], // Palavras-chave específicas
+    openGraph: {
+      title: service.name,
+      description: service.shortDescription,
+      images: [service.image, ...previousImages], // A imagem do serviço aparece no WhatsApp
+    },
+  };
+}
 
 // Definir um tipo composto para o Serviço com Portfólio
 type ServiceWithPortfolio = Service & {
