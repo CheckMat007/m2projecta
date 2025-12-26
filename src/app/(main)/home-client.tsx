@@ -58,6 +58,22 @@ export default function HomeClientPage({ heroVideoId, portfolioItems, faqItems, 
 
   const portfolioBgImage = portfolioItems[activePortfolioIndex]?.backgroundImage || '/assets/hero-image.JPG';
   // desativado até ter comentários reais: const testimonialBgImage = testimonials[activeTestimonialIndex]?.backgroundImage || portfolioItems[0]?.backgroundImage || '/assets/portfolio/dutra.JPG';
+  
+  const faqSchema =
+  faqItems && faqItems.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqItems.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    : null;
 
   return (
     <>
@@ -109,7 +125,7 @@ export default function HomeClientPage({ heroVideoId, portfolioItems, faqItems, 
               {services.slice(0, 5).map((service) => {
                 const IconComponent = iconMap[service.icon] || Building;
                 return (
-                  <Link href={`/servicos/${service.id}`} key={service.id} className="group block bg-m2-dark p-8 rounded-lg shadow-xl border border-gray-800 text-center transition-all duration-300 hover:border-m2-green hover:-translate-y-2">
+                  <Link href={`/servicos/${service.slug}`} key={service.slug} className="group block bg-m2-dark p-8 rounded-lg shadow-xl border border-gray-800 text-center transition-all duration-300 hover:border-m2-green hover:-translate-y-2">
                     <IconComponent className="w-12 h-12 text-m2-green mx-auto mb-4" />
                     <h3 className="text-xl font-bold mb-2 text-white">{service.name}</h3>
                     <p className="text-gray-400 text-sm">{service.shortDescription}</p>
@@ -218,6 +234,17 @@ export default function HomeClientPage({ heroVideoId, portfolioItems, faqItems, 
         </div>
       </section>
       
+      {faqSchema && (
+  <Script
+    id="faq-schema"
+    type="application/ld+json"
+    strategy="afterInteractive"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify(faqSchema),
+    }}
+  />
+)}
+
       <Script src="https://www.googletagmanager.com/gtag/js?id=G-6F0RMM5CY2" strategy="afterInteractive" />
       <Script id="google-analytics" strategy="afterInteractive">
         {`
