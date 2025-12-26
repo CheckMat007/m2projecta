@@ -183,6 +183,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -209,6 +212,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -235,6 +241,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -261,6 +270,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -287,6 +299,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -313,6 +328,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -339,6 +357,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -365,6 +386,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -391,6 +415,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -417,6 +444,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -443,6 +473,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -469,6 +502,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -495,6 +531,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   },
@@ -521,6 +560,9 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
       }
     }
   }
