@@ -6,7 +6,6 @@ import { Bell, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-// Importamos a nova action
 import { markNotificationsAsReadAction, refreshNotificationsAction, markSingleNotificationAsReadAction } from '../notifications/actions';
 import { toast } from 'sonner';
 
@@ -33,17 +32,11 @@ export function NotificationBellClient({ initialNotifications, initialUnreadCoun
     }
   };
 
-  // --- FUNÇÃO ATUALIZADA ---
   const handleNotificationClick = (notification: NotificationWithReadStatus) => {
-    // 1. Abre o modal para leitura
     setSelectedNotification(notification);
     
-    // 2. Se a notificação ainda não foi lida, atualiza a UI e o banco de dados
     if (!notification.isRead) {
-      // Atualização otimista da UI para feedback instantâneo
       setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, isRead: true } : n));
-      
-      // Chama a nova action para salvar a mudança no banco de dados "em segundo plano"
       markSingleNotificationAsReadAction(notification.id);
     }
   };
@@ -107,10 +100,17 @@ export function NotificationBellClient({ initialNotifications, initialUnreadCoun
       </Popover>
 
       <Dialog open={!!selectedNotification} onOpenChange={(isOpen) => !isOpen && setSelectedNotification(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{selectedNotification?.title}</DialogTitle></DialogHeader>
-          <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap">{selectedNotification?.message}</div>
-          <p className="text-xs text-gray-500 pt-4 border-t border-gray-800">
+        <DialogContent className="max-h-[90vh] flex flex-col"> {/* Garante que o modal não passe da tela */}
+          <DialogHeader>
+            <DialogTitle>{selectedNotification?.title}</DialogTitle>
+          </DialogHeader>
+          
+          {/* CORREÇÃO AQUI: Scroll na área de texto */}
+          <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap overflow-y-auto max-h-[60vh] pr-2">
+            {selectedNotification?.message}
+          </div>
+
+          <p className="text-xs text-gray-500 pt-4 border-t border-gray-800 shrink-0">
             Enviado por: {selectedNotification?.sender?.name || 'Sistema'}
           </p>
         </DialogContent>

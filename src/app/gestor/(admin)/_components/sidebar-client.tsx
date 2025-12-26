@@ -161,7 +161,7 @@ export const SidebarClient = ({ user, menuItems, children, isCollapsed, toggleSi
             <div className="flex items-center gap-1">
                 {!isCollapsed && (
                     <div className="text-xs text-center text-gray-500 mr-4">
-                        Versão 2.0.0
+                        Versão 2.1.0
                     </div>
                 )}
                 

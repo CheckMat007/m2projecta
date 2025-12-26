@@ -1,6 +1,6 @@
 // src/app/gestor/(admin)/_components/NotificationBell.tsx
 import { getNotificationsForBell } from '../notifications/actions';
-import { NotificationBellClient } from './NotificationBellClient'; // Vamos criar este a seguir
+import { NotificationBellClient } from './NotificationBellClient';
 
 export async function NotificationBell() {
   // 1. Chama a Server Action para buscar os dados no servidor

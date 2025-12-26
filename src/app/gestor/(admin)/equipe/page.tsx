@@ -8,6 +8,11 @@ import { redirect } from "next/navigation";
 // A função getTeamData continua a mesma, sem alterações.
 async function getTeamData() {
   const users = await prisma.user.findMany({
+    where: {
+      role: {
+        not: 'CLIENT'
+      }
+    },
     orderBy: { name: 'asc' },
     include: { permissions: true },
   });
