@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   title: {
     template: '%s | M2 Projecta',
     default:
-      'M2 Projecta | Imagens com Drones: Vídeos Corporativos, 360° e Imagens Aéreas no Vale do Paraíba',
+      'M2 Projecta | Imagens com Drones: Vídeos Corporativos, Inspeções em Obras, 360° e Imagens Aéreas no Vale do Paraíba',
   },
 
   description:
-    'A M2 Projecta é especialista em imagens aéreas com drone para inspeções de obra, vídeos corporativos, mercado imobiliário, eventos e imagens 360° no Vale do Paraíba (SP). Produção audiovisual profissional.',
+    'A M2 Projecta é especialista em imagens aéreas com drone para inspeções de obra, vídeos corporativos, mercado imobiliário, eventos e imagens 360° no Vale do Paraíba (SP) e região. Produção audiovisual profissional.',
 
   keywords: [
     'M2 Projecta',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 
   openGraph: {
     title:
-      'M2 Projecta | Imagens Aéreas, Vídeos Corporativos e Drone no Vale do Paraíba',
+      'M2 Projecta | Imagens Aéreas no Vale do Paraíba',
     description:
       'Produção audiovisual profissional com drones para imóveis, empresas e eventos no Vale do Paraíba.',
     url: '/',
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'M2 Projecta | Imagens Aéreas e Produção Audiovisual',
     description:
-      'Imagens aéreas com drone, vídeos corporativos, imobiliários e eventos no Vale do Paraíba.',
+      'Imagens aéreas com drone, vídeos corporativos, imobiliários, 360° e eventos no Vale do Paraíba.',
     images: ['/og-image.png'],
   },
 
@@ -75,30 +75,370 @@ const inter = Inter({
 });
 
 const schema = {
-  '@context': 'https://schema.org',
-  '@type': 'ProfessionalService',
-  name: 'M2 Projecta',
-  url: 'https://www.m2projecta.com.br',
-  logo: 'https://www.m2projecta.com.br/logo.png',
-  description:
-    'Empresa especializada em imagens aéreas com drone, vídeos corporativos, imobiliários, eventos e imagens 360° no Vale do Paraíba.',
-  areaServed: {
-    '@type': 'AdministrativeArea',
-    name: 'Vale do Paraíba - SP',
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "@id": "https://www.m2projecta.com.br/servicos",
+  "name": "M2 Projecta",
+  "url": "https://www.m2projecta.com.br/",
+  "logo": "https://www.m2projecta.com.br/logo.png",
+  "image": "https://www.m2projecta.com.br/logo.png",
+  "description":
+    "Empresa especializada em imagens aéreas com drone, vídeos corporativos, imobiliários, eventos e imagens 360° no Vale do Paraíba.",
+  "telephone": "+55 12 99131-6774",
+  "priceRange": "$$",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
   },
-  serviceType: [
-    'Imagens aéreas com drone',
-    'Vídeos corporativos',
-    'Vídeos imobiliários',
-    'Filmagem de eventos',
-    'Imagens 360 graus',
-    'Tour virtual 360',
+  "areaServed": [
+    {
+      "@type": "City",
+      "name": "Taubaté",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Tremembé",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Pindamonhangaba",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Ubatuba",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Caraguatatuba",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "São Luís do Paraitinga",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Campos do Jordão",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Cruzeiro",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Cachoeira Paulista",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Guaratinguetá",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Aparecida",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "São José dos Campos",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Jacareí",
+      "addressRegion": "SP"
+    },
+    {
+      "@type": "City",
+      "name": "Caçapava",
+      "addressRegion": "SP"
+    }
   ],
-  sameAs: [
-    'https://www.instagram.com/m2projecta/',
-    'https://www.youtube.com/@M2Projecta',
-    'https://www.tiktok.com/@m2.projecta',
+  "sameAs": [
+    "https://www.instagram.com/m2projecta/",
+    "https://www.youtube.com/@M2Projecta",
+    "https://www.tiktok.com/@m2.projecta"
   ],
+  "makesOffer": [
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Taubaté",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em Taubaté - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Taubaté",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em São José dos Campos",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em São José dos Campos - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "São José dos Campos",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Jacareí",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em Jacareí - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Jacareí",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Caçapava",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em em Caçapava - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Caçapava",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Tremembé",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em Tremembé - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Tremembé",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Pindamonhangaba",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em Pindamonhangaba - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Pindamonhangaba",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Ubatuba",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em Ubatuba - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Ubatuba",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Caraguatatuba",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em Caraguatatuba - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Caraguatatuba",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em São Luís do Paraitinga",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em em São Luís do Paraitinga - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "São Luís do Paraitinga",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Campos do Jordão",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em Campos do Jordão - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Campos do Jordão",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Cruzeiro",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em Cruzeiro - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Cruzeiro",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Cachoeira Paulista",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em em Cachoeira Paulista - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Cachoeira Paulista",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Guaratinguetá",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em Guaratinguetá - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Guaratinguetá",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  },
+  {
+    "@type": "Offer",
+    "itemOffered": {
+      "@type": "Service",
+      "@id": "https://www.m2projecta.com.br/servicos",
+      "name": "Imagens aéreas com drone em Aparecida",
+      "description": "Serviço profissional de imagens aéreas com drone para imóveis, empresas e eventos em Aparecida - SP.",
+      "areaServed": {
+        "@type": "City",
+        "name": "Aparecida",
+        "addressRegion": "SP"
+      },
+      "provider": {
+        "@type": "ProfessionalService",
+        "name": "M2 Projecta",
+        "url": "https://www.m2projecta.com.br"
+      }
+    }
+  }
+]
 };
 
 
