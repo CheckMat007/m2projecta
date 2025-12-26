@@ -174,7 +174,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -192,7 +200,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -210,7 +226,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -228,7 +252,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -246,7 +278,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -264,7 +304,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -282,7 +330,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -300,7 +356,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -318,7 +382,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -336,7 +408,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -354,7 +434,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -372,7 +460,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -390,7 +486,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   },
@@ -408,7 +512,15 @@ const schema = {
       "provider": {
         "@type": "ProfessionalService",
         "name": "M2 Projecta",
-        "url": "https://www.m2projecta.com.br"
+        "url": "https://www.m2projecta.com.br",
+        "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
+    "addressLocality": "Taubaté",
+    "addressRegion": "SP",
+    "postalCode": "12070-590",
+    "addressCountry": "BR"
+  },
       }
     }
   }
