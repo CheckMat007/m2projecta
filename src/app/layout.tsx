@@ -170,7 +170,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Taubaté",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -189,7 +188,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "São José dos Campos",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -208,7 +206,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Jacareí",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -227,7 +224,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Caçapava",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -246,7 +242,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Tremembé",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -265,7 +260,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Pindamonhangaba",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -284,7 +278,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Ubatuba",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -303,7 +296,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Caraguatatuba",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -322,7 +314,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "São Luís do Paraitinga",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -341,7 +332,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Campos do Jordão",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -360,7 +350,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Cruzeiro",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -379,7 +368,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Cachoeira Paulista",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -398,7 +386,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Guaratinguetá",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
@@ -417,7 +404,6 @@ const schema = {
       "areaServed": {
         "@type": "City",
         "name": "Aparecida",
-        "addressRegion": "SP"
       },
       "provider": {
         "@type": "ProfessionalService",
