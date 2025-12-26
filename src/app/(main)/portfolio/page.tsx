@@ -3,7 +3,12 @@
 
 import { prisma } from '@/lib/prisma';
 import PortfolioClientPage from './portfolio-client';
+import type { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: 'Nosso Portfólio',
+  description: 'Explore nossos projetos recentes e veja como transformamos a visão de construtoras e imobiliárias com tecnologia de ponta.',
+};
 // Esta função agora busca os itens E os serviços relacionados
 async function getPortfolioPageData() {
   const items = await prisma.portfolioItem.findMany({
