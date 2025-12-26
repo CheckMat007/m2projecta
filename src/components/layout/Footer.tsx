@@ -78,14 +78,14 @@ export const Footer = () => {
                 <FaWhatsapp className="text-m2-green mr-3 h-5 w-5 flex-shrink-0" />
                 <a href="https://wa.me/5512991316774" target="_blank" rel="noopener noreferrer" className="text-gray-400 group-hover:text-m2-green transition-colors">(12) 99131-6774</a>
               </li>
-              <li className="flex items-center justify-center md:justify-start">
+              <li className="flex items-center justify-center md:justify-start group">
                 <FaMapMarkerAlt className="text-m2-green mr-3 h-5 w-5 flex-shrink-0" />
-                <span className="text-gray-400">Taubaté - SP e Região</span>
+                <a href="https://maps.app.goo.gl/294jFDWsKwSS7z479" target="_blank" rel="noopener noreferrer" className="text-gray-400 group-hover:text-m2-green transition-colors">Taubaté - SP e Região</a> 
               </li>
             </ul>
             <div className="mt-4 overflow-hidden rounded-lg border border-gray-800">
                 <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3674.398698544431!2d-45.576088!3d-22.935759!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ccf8a3e7e2f5f7%3A0x8670e3e5c9a0b1c9!2sAv.%20Dom%20Duarte%20Leopoldo%20e%20Silva%2C%20131%20-%20Vila%20S%C3%A3o%20Jos%C3%A9%2C%20Taubat%C3%A9%20-%20SP%2C%2012070-590!5e0!3m2!1spt-BR!2sbr!4v1700000000000!5m2!1spt-BR!2sbr"
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14689.209432526159!2d-45.539243!3d-23.012668!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ccf924bd36207f%3A0x2b25ebe353538146!2sM2%20Projecta!5e0!3m2!1spt-BR!2sbr!4v1766790677208!5m2!1spt-BR!2sbr"
                     width="100%" 
                     height="150" 
                     style={{ border: 0 }} 

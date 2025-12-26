@@ -45,7 +45,7 @@ export function ProfileForm({ user }: { user: User }) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&=+#])[A-Za-z\d@$!%*?&=+#]{10,}$/.test(newPassword);
+  const isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&=+#_.])[A-Za-z\d@$!%*?&=+#_.]{10,}$/.test(newPassword);
   const passwordsMatch = newPassword === confirmPassword;
 
   // Função para atualizar o perfil
