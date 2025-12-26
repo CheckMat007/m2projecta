@@ -1,32 +1,57 @@
 // src/app/(main)/portfolio/[id]/page.tsx
+import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { Metadata } from "next"; 
 
-import { prisma } from '@/lib/prisma';
-import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
+// --- 1. CONFIGURAÇÃO DE SEO DINÂMICO ---
+export async function generateMetadata(
+  { params }: { params: { id: string } },
 
-// This function for SEO (pre-rendering) remains the same
-export async function generateStaticParams() {
-  const items = await prisma.portfolioItem.findMany({
-    where: { status: 'PUBLISHED' },
-    select: { id: true },
+): Promise<Metadata> {
+  // Buscamos apenas os campos necessários para SEO
+  const project = await prisma.portfolioItem.findUnique({
+    where: { id: params.id },
+    select: { 
+        title: true, 
+        shortDescription: true, // Usamos shortDescription pois 'description' genérico não existe
+        seoTitle: true,         // Campo específico de SEO que vi no seu erro
+        seoDescription: true,   // Campo específico de SEO que vi no seu erro
+        coverImage: true 
+        // location: true       <-- REMOVIDO (Não existe no banco)
+    }
   });
 
-  return items.map((item) => ({
-    id: item.id,
-  }));
+  if (!project) {
+    return { title: "Projeto não encontrado" };
+  }
+
+  // Lógica inteligente: Se tiver título de SEO usa ele, senão usa o título normal
+  const pageTitle = project.seoTitle || project.title;
+  // Se tiver descrição de SEO usa ela, senão usa a descrição curta
+  const pageDescription = project.seoDescription || project.shortDescription;
+
+  return {
+    title: pageTitle,
+    description: pageDescription,
+    // Removemos location das keywords
+    keywords: [project.title, "portfólio drone", "case de sucesso", "imagens aéreas", "M2 Projecta"],
+    openGraph: {
+      title: pageTitle,
+      description: pageDescription,
+      images: [project.coverImage],
+    },
+  };
 }
 
-// 1. UPDATED DATA FETCHING: We now 'include' the related service data
-async function getProjectDetails(id: string) {
+// --- 2. COMPONENTE DA PÁGINA ---
+async function getProject(id: string) {
   const project = await prisma.portfolioItem.findUnique({
-    where: { 
-      id: id,
-      status: 'PUBLISHED'
-    },
+    where: { id },
     include: {
-      service: true, // This tells Prisma to also fetch the service data
-    }
+      service: true, 
+    },
   });
 
   if (!project) {
@@ -35,97 +60,64 @@ async function getProjectDetails(id: string) {
   return project;
 }
 
-
-export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
-  const project = await getProjectDetails(params.id);
-
-  // Logic to split the title for the green highlight
-  const titleWords = project.title.split(' ');
-  const lastWord = titleWords.pop(); 
-  const titleStart = titleWords.join(' '); 
+export default async function PortfolioDetailsPage({ params }: { params: { id: string } }) {
+  const project = await getProject(params.id);
 
   return (
     <>
-      {/* Section 1: The Project's Cinematic Hero */}
-      <section className="relative flex min-h-[50vh] w-full items-center justify-center py-20 text-center">
-        
-        <div className="absolute inset-0 z-0">
+       {/* Hero do Projeto */}
+       <div className="relative h-[60vh] w-full">
           <Image 
             src={project.coverImage} 
-            alt={`Background for project ${project.title}`}
-            fill
+            alt={project.title} 
+            fill 
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-black/60 z-10"></div>
-        </div>
-        
-        <div className="relative z-20 container mx-auto px-6">
-          <div className="mb-4">
-            {/* 2. CORRECTED CATEGORY DISPLAY: We now use 'project.service.name' */}
-            <span className="inline-block rounded-full bg-m2-green/20 px-4 py-1 text-sm font-semibold text-m2-green uppercase tracking-wider">
-              {project.service?.name || 'Categoria'}
-            </span>
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-wider text-white">
-            {titleStart} <span className="text-m2-green">{lastWord}</span>
-          </h1>
-
-          <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
-            {project.shortDescription}
-          </p>
-        </div>
-      </section>
-
-      {/* Section 2: The Main Content */}
-      <section className="py-20 bg-black">
-        <div className="container mx-auto px-6">
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            
-            <div className="md:col-span-2">
-              {project.videoUrl ? (
-                <div className="aspect-video w-full overflow-hidden rounded-lg shadow-2xl">
-                  <iframe 
-                    className="w-full h-full"
-                    src={`https://www.youtube.com/embed/${project.videoUrl}`}
-                    title="YouTube video player" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    referrerPolicy="strict-origin-when-cross-origin" 
-                    allowFullScreen
-                    loading="lazy"
-                  ></iframe>
-                </div>
-              ) : (
-                <Image
-                  src={project.coverImage}
-                  alt={`Cover image for project ${project.title}`}
-                  width={1200}
-                  height={675}
-                  className="rounded-lg shadow-lg w-full h-auto object-cover"
-                />
-              )}
-            </div>
-
-            <div className="md:col-span-1">
-              <h3 className="text-2xl font-bold text-white mb-4">Sobre o Projeto</h3>
-              <div className="prose prose-invert text-gray-300">
-                <p className="whitespace-pre-wrap">
-                  {project.longDescription}
-                </p>
-              </div>
-              <div className="mt-8">
-                <Link href="/portfolio" className="text-m2-green font-bold hover:underline text-lg">
-                  &larr; Voltar para todos os projetos
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute bottom-0 left-0 w-full p-8 md:p-16 container mx-auto">
+                <Link href="/portfolio" className="text-m2-green mb-4 inline-block hover:underline">
+                    &larr; Voltar para o Portfólio
                 </Link>
-              </div>
-            </div>
-
+                <h1 className="text-4xl md:text-6xl font-bold text-white mb-2">{project.title}</h1>
+                {project.service && (
+                    <span className="bg-m2-green text-black px-3 py-1 rounded-full text-sm font-bold">
+                        {project.service.name}
+                    </span>
+                )}
           </div>
-        </div>
-      </section>
+       </div>
+
+       <div className="bg-black py-16 text-white">
+            <div className="container mx-auto px-6 max-w-4xl">
+                {/* Descrição Curta (Destaque) */}
+                <p className="text-xl md:text-2xl text-gray-300 font-light mb-12 border-l-4 border-m2-green pl-6">
+                    {project.shortDescription}
+                </p>
+
+                {/* Descrição Longa (Conteúdo) */}
+                <div className="prose prose-invert prose-lg max-w-none mb-12">
+                    <div className="whitespace-pre-wrap">{project.longDescription}</div>
+                </div>
+
+                {/* Vídeo (Se houver) */}
+                {project.videoUrl && (
+                    <div className="mt-12">
+                        <h3 className="text-2xl font-bold mb-6 border-b border-gray-800 pb-2">Registro Visual</h3>
+                        <div className="aspect-video w-full overflow-hidden rounded-lg shadow-2xl bg-gray-900">
+                             <iframe 
+                                className="w-full h-full"
+                                src={`https://www.youtube.com/embed/${project.videoUrl}`}
+                                title={`Vídeo do projeto ${project.title}`}
+                                frameBorder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    </div>
+                )}
+            </div>
+       </div>
     </>
   );
 }

@@ -3,7 +3,12 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import * as LucideIcons from "lucide-react"; // CORREÇÃO 1: Importar tudo do lucide-react
+import type { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: 'Nossos Serviços',
+  description: 'Conheça nosso catálogo de soluções em imagens aéreas, timelapse, inspeções e monitoramento de obras.',
+};
 // This function fetches the data on the server
 async function getServices() {
   const services = await prisma.service.findMany({
