@@ -76,8 +76,8 @@ const inter = Inter({
 
 const schema = {
   "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  "@id": "https://www.m2projecta.com.br/servicos",
+  "@type": "LocalBusiness",
+  "@id": "https://www.m2projecta.com.br/#localbusiness",
   "name": "M2 Projecta",
   "url": "https://www.m2projecta.com.br/",
   "logo": "https://www.m2projecta.com.br/logo.png",
@@ -86,6 +86,7 @@ const schema = {
     "Empresa especializada em imagens aéreas com drone, vídeos corporativos, imobiliários, eventos e imagens 360° no Vale do Paraíba.",
   "telephone": "+55 12 99131-6774",
   "priceRange": "$$",
+
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
@@ -94,76 +95,63 @@ const schema = {
     "postalCode": "12070-590",
     "addressCountry": "BR"
   },
+
   "areaServed": [
     {
       "@type": "City",
       "name": "Taubaté",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Tremembé",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Pindamonhangaba",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Ubatuba",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Caraguatatuba",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "São Luís do Paraitinga",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Campos do Jordão",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Cruzeiro",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Cachoeira Paulista",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Guaratinguetá",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Aparecida",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "São José dos Campos",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Jacareí",
-      "addressRegion": "SP"
     },
     {
       "@type": "City",
       "name": "Caçapava",
-      "addressRegion": "SP"
     }
   ],
   "sameAs": [
