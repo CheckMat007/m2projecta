@@ -15,7 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { Send, Trash2 } from 'lucide-react';
-import { sendNotificationAction, deleteNotificationAction } from '../actions'; // Importar deleteNotificationAction
+import { sendNotificationAction, deleteNotificationAction } from '../actions';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -38,14 +38,13 @@ function SendNotificationForm({ allUsers, currentUser, onFormSubmit }: { allUser
     setIsLoading(true);
 
     const formData = new FormData(formRef.current);
-    // Adicionamos o valor do switch ao FormData antes de enviar
     formData.set('isBroadcast', String(isBroadcast));
 
     toast.promise(sendNotificationAction(formData), {
       loading: 'Enviando notificação...',
       success: (result) => {
         if (!result.success) throw new Error(result.message);
-        onFormSubmit(); // Fecha o dialog em caso de sucesso
+        onFormSubmit();
         return result.message;
       },
       error: (error) => error.message,
@@ -66,7 +65,7 @@ function SendNotificationForm({ allUsers, currentUser, onFormSubmit }: { allUser
       </div>
       <div className="flex items-center space-x-2 rounded-md border p-4">
         <Switch id="isBroadcast" checked={isBroadcast} onCheckedChange={setIsBroadcast} />
-        <Label htmlFor="isBroadcast">Enviar para todos os usuários</Label>
+        <Label htmlFor="isBroadcast">Enviar para todos os usuários (Incluindo clientes)</Label>
       </div>
 
       {!isBroadcast && (
@@ -106,7 +105,7 @@ export function NotificationsClientPage({
 }) {
   const [isSendOpen, setIsSendOpen] = useState(false);
   const [readingNotification, setReadingNotification] = useState<NotificationWithDetails | null>(null);
-  // Função para formatar os destinatários para exibição
+
   const formatRecipients = (notification: NotificationWithDetails) => {
     if (notification.isBroadcast) return 'Todos';
     if (!notification.readStatuses || notification.readStatuses.length === 0) return 'N/D';
@@ -127,12 +126,13 @@ const handleDelete = (notificationId: string) => {
 
   return (
     <div className="space-y-8">
-      {/* --- Seção de Cabeçalho e Dialog de Envio (sem alterações) --- */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Gerenciar Notificações</h1>
           <p className="text-gray-400">Envie e visualize o histórico de notificações da equipe.</p>
         </div>
+        
+        {/* --- DIALOG DE ENVIO CORRIGIDO AQUI --- */}
         <Dialog open={isSendOpen} onOpenChange={setIsSendOpen}>
           <DialogTrigger asChild>
             <Button className="bg-m2-green/90 text-black hover:bg-m2-green">
@@ -140,14 +140,17 @@ const handleDelete = (notificationId: string) => {
               Enviar Notificação
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
+          {/* Adicionado max-h-[90vh] e flex-col */}
+          <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col">
             <DialogHeader><DialogTitle>Nova Notificação</DialogTitle></DialogHeader>
-            <SendNotificationForm allUsers={allUsers} currentUser={currentUser} onFormSubmit={() => setIsSendOpen(false)} />
+            {/* Adicionado div wrapper com overflow-y-auto */}
+            <div className="overflow-y-auto pr-2">
+                <SendNotificationForm allUsers={allUsers} currentUser={currentUser} onFormSubmit={() => setIsSendOpen(false)} />
+            </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* --- Tabela de Notificações ATUALIZADA --- */}
       <div className="border border-gray-800 rounded-lg">
         <Table>
           <TableHeader>
@@ -156,7 +159,7 @@ const handleDelete = (notificationId: string) => {
               <TableHead>Enviado por</TableHead>
               {currentUser.role === 'MASTER' && <TableHead>Destinatários</TableHead>}
               <TableHead>Data</TableHead>
-              <TableHead className="text-right">Ações</TableHead> {/* NOVA COLUNA */}
+              <TableHead className="text-right">Ações</TableHead> 
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -164,7 +167,7 @@ const handleDelete = (notificationId: string) => {
               <TableRow 
                 key={notification.id} 
                 className="border-gray-800 cursor-pointer hover:bg-gray-900/50"
-                onClick={() => setReadingNotification(notification)} // Torna a linha clicável
+                onClick={() => setReadingNotification(notification)} 
               >
                 <TableCell className="font-medium">{notification.title}</TableCell>
                 <TableCell>{notification.sender?.name || 'Sistema'}</TableCell>
@@ -174,14 +177,13 @@ const handleDelete = (notificationId: string) => {
                 </TableCell>
                 <TableCell 
                   className="text-right"
-                  onClick={(e) => e.stopPropagation()} // Impede que clicar no botão abra o modal de leitura
+                  onClick={(e) => e.stopPropagation()} 
                 >
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button 
                         variant="destructive" 
                         size="icon"
-                        // Desabilita o botão se não for MASTER e não for o remetente
                         disabled={currentUser.role !== 'MASTER' && notification.senderId !== currentUser.id}
                       >
                         <Trash2 size={16} />
@@ -208,16 +210,16 @@ const handleDelete = (notificationId: string) => {
         )}
       </div>
 
-      {/* --- NOVO DIALOG: Para Ler a Notificação Completa --- */}
+      {/* --- Dialog de Leitura (Já corrigido anteriormente) --- */}
       <Dialog open={!!readingNotification} onOpenChange={(isOpen) => !isOpen && setReadingNotification(null)}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>{readingNotification?.title}</DialogTitle>
           </DialogHeader>
-          <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap py-4">
+          <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap py-4 overflow-y-auto max-h-[60vh] pr-2">
             {readingNotification?.message}
           </div>
-          <p className="text-xs text-gray-500 pt-4 border-t border-gray-800">
+          <p className="text-xs text-gray-500 pt-4 border-t border-gray-800 shrink-0">
             Enviado por: {readingNotification?.sender?.name || 'Sistema'}
           </p>
         </DialogContent>
