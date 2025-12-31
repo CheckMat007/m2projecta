@@ -3,6 +3,12 @@
 import Image from "next/image";
 import { Award, Target, Eye as VisionIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: 'Sobre a M2 PROJECTA',
+  description: 'Mais do que imagens, entregamos uma nova perspectiva para o seu negócio.',
+};
 
 // Função para buscar TODOS os dados da página "Sobre" de uma vez
 async function getAboutPageData() {
