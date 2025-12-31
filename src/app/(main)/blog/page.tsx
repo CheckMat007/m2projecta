@@ -9,6 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import type { Post, Category } from '@prisma/client';
 
+//Otimização de SEO para mecanismos de busca
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: 'BLOG M2 PROJECTA',
+  description: 'Fique atualizado sobre notícias e informações importantes sobre drones e imagens aéreas.',
+};
+
 type PostCardData = Post & {
   author: { name: string | null };
   categories: Category[];

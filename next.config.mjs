@@ -9,10 +9,10 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
-      // ADD THIS NEW BLOCK
+      // CORREÇÃO: Uso de curinga (*) para garantir que qualquer bucket da Vercel funcione
       {
         protocol: 'https',
-        hostname: '05u48khpcr7o7cwv.public.blob.vercel-storage.com',
+        hostname: '*.public.blob.vercel-storage.com',
         port: '',
         pathname: '/**',
       },

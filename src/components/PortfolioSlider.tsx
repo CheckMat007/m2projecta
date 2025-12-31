@@ -12,7 +12,6 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
 
-// MUDANÇA 1: Definindo os tipos para as props
 type PortfolioItem = {
   id: string;
   title: string;
@@ -22,8 +21,7 @@ type PortfolioItem = {
   backgroundImage: string;
 };
 
-// MUDANÇA 2: O componente agora recebe props
-export const PortfolioSlider = memo ( function PortfolioSlider({ portfolioItems, onActiveIndexChange }: { portfolioItems: PortfolioItem[], onActiveIndexChange: (index: number) => void })  {
+export const PortfolioSlider = memo(function PortfolioSlider({ portfolioItems, onActiveIndexChange }: { portfolioItems: PortfolioItem[], onActiveIndexChange: (index: number) => void }) {
   return (
     <div className="portfolio-slider-full-width">
       <Swiper
@@ -40,8 +38,8 @@ export const PortfolioSlider = memo ( function PortfolioSlider({ portfolioItems,
         }}
         loop={true}
         centeredSlides={true}
-        slidesPerView={ 'auto' }
-        slidesPerGroupSkip={ 1 }
+        slidesPerView={'auto'}
+        slidesPerGroupSkip={1}
         navigation={{
           nextEl: '.portfolio-full-width-next',
           prevEl: '.portfolio-full-width-prev',
@@ -50,14 +48,13 @@ export const PortfolioSlider = memo ( function PortfolioSlider({ portfolioItems,
           clickable: true,
           el: '.portfolio-pagination-container',
           type: 'bullets', 
-          
         }}
         className="h-full"
-        // MUDANÇA 3: Adicionando o callback onSlideChange
-       // CORREÇÃO: Usando o evento que dispara APÓS a transição
-onSlideChangeTransitionEnd={(swiper) => onActiveIndexChange(swiper.realIndex)}
+        // CORREÇÃO CRÍTICA:
+        // 'onRealIndexChange' funciona perfeitamente com loop={true}.
+        // Ele dispara assim que o slide ativo muda logicamente, garantindo que o fundo atualize.
+        onRealIndexChange={(swiper) => onActiveIndexChange(swiper.realIndex)}
       >
-        {/* MUDANÇA 4: Mapeando sobre a prop `portfolioItems` */}
         {portfolioItems.map((item) => (
           <SwiperSlide key={item.id} className="!w-[80%] md:!w-[50%] lg:!w-[40%]">
             <div className="group relative overflow-hidden rounded-lg aspect-[3/4] md:aspect-video">
@@ -65,6 +62,7 @@ onSlideChangeTransitionEnd={(swiper) => onActiveIndexChange(swiper.realIndex)}
                 src={item.image} 
                 alt={item.title} 
                 fill
+                // Tamanhos ajustados para garantir qualidade nos cards
                 sizes="(max-width: 768px) 80vw, 50vw"
                 className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
               />
@@ -73,10 +71,10 @@ onSlideChangeTransitionEnd={(swiper) => onActiveIndexChange(swiper.realIndex)}
                   <h3 className="text-xl font-bold text-white">{item.title}</h3>
                   <p className="text-m2-green">{item.category}</p>
                   <Link href={item.link} className="text-white mt-2 inline-flex items-center gap-2">
-                  <span className="relative text-white group-hover:text-m2-green transition-colors">
-              Ver Projeto &rarr;
-             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-            </span>
+                    <span className="relative text-white group-hover:text-m2-green transition-colors">
+                      Ver Projeto &rarr;
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-m2-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                    </span>
                   </Link>
                 </div>
               </div>
