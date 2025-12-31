@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image'; // Importamos Image direto para controlar o carregamento
 import { FaInstagram, FaYoutube, FaTiktok, FaEnvelope, FaWhatsapp, FaMapMarkerAlt, FaGoogle } from 'react-icons/fa';
-import Logo from '@/components/ui/Logo';
 
 export const Footer = () => {
   return (
@@ -14,8 +14,18 @@ export const Footer = () => {
           
           {/* Coluna 1: Institucional (com botão) */}
           <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start">
-            <Link href="/" className="inline-block h-auto w-40">
-              <Logo />
+            <Link href="/" className="relative h-12 w-40 inline-block mb-2">
+              {/* OTIMIZAÇÃO: Usamos Image direto aqui para forçar loading="lazy".
+                  O componente Logo.tsx tem priority={true}, o que é ruim para o rodapé. */}
+              <Image 
+                src="/logo_2.png" 
+                alt="M2 Projecta Logo"
+                fill
+                sizes="(max-width: 768px) 160px, 160px"
+                className="object-contain object-left"
+                loading="lazy"
+                quality={75}
+              />
             </Link>
             <p className="text-gray-400 text-sm max-w-xs">
               Perspectivas que impressionam, resultados que impactam. Capturamos a essência do seu projeto com imagens aéreas de tirar o fôlego.
@@ -80,26 +90,29 @@ export const Footer = () => {
               </li>
               <li className="flex items-center justify-center md:justify-start group">
                 <FaMapMarkerAlt className="text-m2-green mr-3 h-5 w-5 flex-shrink-0" />
-                <a href="https://maps.app.goo.gl/294jFDWsKwSS7z479" target="_blank" rel="noopener noreferrer" className="text-gray-400 group-hover:text-m2-green transition-colors">Taubaté - SP e Região</a> 
+                <a href="https://maps.google.com/?q=Taubaté+SP" target="_blank" rel="noopener noreferrer" className="text-gray-400 group-hover:text-m2-green transition-colors">Taubaté - SP e Região</a> 
               </li>
             </ul>
-            <div className="mt-4 overflow-hidden rounded-lg border border-gray-800">
+            <div className="mt-4 overflow-hidden rounded-lg border border-gray-800 bg-gray-900">
+                {/* O iframe do Google Maps é pesado. Mantemos loading="lazy" rigoroso.
+                    Adicionei o atributo "title" para passar na auditoria de acessibilidade. */}
                 <iframe 
                     src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14689.209432526159!2d-45.539243!3d-23.012668!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ccf924bd36207f%3A0x2b25ebe353538146!2sM2%20Projecta!5e0!3m2!1spt-BR!2sbr!4v1766790677208!5m2!1spt-BR!2sbr"
                     width="100%" 
                     height="150" 
+                    title="Mapa de localização M2 Projecta em Taubaté"
                     style={{ border: 0 }} 
                     allowFullScreen={false} 
                     loading="lazy" 
                     referrerPolicy="no-referrer-when-downgrade"
-                    className="filter invert(1) hue-rotate(180deg)"
+                    className="filter invert(1) hue-rotate(180deg) opacity-80 hover:opacity-100 transition-opacity"
                 ></iframe>
             </div>
           </div>
         </div>
 
         {/* Linha Final: Copyright */}
-        <div className="mt-8 pt-2 border-t border-gray-800 text-center text-gray-500 text-sm">
+        <div className="mt-8 pt-2 border-t border-gray-800 text-center text-white text-sm">
           <p>
             © {new Date().getFullYear()} M2 Projecta - Todos os direitos reservados. | Desenvolvido por <a href="https://www.instagram.com/levbrands/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors">LEV.B - Marketing 360º</a>
           </p>
