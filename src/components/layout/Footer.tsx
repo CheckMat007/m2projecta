@@ -114,7 +114,7 @@ export const Footer = () => {
         {/* Linha Final: Copyright */}
         <div className="mt-8 pt-2 border-t border-gray-800 text-center text-white text-sm">
           <p>
-            © {new Date().getFullYear()} M2 Projecta - Todos os direitos reservados. | Desenvolvido por <a href="https://www.instagram.com/levbrands/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors">LEV.B - Marketing 360º</a>
+            © {new Date().getFullYear()} M2 Projecta - Todos os direitos reservados. | Desenvolvido por <a href="https://www.levbrands.com.br" target="_blank" rel="noopener noreferrer" aria-label="Instagram do desenvolvedor do site" className="hover:text-m2-green transition-colors">LEV.B - Marketing 360º</a>
           </p>
         </div>
 

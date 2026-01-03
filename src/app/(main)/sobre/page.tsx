@@ -44,7 +44,7 @@ export default async function SobrePage() {
         <div className="absolute inset-0 z-0">
           <Image 
             src={heroImage} 
-            alt="Fundo da página Sobre Nós"
+            alt="Sobre Nós"
             fill
             className="object-cover"
             priority
