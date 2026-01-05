@@ -1,41 +1,125 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚁 M2 Projecta
 
-## Getting Started
+![Status do Projeto](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow) ![Next.js](https://img.shields.io/badge/Next.js-14-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Prisma](https://img.shields.io/badge/Prisma-ORM-green)
 
-First, run the development server:
+Sistema de **Gestão de Serviços de Imagens Aéreas** e **CRM** — combina uma vitrine pública otimizada para aquisição de clientes com um painel administrativo para gestão de projetos, contratos e entregáveis.
+
+**Sumário**
+
+- [Funcionalidades](#funcionalidades)
+- [Stack Tecnológica](#stack-tecnológica)
+- [Instalação e Execução](#instalação-e-execução)
+- [Variáveis de Ambiente](#variáveis-de-ambiente)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Segurança e Performance](#segurança-e-performance)
+- [Contribuição e Autor](#contribuição-e-autor)
+
+---
+
+## Funcionalidades
+
+### Área Pública (Vitrine)
+- Landing page otimizada para conversão.
+- Páginas dinâmicas de serviços via `src/app/servicos/[slug]`.
+- Portfólio interativo com filtros e detalhes técnicos.
+- SEO técnico: `sitemap.xml` dinâmico, `robots.txt`, metadados e OpenGraph.
+- Blog integrado para publicações.
+
+### Painel Gestor (Admin)
+- Dashboard com métricas e visão geral.
+- CRUD completo de clientes (PJ/PF) e geração de credenciais.
+- Gestão de contratos e projetos com uploads (PDF).
+- Timeline de projetos com updates em tempo real.
+- CMS para serviços e itens do portfólio.
+
+### Área do Cliente
+- Portal seguro com login.
+- Acompanhamento do projeto (timeline, status em tempo real).
+- Entregáveis disponíveis para download seguro.
+- Notificações sobre atualizações.
+
+---
+
+## Stack Tecnológica
+
+- Framework: Next.js 14 (App Router & Server Actions)
+- Linguagem: TypeScript
+- CSS: Tailwind CSS
+- Componentes: shadcn/ui + Radix UI
+- Ícones: Lucide React
+- Banco de Dados: PostgreSQL
+- ORM: Prisma
+- Autenticação: NextAuth.js
+- Validação: Zod
+- Uploads: Vercel Blob (ou API de Blob Storage)
+
+---
+
+## Instalação e Execução
+
+1. Clone o repositório:
+
+```bash
+git clone https://github.com/CheckMat007/m2projecta.git
+cd m2projecta
+```
+
+2. Instale dependências:
+
+```bash
+npm install
+```
+
+3. Gere o cliente Prisma e aplique migrations (desenvolvimento):
+
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
+
+4. Execute em modo desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variáveis de Ambiente
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Crie um arquivo `.env` na raiz com as variáveis mínimas abaixo (exemplo):
 
-## Learn More
+```env
+DATABASE_URL="postgresql://user:password@host:port/db"
+NEXTAUTH_SECRET="sua-chave-secreta"
+NEXTAUTH_URL="http://localhost:3000"
+BLOB_READ_WRITE_TOKEN="seu-token-de-blob"
+```
 
-To learn more about Next.js, take a look at the following resources:
+Consulte `prisma/schema.prisma` para detalhes sobre o banco de dados.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Estrutura do Projeto (resumo)
 
-## Deploy on Vercel
+- `src/app/(main)`: rotas públicas (layout, home, serviços).
+- `src/app/gestor`: painel administrativo protegido por middleware.
+- `src/app/cliente`: área do cliente protegida.
+- `src/components/ui`: componentes reutilizáveis.
+- `prisma/schema.prisma`: modelagem do banco.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# m2projecta
-Site da M2PROJECTA, focada em imagens aéreas de drones.
->>>>>>> 60b1b88bdd1ba5e9e4f48a4c706bed4a4e7428e6
+## Segurança e Performance
+
+- Middleware: controle de acesso por papéis (admin vs cliente).
+- Server Actions: lógica sensível executada no servidor.
+- ReCAPTCHA: proteção contra bots nos formulários.
+- Imagens: uso do componente `Image` do Next.js para otimização automática.
+
+---
+
+## Contribuição e Autor
+
+Desenvolvido por Gustavo Levenhagen.
+
