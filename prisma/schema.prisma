@@ -318,3 +318,16 @@ model Comment {
   parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comment[] @relation("CommentReplies")
 }
+
+// --- Modelo para avaliacoes do Google ---
+model GoogleReview {
+  id           String   @id @default(cuid())
+  authorName   String
+  authorPhoto  String?
+  rating       Int
+  text         String   @db.Text // @db.Text é importante para avaliações longas
+  relativeTime String   // Ex: "há 2 semanas"
+  googleId     String?  @unique // Opcional: ajuda a evitar duplicatas se você expandir a lógica
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
