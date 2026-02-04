@@ -61,7 +61,7 @@ export default async function GoogleReviews() {
           {/* CARD DE MÉDIA */}
           <div className="bg-m2-dark p-8 rounded-lg border-2 border-m2-green flex flex-col justify-center items-center text-center shadow-[0_0_20px_rgba(34,197,94,0.1)] transition-transform hover:-translate-y-2">
             <span className="text-gray-400 text-sm uppercase tracking-wider font-semibold mb-2">
-              Nossa nota no Google
+              Nossa nota no Google:
             </span>
             <div className="text-7xl font-black text-white mb-2">
               {averageRating}
