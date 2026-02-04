@@ -5,6 +5,18 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'lh3.googleusercontent.com', // Fotos de perfil do Google
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh5.googleusercontent.com', // Variação comum do Google
+      },
+      {
+        protocol: 'https',
+        hostname: 'fonts.gstatic.com', // Logo do Google
+      },
+      {
+        protocol: 'https',
         hostname: 'placehold.co',
         port: '',
         pathname: '/**',

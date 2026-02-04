@@ -2,7 +2,8 @@
 // Este é o novo Componente de Servidor
 
 import { prisma } from '@/lib/prisma';
-import HomeClientPage from './home-client'; // Importa o nosso componente cliente
+import HomeClientPage from './home-client';
+import GoogleReviews from '@/components/GoogleReviews';
 
 // Esta função busca todos os dados para a página inicial
 async function getHomePageData() {
@@ -70,7 +71,8 @@ export default async function Page() {
       portfolioItems={portfolioItems}
       testimonials={testimonials}
       faqItems={faqItems}
-      services={services} // Passa os serviços para o cliente
+      services={services} 
+      googleReviews={<GoogleReviews />}
     />
   );
 }
