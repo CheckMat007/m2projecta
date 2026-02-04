@@ -1,7 +1,7 @@
 // src/app/(main)/home-client.tsx
 'use client'; 
 
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import Script from 'next/script';
 import Image from 'next/image'; 
 import Link from "next/link";
@@ -43,6 +43,7 @@ type HomeClientPageProps = {
   testimonials: Testimonial[];
   faqItems: FaqItem[];
   services: Service[];
+  googleReviews?: ReactNode;
 };
 
 const statsData = [
@@ -52,7 +53,7 @@ const statsData = [
   { icon: Video, number: 160, label: 'Horas de Voo' },
 ];
 
-export default function HomeClientPage({ heroVideoId, portfolioItems, faqItems, services }: HomeClientPageProps) {
+export default function HomeClientPage({ heroVideoId, portfolioItems, faqItems, services, googleReviews }: HomeClientPageProps) {
   const [activePortfolioIndex, setActivePortfolioIndex] = useState(0);
 
   // Fallback para evitar erro se não houver itens
@@ -249,7 +250,13 @@ export default function HomeClientPage({ heroVideoId, portfolioItems, faqItems, 
           </div>
         </div>
       </section>
+
+          
       
+        
+      {googleReviews}
+      
+
       {/* --- SEÇÃO DE FAQ --- */}
       <section id="faq" className="py-20 bg-m2-dark">
         <div className="container mx-auto px-6 max-w-4xl">
