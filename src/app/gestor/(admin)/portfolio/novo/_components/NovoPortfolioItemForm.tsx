@@ -6,34 +6,58 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { Loader2, UploadCloud } from 'lucide-react';
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription 
+} from "@/components/ui/card";
+import { 
+  Loader2, 
+  UploadCloud, 
+  ArrowLeft,
+  Youtube,
+  Globe
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { createPortfolioItem } from '../../actions';
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Service } from '@prisma/client'; // Importa o tipo 'Service'
+import type { Service } from '@prisma/client';
 
-// Botão de Submit com estado de loading
+// --- SUBCOMPONENTES ---
+
+// Botão de Submit
 function SubmitButton({ isLoading }: { isLoading: boolean }) {
   return (
-    <Button className="bg-m2-green text-black hover:bg-m2-green/80" type="submit" disabled={isLoading}>
+    <Button className="bg-m2-green text-black hover:bg-m2-green/90 min-w-[140px]" type="submit" disabled={isLoading}>
       {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Criar Projeto'}
     </Button>
   );
 }
 
-// Componente para o contador de caracteres
-const CharCounter = ({ text, max }: { text: string; max: number }) => (
-  <p className={`text-xs text-right ${text.length > max ? 'text-red-500' : 'text-gray-500'}`}>
-    {text.length} / {max}
-  </p>
+// Contador de Caracteres
+const CharCounter = ({ current, max }: { current: number; max: number }) => (
+  <span className={`text-xs ml-auto ${current > max ? 'text-destructive' : 'text-muted-foreground'}`}>
+    {current}/{max}
+  </span>
 );
 
-// O formulário agora recebe a lista de SERVIÇOS
-export function NovoPortfolioItemForm({ featuredCount, maxFeatured, services }: { 
+// --- COMPONENTE PRINCIPAL ---
+export function NovoPortfolioItemForm({ 
+  featuredCount, 
+  maxFeatured, 
+  services 
+}: { 
   featuredCount: number, 
   maxFeatured: number,
   services: Service[] 
@@ -44,14 +68,15 @@ export function NovoPortfolioItemForm({ featuredCount, maxFeatured, services }: 
   const formRef = useRef<HTMLFormElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Estados para os contadores de caracteres
+  // Estados dos inputs (para contadores)
   const [title, setTitle] = useState('');
   const [shortDesc, setShortDesc] = useState('');
   const [longDesc, setLongDesc] = useState('');
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDesc, setSeoDesc] = useState('');
-  const [serviceId, setServiceId] = useState(''); // Alterado de 'category' para 'serviceId'
-
+  
+  // Controle de Destaque
+  const [isFeatured, setIsFeatured] = useState(false);
   const isFeaturedDisabled = featuredCount >= maxFeatured;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -59,18 +84,20 @@ export function NovoPortfolioItemForm({ featuredCount, maxFeatured, services }: 
     setIsSubmitting(true);
 
     let coverImageUrl = '';
+    
+    // Validação de Imagem
     if (!file) {
-      toast.error("Por favor, selecione uma imagem de capa.");
+      toast.error("A imagem de capa é obrigatória.");
       setIsSubmitting(false);
       return; 
     }
 
+    // Upload da Imagem
     try {
       const uploadResponse = await fetch(`/api/upload?filename=${file.name}`, { method: 'POST', body: file });
       if (!uploadResponse.ok) throw new Error('Falha no upload da imagem.');
       const newBlob = await uploadResponse.json();
       coverImageUrl = newBlob.url;
-      toast.info('Upload da imagem concluído. Salvando projeto...');
     } catch (error) {
       console.error(error);
       toast.error("Erro ao fazer upload da imagem.");
@@ -81,8 +108,8 @@ export function NovoPortfolioItemForm({ featuredCount, maxFeatured, services }: 
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
     formData.set('coverImage', coverImageUrl);
-    // Não precisamos mais de formData.set('category', ...) porque o 'name' do Select é 'serviceId'
     
+    // Server Action
     const result = await createPortfolioItem(formData);
     
     if (result && !result.success) {
@@ -90,11 +117,11 @@ export function NovoPortfolioItemForm({ featuredCount, maxFeatured, services }: 
       setIsSubmitting(false);
     } else if (result) {
       toast.success(result.message);
-      // O redirect na action cuidará do resto
+      // Redirecionamento é tratado pelo Server Action ou router.push se necessário
     }
   }
 
-  // Funções para Drag and Drop
+  // Drag and Drop Handlers
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsDragging(false); };
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -104,150 +131,269 @@ export function NovoPortfolioItemForm({ featuredCount, maxFeatured, services }: 
     if (droppedFile && droppedFile.type.startsWith('image/')) {
       setFile(droppedFile);
     } else {
-      toast.error("Por favor, solte apenas arquivos de imagem.");
+      toast.error("Apenas arquivos de imagem são permitidos.");
     }
   };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6 pb-20">
+      
       {/* Cabeçalho */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Adicionar Novo Item ao Portfólio</h1>
-          <p className="text-gray-400">Preencha os dados do novo projeto.</p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
+        <div className="flex items-center gap-2">
+            <Link href="/gestor/portfolio">
+                <Button variant="ghost" size="icon" type="button">
+                    <ArrowLeft className="h-5 w-5" />
+                </Button>
+            </Link>
+            <div>
+                <h1 className="text-2xl font-bold tracking-tight">Novo Projeto</h1>
+                <p className="text-sm text-muted-foreground">Preencha os detalhes para adicionar ao portfólio.</p>
+            </div>
         </div>
-        <div className="flex gap-4">
-          <Link href="/gestor/portfolio">
-            <Button variant="outline" type="button" className="bg-transparent border-gray-600" disabled={isSubmitting}>Cancelar</Button>
-          </Link>
-          <SubmitButton isLoading={isSubmitting} />
-        </div>
-      </div>
-
-      <Separator className="bg-gray-700" />
-
-      {/* Seção Principal de Dados */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold">Informações Principais</h2>
-        <div className="space-y-2">
-          <Label htmlFor="title">Título do Projeto</Label>
-          <Input id="title" name="title" placeholder="Ex: Vídeo Institucional TechCorp" className="bg-gray-800 border-gray-700" required value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} />
-          <CharCounter text={title} max={100} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="serviceId">Serviço (Categoria)</Label>
-          {/* O SELETOR AGORA É DINÂMICO */}
-          <Select name="serviceId" value={serviceId} onValueChange={setServiceId} required>
-            <SelectTrigger className="bg-gray-800 border-gray-700">
-              <SelectValue placeholder="Selecione o serviço relacionado" />
-            </SelectTrigger>
-            <SelectContent>
-              {services.map(service => (
-                <SelectItem key={service.id} value={service.id}>{service.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="shortDescription">Descrição Curta (para o card)</Label>
-          <Input id="shortDescription" name="shortDescription" placeholder="Uma breve descrição que aparece no card do portfólio." className="bg-gray-800 border-gray-700" required value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} maxLength={200} />
-          <CharCounter text={shortDesc} max={200} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="longDescription">Descrição Longa (para a página do projeto)</Label>
-          <Textarea id="longDescription" name="longDescription" placeholder="Descreva o desafio, a solução e os resultados do projeto..." className="bg-gray-800 border-gray-700" rows={6} required value={longDesc} onChange={(e) => setLongDesc(e.target.value)} />
-          <p className="text-xs text-gray-500 text-right">{longDesc.length} caracteres</p>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Link href="/gestor/portfolio" className="hidden sm:block">
+                <Button variant="ghost" type="button">Cancelar</Button>
+            </Link>
+            <SubmitButton isLoading={isSubmitting} />
         </div>
       </div>
 
-      {/* Seção de Mídia */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold">Mídia</h2>
-        <div className="space-y-2">
-          <Label htmlFor="coverImage">Imagem de Capa (Obrigatório)</Label>
-          <div 
-            className={`w-full h-64 border-2 border-dashed border-gray-700 rounded-lg flex items-center justify-center text-gray-400 relative overflow-hidden transition-colors ${isDragging ? 'bg-gray-800' : ''}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            {file ? (
-              <Image src={URL.createObjectURL(file)} alt="Preview da capa" fill className="object-cover" />
-            ) : (
-              <div className="text-center pointer-events-none">
-                <UploadCloud size={40} className="mx-auto" />
-                <p>Arraste e solte ou clique no botão abaixo</p>
-              </div>
-            )}
-          </div>
-          <Input 
-            id="coverImage" 
-            type="file" 
-            className="hidden" 
-            ref={fileInputRef}
-            onChange={(e) => e.target.files && setFile(e.target.files[0])}
-            accept="image/png, image/jpeg, image/webp"
-          />
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => fileInputRef.current?.click()}
-            className="bg-transparent border-gray-600 hover:bg-gray-800 hover:text-white"
-          >
-            Selecionar Imagem
-          </Button>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="videoUrl">URL do Vídeo (YouTube)</Label>
-          <Input id="videoUrl" name="videoUrl" type="text" placeholder="Cole o link de 'Compartilhar' (https://youtu.be/...) ou o link completo" className="bg-gray-800 border-gray-700" />
-        </div>
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* COLUNA ESQUERDA (Principal) */}
+        <div className="lg:col-span-2 space-y-6">
+            
+            {/* Card: Informações Básicas */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Sobre o Projeto</CardTitle>
+                    <CardDescription>Informações principais exibidas nos cards e na página de detalhes.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <Label htmlFor="title">Título do Projeto <span className="text-red-500">*</span></Label>
+                            <CharCounter current={title.length} max={100} />
+                        </div>
+                        <Input 
+                            id="title" 
+                            name="title" 
+                            placeholder="Ex: Identidade Visual M2 Projecta" 
+                            required 
+                            value={title} 
+                            onChange={(e) => setTitle(e.target.value)} 
+                            maxLength={100}
+                            className="text-lg font-medium" 
+                        />
+                    </div>
 
-      {/* Seção de Publicação e SEO */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold">Publicação & SEO</h2>
-        <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-800">
-          <div>
-            <Label htmlFor="status" className="font-bold">Status do Projeto</Label>
-            <p className="text-sm text-gray-400">‘Publicado’ ficará visível no site. ‘Rascunho’ ficará salvo apenas no painel.</p>
-          </div>
-          <Select name="status" defaultValue="DRAFT">
-            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="PUBLISHED">Publicado</SelectItem>
-              <SelectItem value="DRAFT">Rascunho</SelectItem>
-            </SelectContent>
-          </Select>
+                    <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <Label htmlFor="shortDescription">Descrição Curta <span className="text-red-500">*</span></Label>
+                            <CharCounter current={shortDesc.length} max={200} />
+                        </div>
+                        <Textarea 
+                            id="shortDescription" 
+                            name="shortDescription" 
+                            placeholder="Resumo breve que aparecerá no card do projeto (vitrine)." 
+                            required 
+                            value={shortDesc} 
+                            onChange={(e) => setShortDesc(e.target.value)} 
+                            maxLength={200} 
+                            rows={2}
+                            className="resize-none"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <Label htmlFor="longDescription">Descrição Completa</Label>
+                            <span className="text-xs text-muted-foreground">{longDesc.length} caracteres</span>
+                        </div>
+                        <Textarea 
+                            id="longDescription" 
+                            name="longDescription" 
+                            placeholder="Conte a história do projeto: desafio, processo e resultados alcançados..." 
+                            required 
+                            value={longDesc} 
+                            onChange={(e) => setLongDesc(e.target.value)} 
+                            rows={8} 
+                            className="resize-y"
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Card: SEO */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Globe className="h-4 w-4" /> Otimização para Buscadores (SEO)
+                    </CardTitle>
+                    <CardDescription>Melhore a visibilidade deste projeto no Google.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <Label htmlFor="seoTitle">Título SEO</Label>
+                            <CharCounter current={seoTitle.length} max={60} />
+                        </div>
+                        <Input 
+                            id="seoTitle" 
+                            name="seoTitle" 
+                            placeholder="Título otimizado para busca" 
+                            value={seoTitle} 
+                            onChange={(e) => setSeoTitle(e.target.value)} 
+                            maxLength={60} 
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <Label htmlFor="seoDescription">Meta Descrição</Label>
+                            <CharCounter current={seoDesc.length} max={160} />
+                        </div>
+                        <Textarea 
+                            id="seoDescription" 
+                            name="seoDescription" 
+                            placeholder="Breve resumo que aparece nos resultados de busca." 
+                            value={seoDesc} 
+                            onChange={(e) => setSeoDesc(e.target.value)} 
+                            maxLength={160} 
+                            rows={2}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-800">
-          <div>
-            <Label htmlFor="isFeatured" className={`font-bold ${isFeaturedDisabled ? 'text-gray-500' : ''}`}>Destaque na Página Inicial</Label>
-            <p className="text-sm text-gray-400">Ative para este projeto aparecer no slider da página inicial.</p>
-          </div>
-          <div>
-            <Switch 
-              id="isFeatured" 
-              name="isFeatured" 
-              disabled={isFeaturedDisabled} 
-            />
-            {isFeaturedDisabled && (
-              <p className="text-xs text-yellow-500 text-right mt-1">Limite atingido.</p>
-            )}
-          </div>
-        </div>
+        {/* COLUNA DIREITA (Lateral) */}
+        <div className="lg:col-span-1 space-y-6">
+            
+            {/* Card: Publicação */}
+            <Card className="border-l-4 border-l-primary">
+                <CardHeader>
+                    <CardTitle>Publicação</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="status">Status</Label>
+                        <Select name="status" defaultValue="DRAFT">
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="DRAFT">Rascunho</SelectItem>
+                                <SelectItem value="PUBLISHED">Publicado</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="seoTitle">Título SEO (Opcional)</Label>
-          <Input id="seoTitle" name="seoTitle" placeholder="Título que aparecerá no Google (máx 60 caracteres)" className="bg-gray-800 border-gray-700" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} maxLength={60} />
-          <CharCounter text={seoTitle} max={60} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="seoDescription">Descrição SEO (Opcional)</Label>
-          <Textarea id="seoDescription" name="seoDescription" placeholder="Descrição que aparecerá no Google (máx 160 caracteres)" className="bg-gray-800 border-gray-700" rows={3} value={seoDesc} onChange={(e) => setSeoDesc(e.target.value)} maxLength={160} />
-          <CharCounter text={seoDesc} max={160} />
+                    <div className="flex flex-col gap-2 p-3 bg-muted/50 rounded-md border border-border">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="isFeatured" className={`cursor-pointer ${isFeaturedDisabled && !isFeatured ? 'opacity-50' : ''}`}>
+                                Destaque na Home
+                            </Label>
+                            <Switch 
+                                id="isFeatured" 
+                                name="isFeatured" 
+                                checked={isFeatured}
+                                onCheckedChange={setIsFeatured}
+                                disabled={isFeaturedDisabled && !isFeatured} 
+                            />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            {isFeaturedDisabled && !isFeatured 
+                                ? "Limite de destaques atingido." 
+                                : "Exibir no carrossel da página inicial."}
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Card: Organização */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Categoria</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        <Label htmlFor="serviceId">Serviço Relacionado <span className="text-red-500">*</span></Label>
+                        <Select name="serviceId" required>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecione..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {services.map(service => (
+                                    <SelectItem key={service.id} value={service.id}>{service.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">Define onde o projeto aparecerá no site.</p>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Card: Mídia */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Mídia</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    {/* Upload de Imagem */}
+                    <div className="space-y-2">
+                        <Label>Imagem de Capa <span className="text-red-500">*</span></Label>
+                        <Input 
+                            type="file" 
+                            className="hidden" 
+                            ref={fileInputRef}
+                            onChange={(e) => e.target.files && setFile(e.target.files[0])}
+                            accept="image/png, image/jpeg, image/webp"
+                        />
+                        
+                        <div 
+                            className={`
+                                relative w-full aspect-video rounded-lg border-2 border-dashed flex flex-col items-center justify-center text-center cursor-pointer transition-all overflow-hidden
+                                ${isDragging ? 'border-primary bg-primary/10' : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30'}
+                                ${file ? 'border-transparent' : ''}
+                            `}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            {file ? (
+                                <>
+                                    <Image src={URL.createObjectURL(file)} alt="Preview" fill className="object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <p className="text-white font-medium text-sm">Clique para alterar</p>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="p-4 space-y-2">
+                                    <div className="h-10 w-10 bg-muted rounded-full flex items-center justify-center mx-auto">
+                                        <UploadCloud className="h-5 w-5 text-muted-foreground" />
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                        <span className="font-medium text-primary">Clique para enviar</span> ou arraste
+                                    </div>
+                                    <p className="text-[10px] text-muted-foreground/70">JPG, PNG ou WEBP</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* URL de Vídeo */}
+                    <div className="space-y-2">
+                        <Label htmlFor="videoUrl" className="flex items-center gap-2">
+                            <Youtube className="h-4 w-4 text-red-500" /> Vídeo do YouTube
+                        </Label>
+                        <Input id="videoUrl" name="videoUrl" placeholder="https://youtu.be/..." />
+                        <p className="text-xs text-muted-foreground">Opcional. Substitui a capa por um player na página do projeto.</p>
+                    </div>
+                </CardContent>
+            </Card>
+
         </div>
       </div>
     </form>

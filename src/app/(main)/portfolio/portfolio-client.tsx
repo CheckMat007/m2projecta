@@ -4,15 +4,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlusCircle } from 'lucide-react';
-// Importa os tipos completos do Prisma
+import { Plus, ArrowRight } from 'lucide-react';
 import type { PortfolioItem, Service } from '@prisma/client';
 
 const ITEMS_PER_PAGE = 6;
 
-// Define o tipo para os itens do portfólio que incluem o serviço
 type PortfolioItemWithService = PortfolioItem & {
   service: Service | null;
 };
@@ -24,10 +21,8 @@ export default function PortfolioClientPage({ initialItems, services }: {
   const [activeFilter, setActiveFilter] = useState('Todos');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
-  // Cria a lista de categorias dinamicamente a partir dos serviços
   const categories = ['Todos', ...services.map(s => s.name)];
 
-  // Lógica de filtragem ATUALIZADA
   const filteredItems = activeFilter === 'Todos'
     ? initialItems
     : initialItems.filter(item => item.service?.name === activeFilter);
@@ -36,105 +31,126 @@ export default function PortfolioClientPage({ initialItems, services }: {
 
   return (
     <>
-      <section className="relative flex min-h-[50vh] w-full items-center justify-center py-20 text-center">
+      {/* 1. HERO SECTION */}
+      <section className="relative w-full min-h-[60vh] md:h-[70vh] flex items-center md:items-end pb-16 md:pb-24 bg-black overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
-            src="/assets/portfolio/dutra.JPG"
+            src="/assets/hero-image.JPG"
             alt="Vista aérea panorâmica de um projeto da M2 Projecta"
             fill
-            className="object-cover"
+            className="object-cover opacity-60"
             priority
           />
-          <div className="absolute inset-0 bg-black/70 z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
         </div>
-        <div className="relative z-20 container mx-auto px-6">
-          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-wider text-white">
-            Galeria de <span className="text-m2-green">Perspectivas</span>
-          </h1>
-          <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
-            Explore uma seleção de trabalhos que demonstram nossa paixão por imagens aéreas e nosso compromisso com a qualidade.
-          </p>
+        
+        <div className="relative z-20 container mx-auto px-4 md:px-6 pt-32 md:pt-0">
+          <div className="max-w-3xl border-l-4 border-m2-green pl-6 md:pl-8">
+            <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tight text-white leading-tight">
+              Galeria de <span className="text-m2-green">Perspectivas</span>
+            </h1>
+            <p className="mt-6 text-lg md:text-xl text-gray-300 max-w-xl font-medium leading-relaxed">
+              Onde a tecnologia encontra a arte. Explore nossos projetos de maior impacto.
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className="py-20 bg-black">
-        <div className="container mx-auto px-6">
-          <div className="flex justify-center flex-wrap gap-4 mb-12">
+      {/* 2. FILTROS */}
+      <section className="relative z-[30] bg-black border-b border-white/5 py-10 md:py-14">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
             {categories.map((category) => (
-              <Button
+              <button
                 key={category}
                 onClick={() => {
                   setActiveFilter(category);
                   setVisibleCount(ITEMS_PER_PAGE);
                 }}
-                variant={activeFilter === category ? 'default' : 'outline'}
-                className={ activeFilter === category ? 'bg-m2-green text-black hover:bg-m2-green/80' : 'bg-transparent border-gray-600 hover:bg-gray-800 hover:text-white' }
+                className={`px-5 py-2.5 md:px-8 md:py-3 rounded-full text-[11px] md:text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 border
+                  ${activeFilter === category 
+                    ? 'bg-m2-green border-m2-green text-black shadow-lg' 
+                    : 'bg-transparent border-white/10 text-gray-400 hover:border-m2-green hover:text-white'
+                  }`}
               >
                 {category}
-              </Button>
+              </button>
             ))}
           </div>
+        </div>
+      </section>
 
-          <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence>
-              {visibleItems.map((item) => (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <Link href={`/portfolio/${item.id}`} className="group block">
-                    <div className="relative overflow-hidden rounded-lg">
+      {/* 3. GRID DE PORTFÓLIO */}
+      <section className="py-16 md:py-24 bg-black min-h-screen">
+        <div className="container mx-auto px-4 md:px-6">
+          <motion.div 
+            layout 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 grid-flow-row-dense"
+          >
+            <AnimatePresence mode="popLayout">
+              {visibleItems.map((item, index) => {
+                const isFeatured = index === 0 && activeFilter === 'Todos';
+
+                return (
+                  <motion.div
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                    // CORREÇÃO: min-w-0 e w-full garantem que o item do grid nunca vaze
+                    className={`${isFeatured ? 'md:col-span-2 md:row-span-1' : 'col-span-1'} w-full min-w-0`}
+                  >
+                    <Link 
+                      href={`/portfolio/${item.id}`} 
+                      className="group relative block w-full aspect-video md:aspect-auto md:h-full min-h-[320px] overflow-hidden rounded-2xl bg-[#0a0a0a] border border-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green"
+                    >
                       <Image 
                         src={item.coverImage}
                         alt={item.title} 
-                        width={600} 
-                        height={400} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-1000 group-hover:scale-110 filter md:grayscale md:group-hover:grayscale-0" 
                       />
-                      <div className="absolute inset-0 bg-black/70 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <div>
-                          <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                          {/* CORREÇÃO AQUI */}
-                          <p className="text-m2-green">{item.service?.name || 'Sem categoria'}</p>
-                          <span className="mt-2 inline-flex items-center text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            Ver Projeto <PlusCircle size={18} className="ml-2" />
-                          </span>
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      
+                      {/* CORREÇÃO: Reduzido padding no mobile para p-5, e w-full com max-w-full para conter o texto */}
+                      <div className="absolute inset-0 flex flex-col justify-end p-5 md:p-8 w-full max-w-full overflow-hidden">
+                        <p className="text-m2-green text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-2 truncate w-full">
+                          {item.service?.name || 'Projeto Especial'}
+                        </p>
+                        
+                        {/* CORREÇÃO: break-words e line-clamp forçam quebra de linha sem alargar o card */}
+                        <h3 className="text-xl md:text-3xl font-black text-white leading-tight mb-4 group-hover:text-m2-green transition-colors break-words line-clamp-3 md:line-clamp-none w-full">
+                          {item.title}
+                        </h3>
+                        
+                        <div className="flex items-center gap-2 text-white text-[10px] md:text-xs font-bold uppercase opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
+                          Explorar Projeto <ArrowRight size={16} className="text-m2-green flex-shrink-0" />
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
+                    </Link>
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
           </motion.div>
 
+          {/* Load More */}
           {visibleCount < filteredItems.length && (
-            <div className="text-center mt-12">
-              <Button 
+            <div className="text-center mt-20 md:mt-24">
+              <button 
                 onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
-                variant="outline"
-                className="bg-transparent border-m2-green text-m2-green hover:bg-m2-green hover:text-black transition-colors"
+                className="group relative inline-flex items-center gap-3 px-10 py-4 bg-transparent border-2 border-m2-green text-m2-green font-black uppercase tracking-widest rounded-xl hover:bg-m2-green hover:text-black transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green focus-visible:ring-offset-4 focus-visible:ring-offset-black"
               >
                 Carregar Mais Projetos
-              </Button>
+                <Plus className="w-5 h-5 transition-transform group-hover:rotate-90 flex-shrink-0" />
+              </button>
             </div>
           )}
 
-          <div className="mt-20 text-center border-t border-gray-800 pt-12">
-            <h3 className="text-2xl font-bold text-white mb-6">Pronto para dar vida ao seu projeto?</h3>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="https://wa.me/5512991316774?text=Oi,%20quero%20falar%20sobre%20um%20projeto!" target="_blank" rel="noopener noreferrer" className="bg-m2-green text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-white transition-colors duration-300 transform hover:scale-105">
-                Solicite um Orçamento
-              </a>
-              <a href="/servicos" className="border-2 border-m2-green text-m2-green font-bold py-3 px-8 rounded-lg text-lg hover:bg-m2-green hover:text-black transition-colors duration-300">
-                Conheça Nossos Serviços
-              </a>
-            </div>
-          </div>
         </div>
       </section>
     </>

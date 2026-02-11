@@ -39,8 +39,7 @@ export default async function CategoriesPage() {
                 <ChevronLeft size={20} />
                 Voltar para o blog
             </Link>
-            <h1 className="text-3xl font-bold">Gerenciar Categorias</h1>
-            <p className="text-gray-400">Adicione, edite e organize as categorias do seu blog.</p>
+           
         </div>
         <CategoriesClientPage initialCategories={categories} />
     </div>

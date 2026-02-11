@@ -5,17 +5,38 @@ import { Footer } from "@/components/layout/Footer";
 import Script from "next/script";
 import { CookieConsentBanner } from '@/components/CookieConsentBanner';
 
-export default function MainLayout({
+// 1. Importação do Prisma Client (ajuste o caminho se o seu arquivo prisma.ts estiver em outro local)
+import { prisma } from "@/lib/prisma";
+
+// 2. Transformado em função async para permitir fetch no servidor
+export default async function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  
+  // 3. Busca otimizada dos serviços: 
+  // O uso do 'select' garante que não baixaremos as descrições longas ou imagens pesadas, apenas o essencial para o menu.
+  const services = await prisma.service.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+    orderBy: {
+      name: 'asc' // Ordena alfabeticamente para melhor UX no menu
+    }
+  });
+
   return (
     <>
-      <Header />
+      {/* 4. Passando a prop dinâmica para o Header */}
+      <Header services={services} />
+      
       <main>
         {children}
       </main>
+      
       <Footer />
 
       {/* Script do Google Analytics para todas as páginas públicas */}
