@@ -45,7 +45,7 @@ export default async function GestorLayout({
 
   const menuItems: MenuItem[] = [
     { href: "/gestor", icon: 'LayoutDashboard', label: "Dashboard", permission: 'any' },
-    { href: "/gestor/notifications", icon: 'Bell', label: "Gerenciar Notificações", permission: 'manage_notifications' },
+    { href: "/gestor/notifications", icon: 'Bell', label: "Notificações", permission: 'manage_notifications' },
     { href: "/gestor/blog", icon: 'BookText', label: "Blog", permission: 'manage_blog' },
     {
       label: "Gerenciar Site", icon: 'Home', permission: 'manage_site',
@@ -53,7 +53,6 @@ export default async function GestorLayout({
         { href: "/gestor/site/inicio", icon: 'Home', label: "Início" },
         { href: "/gestor/site/sobre", icon: 'BookOpen', label: "Sobre Nós" },
         { href: "/gestor/site/servicos", icon: 'Briefcase', label: "Serviços" },
-        { href: "/gestor/site/contato", icon: 'Contact', label: "Contato" },
         { href: "/gestor/site/aparencia", icon: 'Paintbrush', label: "Aparência" },
       ],
     },
@@ -71,8 +70,6 @@ export default async function GestorLayout({
   return (
     <div className="min-h-screen bg-m2-dark text-white">
       <AdminLayoutClient
-        // --- CORREÇÃO APLICADA AQUI ---
-        // Passamos o objeto 'user' fresco do banco de dados, em vez do 'session.user' obsoleto.
         user={user}
         menuItems={accessibleMenuItems}
         initialNotifications={notifications}

@@ -39,10 +39,6 @@ export default async function ClientsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Gerenciar Clientes</h1>
-        <p className="text-gray-400">Cadastre empresas e gere acessos automáticos para a área do cliente.</p>
-      </div>
       <ClientsClientPage initialClients={clients} />
     </div>
   );

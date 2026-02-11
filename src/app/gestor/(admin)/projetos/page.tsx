@@ -61,10 +61,7 @@ export default async function ProjectsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Gerenciar Projetos</h1>
-        <p className="text-gray-400">Acompanhe o andamento e envie atualizações para os clientes.</p>
-      </div>
+      
       <ProjectsClientPage 
         initialProjects={projects}
         clients={clients}
