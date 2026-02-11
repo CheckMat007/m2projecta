@@ -14,9 +14,9 @@ const hasPermission = (user: UserWithPermissions | null, permissionName: string)
   return user.permissions?.some(p => p.name === permissionName);
 };
 
-// Função principal da página
 export default async function NotificationsPage() {
   const session = await getServerSession(authOptions);
+  
   if (!session?.user?.id) {
     redirect('/gestor/login');
   }
@@ -26,26 +26,25 @@ export default async function NotificationsPage() {
     include: { permissions: true },
   });
 
-  // --- CORREÇÃO APLICADA AQUI ---
-  // Se o usuário da sessão não for encontrado no banco, redireciona para o login.
-  // Isso garante que `currentUser` nunca será `null` nas linhas seguintes.
   if (!currentUser) {
     redirect('/gestor/login');
   }
-  // --- FIM DA CORREÇÃO ---
 
   if (!hasPermission(currentUser, 'manage_notifications')) {
     redirect('/gestor');
   }
 
+  // Lógica de busca de notificações
   let notifications;
+  const includeQuery = {
+    sender: { select: { name: true } },
+    readStatuses: { include: { user: { select: { name: true } } } },
+  };
+
   if (currentUser.role === 'MASTER') {
     notifications = await prisma.notification.findMany({
       orderBy: { createdAt: 'desc' },
-      include: {
-        sender: { select: { name: true } },
-        readStatuses: { include: { user: { select: { name: true } } } },
-      },
+      include: includeQuery,
       take: 50,
     });
   } else {
@@ -73,7 +72,7 @@ export default async function NotificationsPage() {
     <NotificationsClientPage
       initialNotifications={notifications}
       allUsers={allUsers}
-      currentUser={currentUser} // Agora o TypeScript tem certeza de que `currentUser` não é nulo
+      currentUser={currentUser}
     />
   );
 }

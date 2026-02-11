@@ -30,8 +30,7 @@ export default async function TagsPage() {
                 <ChevronLeft size={20} />
                 Voltar para o blog
             </Link>
-            <h1 className="text-3xl font-bold">Gerenciar Tags</h1>
-            <p className="text-gray-400">Adicione, edite e organize as tags do seu blog.</p>
+            
         </div>
         <TagsClientPage initialTags={tags} />
     </div>

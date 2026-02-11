@@ -43,10 +43,7 @@ export default async function ContractsPage({ searchParams }: { searchParams: { 
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Gerenciar Contratos</h1>
-        <p className="text-gray-400">Crie e gerencie contratos comerciais.</p>
-      </div>
+      
       {/* Passamos o newClientId que pode vir da URL se viemos do cadastro de cliente */}
       <ContractsClientPage 
         initialContracts={contracts} 

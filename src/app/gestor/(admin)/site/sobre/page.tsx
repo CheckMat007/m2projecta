@@ -27,10 +27,7 @@ export default async function SobreSitePage() {
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold">Gerenciar Página SOBRE NÓS</h1>
-        <p className="text-gray-400">Edite os conteúdos dinâmicos da sua página SOBRE NÓS.</p>
-      </div>
+      
 
       {/* Card para editar o Conteúdo Principal da página Sobre */}
       <Card className="bg-black/30 border-gray-800">
