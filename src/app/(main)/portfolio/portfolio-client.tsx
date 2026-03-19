@@ -1,7 +1,7 @@
 // src/app/(main)/portfolio/portfolio-client.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +20,9 @@ export default function PortfolioClientPage({ initialItems, services }: {
 }) {
   const [activeFilter, setActiveFilter] = useState('Todos');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  
+  // Referência para o scroll automático
+  const portfolioRef = useRef<HTMLElement>(null);
 
   const categories = ['Todos', ...services.map(s => s.name)];
 
@@ -29,10 +32,31 @@ export default function PortfolioClientPage({ initialItems, services }: {
   
   const visibleItems = filteredItems.slice(0, visibleCount);
 
+  // Função para contar quantos itens cada filtro possui (Feedback Visual)
+  const getCategoryCount = (category: string) => {
+    if (category === 'Todos') return initialItems.length;
+    return initialItems.filter(item => item.service?.name === category).length;
+  };
+
+  const handleFilterClick = (category: string) => {
+    setActiveFilter(category);
+    setVisibleCount(ITEMS_PER_PAGE);
+    
+    // Scroll suave para garantir que o usuário veja as imagens mudando
+    if (portfolioRef.current) {
+      const offsetTop = portfolioRef.current.offsetTop;
+      // Ajuste o "- 100" dependendo do tamanho do seu Header/Navbar para não ficar escondido
+      window.scrollTo({
+        top: offsetTop - 100,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <>
-      {/* 1. HERO SECTION */}
-      <section className="relative w-full min-h-[60vh] md:h-[70vh] flex items-center md:items-end pb-16 md:pb-24 bg-black overflow-hidden">
+      {/* 1. HERO SECTION - Altura reduzida para gerar o "Peek Effect" (deixar o grid visível abaixo) */}
+      <section className="relative w-full min-h-[40vh] md:min-h-[50vh] flex items-center md:items-end pb-10 md:pb-16 bg-black overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
             src="/assets/hero-image.JPG"
@@ -44,48 +68,57 @@ export default function PortfolioClientPage({ initialItems, services }: {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
         </div>
         
-        <div className="relative z-20 container mx-auto px-4 md:px-6 pt-32 md:pt-0">
+        <div className="relative z-20 container mx-auto px-4 md:px-6 pt-24 md:pt-0">
           <div className="max-w-3xl border-l-4 border-m2-green pl-6 md:pl-8">
-            <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tight text-white leading-tight">
+            <h1 className="text-3xl md:text-6xl font-black uppercase tracking-tight text-white leading-tight">
               Galeria de <span className="text-m2-green">Perspectivas</span>
             </h1>
-            <p className="mt-6 text-lg md:text-xl text-gray-300 max-w-xl font-medium leading-relaxed">
+            <p className="mt-4 text-base md:text-xl text-gray-300 max-w-xl font-medium leading-relaxed">
               Onde a tecnologia encontra a arte. Explore nossos projetos de maior impacto.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 2. FILTROS */}
-      <section className="relative z-[30] bg-black border-b border-white/5 py-10 md:py-14">
+      {/* 2. FILTROS - Agora com position 'sticky' para acompanhar o scroll e com contadores */}
+      {/* NOTA: Se você tiver um Header fixo (navbar), mude o top-0 para o tamanho do header (ex: top-16 ou top-20) */}
+      <section className="sticky top-40 z-[40] bg-black/95 backdrop-blur-md border-y border-white/5 py-6 shadow-2xl transition-all">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => {
-                  setActiveFilter(category);
-                  setVisibleCount(ITEMS_PER_PAGE);
-                }}
-                className={`px-5 py-2.5 md:px-8 md:py-3 rounded-full text-[11px] md:text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 border
-                  ${activeFilter === category 
-                    ? 'bg-m2-green border-m2-green text-black shadow-lg' 
-                    : 'bg-transparent border-white/10 text-gray-400 hover:border-m2-green hover:text-white'
-                  }`}
-              >
-                {category}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
+            {categories.map((category) => {
+              const count = getCategoryCount(category);
+              const isActive = activeFilter === category;
+              
+              // Esconde filtros que não têm nenhum projeto (opcional, melhora a UX)
+              if (count === 0) return null;
+
+              return (
+                <button
+                  key={category}
+                  onClick={() => handleFilterClick(category)}
+                  className={`flex items-center gap-2 px-4 py-2 md:px-6 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-[0.15em] transition-all duration-300 border
+                    ${isActive 
+                      ? 'bg-m2-green border-m2-green text-black shadow-lg scale-105' 
+                      : 'bg-transparent border-white/10 text-gray-400 hover:border-m2-green hover:text-white'
+                    }`}
+                >
+                  {category}
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${isActive ? 'bg-black/20 text-black' : 'bg-white/10 text-gray-400'}`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* 3. GRID DE PORTFÓLIO */}
-      <section className="py-16 md:py-24 bg-black min-h-screen">
+      {/* 3. GRID DE PORTFÓLIO - Adicionado o ref para o auto-scroll e paddings menores no topo */}
+      <section ref={portfolioRef} className="py-12 md:py-16 bg-black min-h-screen">
         <div className="container mx-auto px-4 md:px-6">
           <motion.div 
             layout 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 grid-flow-row-dense"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 grid-flow-row-dense"
           >
             <AnimatePresence mode="popLayout">
               {visibleItems.map((item, index) => {
@@ -95,16 +128,15 @@ export default function PortfolioClientPage({ initialItems, services }: {
                   <motion.div
                     key={item.id}
                     layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.4, delay: index * 0.05 }}
-                    // CORREÇÃO: min-w-0 e w-full garantem que o item do grid nunca vaze
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
                     className={`${isFeatured ? 'md:col-span-2 md:row-span-1' : 'col-span-1'} w-full min-w-0`}
                   >
                     <Link 
                       href={`/portfolio/${item.id}`} 
-                      className="group relative block w-full aspect-video md:aspect-auto md:h-full min-h-[320px] overflow-hidden rounded-2xl bg-[#0a0a0a] border border-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green"
+                      className="group relative block w-full aspect-video md:aspect-auto md:h-full min-h-[280px] overflow-hidden rounded-2xl bg-[#0a0a0a] border border-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green"
                     >
                       <Image 
                         src={item.coverImage}
@@ -116,19 +148,17 @@ export default function PortfolioClientPage({ initialItems, services }: {
                       
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500"></div>
                       
-                      {/* CORREÇÃO: Reduzido padding no mobile para p-5, e w-full com max-w-full para conter o texto */}
-                      <div className="absolute inset-0 flex flex-col justify-end p-5 md:p-8 w-full max-w-full overflow-hidden">
-                        <p className="text-m2-green text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-2 truncate w-full">
+                      <div className="absolute inset-0 flex flex-col justify-end p-5 w-full max-w-full overflow-hidden">
+                        <p className="text-m2-green text-[10px] font-bold uppercase tracking-[0.2em] mb-2 truncate w-full">
                           {item.service?.name || 'Projeto Especial'}
                         </p>
                         
-                        {/* CORREÇÃO: break-words e line-clamp forçam quebra de linha sem alargar o card */}
-                        <h3 className="text-xl md:text-3xl font-black text-white leading-tight mb-4 group-hover:text-m2-green transition-colors break-words line-clamp-3 md:line-clamp-none w-full">
+                        <h3 className="text-lg md:text-2xl font-black text-white leading-tight mb-4 group-hover:text-m2-green transition-colors break-words line-clamp-3 md:line-clamp-none w-full">
                           {item.title}
                         </h3>
                         
-                        <div className="flex items-center gap-2 text-white text-[10px] md:text-xs font-bold uppercase opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
-                          Explorar Projeto <ArrowRight size={16} className="text-m2-green flex-shrink-0" />
+                        <div className="flex items-center gap-2 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
+                          Explorar Projeto <ArrowRight size={14} className="text-m2-green flex-shrink-0" />
                         </div>
                       </div>
                     </Link>
@@ -140,13 +170,13 @@ export default function PortfolioClientPage({ initialItems, services }: {
 
           {/* Load More */}
           {visibleCount < filteredItems.length && (
-            <div className="text-center mt-20 md:mt-24">
+            <div className="text-center mt-16">
               <button 
                 onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
-                className="group relative inline-flex items-center gap-3 px-10 py-4 bg-transparent border-2 border-m2-green text-m2-green font-black uppercase tracking-widest rounded-xl hover:bg-m2-green hover:text-black transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                className="group relative inline-flex items-center gap-3 px-8 py-3 bg-transparent border-2 border-m2-green text-m2-green text-sm font-black uppercase tracking-widest rounded-xl hover:bg-m2-green hover:text-black transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green"
               >
                 Carregar Mais Projetos
-                <Plus className="w-5 h-5 transition-transform group-hover:rotate-90 flex-shrink-0" />
+                <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 flex-shrink-0" />
               </button>
             </div>
           )}
