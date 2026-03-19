@@ -64,23 +64,21 @@ export default async function PortfolioDetailsPage({ params }: { params: { id: s
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden bg-[#050505]">
       
-      {/* HERO SECTION (Editorial otimizada para mobile) */}
-      <section className="relative w-full min-h-[50vh] md:min-h-[75vh] flex items-center md:items-end pb-12 md:pb-24 overflow-hidden">
+      {/* HERO SECTION - Corrigida com pt-28/32 para afastar do Header Fixo */}
+      <section className="relative w-full min-h-[45vh] md:min-h-[55vh] flex flex-col justify-center md:justify-end pt-28 md:pt-32 pb-10 md:pb-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
             src={project.coverImage} 
-            alt={`Capa do projeto: ${project.title}`} 
+            alt={`Plano de fundo do projeto: ${project.title}`} 
             fill 
             sizes="100vw"
-            className="object-cover object-center"
+            className="object-cover object-center opacity-40 md:opacity-60 blur-[2px] md:blur-0"
             priority
           />
-          {/* Gradiente protegendo a base para o texto respirar */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-black/30 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/90 to-black/50 z-10" />
         </div>
 
-        {/* pt-28/32 protege contra o Header Mobile e dá respiro */}
-        <div className="relative z-20 container mx-auto px-4 md:px-6 pt-28 md:pt-0">
+        <div className="relative z-20 container mx-auto px-4 md:px-6">
           <Link 
             href="/portfolio" 
             className="inline-flex items-center gap-2 text-gray-400 hover:text-m2-green transition-colors font-medium mb-6 md:mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green rounded-sm text-sm md:text-base"
@@ -90,7 +88,7 @@ export default async function PortfolioDetailsPage({ params }: { params: { id: s
           </Link>
 
           <div className="max-w-4xl border-l-4 border-m2-green pl-4 md:pl-8">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider text-white leading-tight break-words">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-wider text-white leading-tight break-words">
               {project.title}
             </h1>
           </div>
@@ -98,13 +96,13 @@ export default async function PortfolioDetailsPage({ params }: { params: { id: s
       </section>
 
       {/* CONTEÚDO PRINCIPAL (Sidebar + Detalhes) */}
-      <section className="py-12 md:py-24 bg-[#050505]">
+      <section className="py-10 md:py-20 bg-[#050505]">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="grid lg:grid-cols-12 gap-8 md:gap-12 lg:gap-20">
+          <div className="grid lg:grid-cols-12 gap-8 md:gap-12 lg:gap-16">
             
             {/* Coluna Esquerda: Contexto & CTA (Sticky no Desktop) */}
             <div className="lg:col-span-4 space-y-6 md:space-y-8 order-2 lg:order-1">
-              <div className="sticky top-24 md:top-32 bg-[#111]/80 backdrop-blur-sm border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-xl">
+              <div className="sticky top-28 md:top-32 bg-[#111]/80 backdrop-blur-sm border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-xl">
                 
                 <h3 className="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest mb-2">Categoria</h3>
                 <div className="flex items-center gap-3 mb-6 md:mb-8">
@@ -134,23 +132,35 @@ export default async function PortfolioDetailsPage({ params }: { params: { id: s
             {/* Coluna Direita: O Estudo de Caso */}
             <div className="lg:col-span-8 order-1 lg:order-2">
               
+              {/* IMAGEM DE DESTAQUE - Adicionada para visualização limpa */}
+              <div className="mb-8 md:mb-12 relative w-full aspect-video rounded-xl md:rounded-2xl overflow-hidden border border-white/5 shadow-2xl bg-[#0a0a0a] group">
+                <Image 
+                  src={project.coverImage}
+                  alt={`Visualização da imagem do projeto: ${project.title}`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  priority
+                />
+              </div>
+
               {/* Lead / Short Description */}
-              <div className="mb-8 md:mb-12">
+              <div className="mb-8 md:mb-10">
                 <LucideIcons.Quote className="w-8 h-8 md:w-10 md:h-10 text-m2-green mb-3 md:mb-4" aria-hidden="true" />
-                <p className="text-lg md:text-3xl text-white font-light leading-relaxed">
+                <p className="text-lg md:text-2xl text-white font-light leading-relaxed">
                   {project.shortDescription}
                 </p>
               </div>
 
               {/* Long Description (Prose) */}
-              <div className="prose prose-invert prose-base md:prose-lg max-w-none prose-p:text-gray-400 prose-p:leading-relaxed prose-headings:text-white prose-a:text-m2-green mb-12 md:mb-16">
+              <div className="prose prose-invert prose-sm md:prose-base max-w-none prose-p:text-gray-400 prose-p:leading-relaxed prose-headings:text-white prose-a:text-m2-green mb-12 md:mb-16">
                 <div className="whitespace-pre-wrap">{project.longDescription}</div>
               </div>
 
               {/* Seção de Vídeo (se existir) */}
               {project.videoUrl && (
-                <div className="mt-12 md:mt-16 pt-12 md:pt-16 border-t border-white/5">
-                  <h3 className="text-xl md:text-2xl font-bold text-white mb-6 md:mb-8 uppercase tracking-wide flex items-center gap-2 md:gap-3">
+                <div className="mt-10 md:mt-16 pt-10 md:pt-16 border-t border-white/5">
+                  <h3 className="text-lg md:text-xl font-bold text-white mb-6 md:mb-8 uppercase tracking-wide flex items-center gap-2 md:gap-3">
                     <LucideIcons.PlayCircle className="text-m2-green w-5 h-5 md:w-6 md:h-6" aria-hidden="true" />
                     Registro Visual
                   </h3>
