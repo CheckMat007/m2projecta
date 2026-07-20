@@ -71,10 +71,10 @@ export default function PortfolioClientPage({ initialItems, services }: {
         <div className="relative z-20 container mx-auto px-4 md:px-6 pt-24 md:pt-0">
           <div className="max-w-3xl border-l-4 border-m2-green pl-6 md:pl-8">
             <h1 className="text-3xl md:text-6xl font-black uppercase tracking-tight text-white leading-tight">
-              Galeria de <span className="text-m2-green">Perspectivas</span>
+              Nosso <span className="text-m2-green">Portfólio</span>
             </h1>
             <p className="mt-4 text-base md:text-xl text-gray-300 max-w-xl font-medium leading-relaxed">
-              Onde a tecnologia encontra a arte. Explore nossos projetos de maior impacto.
+              Conheça alguns dos nossos principais projetos.
             </p>
           </div>
         </div>
