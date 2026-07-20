@@ -125,8 +125,8 @@ export default async function ServicosPage() {
                 1
               </div>
               <LucideIcons.ClipboardList className="w-10 h-10 text-white mt-4 mb-4" aria-hidden="true" />
-              <h3 className="text-xl font-bold text-white mb-2">Briefing & Avaliação</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Entendemos a sua necessidade, estudamos o local de voo e checamos todas as exigências de espaço aéreo.</p>
+              <h3 className="text-xl font-bold text-white mb-2">Alinhamento e Planejamento</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">Entendemos a sua necessidade, estudamos o local e checamos as normas do espaço aéreo. A execução do serviço fica sujeita à aprovação destas condições de segurança e autorização técnica.</p>
             </div>
 
             <div className="relative bg-[#111] p-8 rounded-2xl border border-white/5 z-10 hover:border-m2-green/30 transition-colors">
@@ -135,7 +135,7 @@ export default async function ServicosPage() {
               </div>
               <LucideIcons.Crosshair className="w-10 h-10 text-white mt-4 mb-4" aria-hidden="true" />
               <h3 className="text-xl font-bold text-white mb-2">Captação em Campo</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Nossa equipe vai a campo com equipamentos de última geração para capturar as imagens com segurança e precisão cênica.</p>
+              <p className="text-gray-400 text-sm leading-relaxed">Realizamos a operação técnica no local com foco total em segurança, precisão e qualidade técnica das imagens.</p>
             </div>
 
             <div className="relative bg-[#111] p-8 rounded-2xl border border-white/5 z-10 hover:border-m2-green/30 transition-colors">
@@ -143,8 +143,8 @@ export default async function ServicosPage() {
                 3
               </div>
               <LucideIcons.MonitorPlay className="w-10 h-10 text-white mt-4 mb-4" aria-hidden="true" />
-              <h3 className="text-xl font-bold text-white mb-2">Pós-Produção & Entrega</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Tratamento de cor, edição profissional e entrega do material em alta resolução direto na sua plataforma.</p>
+              <h3 className="text-xl font-bold text-white mb-2">Edição ou Entrega Bruta</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">Entregamos o material com tratamento profissional ou disponibilizamos os arquivos brutos, sem edição. Escolha o formato ideal para o seu projeto, com download em alta resolução direto na sua plataforma.</p>
             </div>
           </div>
         </div>
