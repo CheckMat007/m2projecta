@@ -102,8 +102,15 @@ export function ProfileForm({ user }: { user: User }) {
 
     if (!profileFormRef.current) return;
     const formData = new FormData(profileFormRef.current);
+    
     if (imageUrl) {
       formData.set('image', imageUrl);
+    }
+
+    // CORREÇÃO: Como o input de e-mail é "disabled", o FormData não o captura nativamente.
+    // Injetamos o valor de e-mail atual no FormData para o Zod não falhar com "undefined".
+    if (user.email) {
+      formData.set('email', user.email);
     }
     
     const result = await updateProfile(formData);
