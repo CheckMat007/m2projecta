@@ -1,3 +1,13 @@
+import withPWAInit from "next-pwa";
+
+const withPWA = withPWAInit({
+  dest: "public",
+  // Desativa o Service Worker no modo de desenvolvimento para evitar problemas de cache enquanto você programa
+  disable: process.env.NODE_ENV === "development", 
+  register: true,
+  skipWaiting: true,
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -32,4 +42,5 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// Envolve a configuração do Next.js com a configuração do PWA
+export default withPWA(nextConfig);
