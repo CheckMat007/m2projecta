@@ -75,7 +75,6 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
   return (
     <>
       {/* 1. HERO SECTION (Corrigido Padding Mobile) */}
-      {/* Alterado: md:items-end e items-center para melhor distribuição no mobile */}
       <section className="relative w-full min-h-[60vh] md:h-[75vh] flex items-center md:items-end pb-16 md:pb-24 bg-[#050505]">
         <div className="absolute inset-0 z-0">
           <Image 
@@ -89,7 +88,6 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-black/20 z-0"></div>
         </div>
         
-        {/* CORREÇÃO AQUI: pt-24 no mobile empurra o texto para baixo do Header transparente */}
         <div className="relative z-10 container mx-auto px-6 pt-24 md:pt-32">
           <Link 
             href="/servicos" 
@@ -177,11 +175,13 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
               <div>
-                <h2 className="text-3xl font-black uppercase text-white">Casos de <span className="text-m2-green">Sucesso</span></h2>
+                <h2 className="text-3xl font-black uppercase text-white">Casos<span className="text-m2-green">Práticos</span></h2>
                 <p className="text-gray-400 mt-2">Veja na prática nossos projetos de {service.name.toLowerCase()}.</p>
               </div>
+              
+              {/* ATUALIZAÇÃO AQUI: Passando a categoria atual via Query Parameter na URL */}
               <Link 
-                href="/portfolio" 
+                href={`/portfolio?categoria=${service.name}`} 
                 className="text-m2-green font-bold text-sm uppercase tracking-wider hover:text-white transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green rounded-sm"
               >
                 Ver todo o portfólio

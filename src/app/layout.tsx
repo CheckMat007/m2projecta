@@ -1,11 +1,13 @@
 // src/app/layout.tsx
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import './globals.css';
+import '@/app/globals.css';
 import Providers from './providers';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.m2projecta.com.br'),
+  manifest: "/manifest.json",
+  
 
   title: {
     template: '%s | M2 Projecta',
@@ -61,7 +63,11 @@ export const metadata: Metadata = {
       'Imagens aéreas com drone, vídeos corporativos, imobiliários, 360° e eventos no Vale do Paraíba.',
     images: ['/og-image.png'],
   },
-
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "M2 Projecta",
+  },
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-icon.png',

@@ -1,7 +1,8 @@
 // src/app/(main)/portfolio/portfolio-client.tsx
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,17 +15,36 @@ type PortfolioItemWithService = PortfolioItem & {
   service: Service | null;
 };
 
-export default function PortfolioClientPage({ initialItems, services }: { 
+// COMPONENTE INTERNO COM A LÓGICA
+function PortfolioContent({ initialItems, services }: { 
   initialItems: PortfolioItemWithService[],
   services: { id: string; name: string }[]
 }) {
-  const [activeFilter, setActiveFilter] = useState('Todos');
+  const searchParams = useSearchParams();
+  const categoriaUrl = searchParams.get('categoria');
+
+  // Inicializa com a categoria da URL (se existir), senão 'Todos'
+  const [activeFilter, setActiveFilter] = useState(categoriaUrl || 'Todos');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   
-  // Referência para o scroll automático
   const portfolioRef = useRef<HTMLElement>(null);
-
   const categories = ['Todos', ...services.map(s => s.name)];
+
+  // Efeito para atualizar o filtro caso o usuário navegue pelos botões da página de serviços 
+  // e mude a URL sem recarregar a página inteira
+  useEffect(() => {
+    if (categoriaUrl && categories.includes(categoriaUrl)) {
+      setActiveFilter(categoriaUrl);
+      
+      // Opcional: fazer o scroll automático direto para a grid quando vier de outra página
+      setTimeout(() => {
+        if (portfolioRef.current) {
+          const offsetTop = portfolioRef.current.offsetTop;
+          window.scrollTo({ top: offsetTop - 100, behavior: 'smooth' });
+        }
+      }, 500); // pequeno delay para garantir a renderização
+    }
+  }, [categoriaUrl]);
 
   const filteredItems = activeFilter === 'Todos'
     ? initialItems
@@ -32,7 +52,6 @@ export default function PortfolioClientPage({ initialItems, services }: {
   
   const visibleItems = filteredItems.slice(0, visibleCount);
 
-  // Função para contar quantos itens cada filtro possui (Feedback Visual)
   const getCategoryCount = (category: string) => {
     if (category === 'Todos') return initialItems.length;
     return initialItems.filter(item => item.service?.name === category).length;
@@ -42,10 +61,8 @@ export default function PortfolioClientPage({ initialItems, services }: {
     setActiveFilter(category);
     setVisibleCount(ITEMS_PER_PAGE);
     
-    // Scroll suave para garantir que o usuário veja as imagens mudando
     if (portfolioRef.current) {
       const offsetTop = portfolioRef.current.offsetTop;
-      // Ajuste o "- 100" dependendo do tamanho do seu Header/Navbar para não ficar escondido
       window.scrollTo({
         top: offsetTop - 100,
         behavior: 'smooth'
@@ -55,7 +72,7 @@ export default function PortfolioClientPage({ initialItems, services }: {
 
   return (
     <>
-      {/* 1. HERO SECTION - Altura reduzida para gerar o "Peek Effect" (deixar o grid visível abaixo) */}
+      {/* 1. HERO SECTION */}
       <section className="relative w-full min-h-[40vh] md:min-h-[50vh] flex items-center md:items-end pb-10 md:pb-16 bg-black overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
@@ -80,8 +97,7 @@ export default function PortfolioClientPage({ initialItems, services }: {
         </div>
       </section>
 
-      {/* 2. FILTROS - Agora com position 'sticky' para acompanhar o scroll e com contadores */}
-      {/* NOTA: Se você tiver um Header fixo (navbar), mude o top-0 para o tamanho do header (ex: top-16 ou top-20) */}
+      {/* 2. FILTROS */}
       <section className="sticky top-40 z-[40] bg-black/95 backdrop-blur-md border-y border-white/5 py-6 shadow-2xl transition-all">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
@@ -89,7 +105,6 @@ export default function PortfolioClientPage({ initialItems, services }: {
               const count = getCategoryCount(category);
               const isActive = activeFilter === category;
               
-              // Esconde filtros que não têm nenhum projeto (opcional, melhora a UX)
               if (count === 0) return null;
 
               return (
@@ -113,7 +128,7 @@ export default function PortfolioClientPage({ initialItems, services }: {
         </div>
       </section>
 
-      {/* 3. GRID DE PORTFÓLIO - Adicionado o ref para o auto-scroll e paddings menores no topo */}
+      {/* 3. GRID DE PORTFÓLIO */}
       <section ref={portfolioRef} className="py-12 md:py-16 bg-black min-h-screen">
         <div className="container mx-auto px-4 md:px-6">
           <motion.div 
@@ -180,9 +195,24 @@ export default function PortfolioClientPage({ initialItems, services }: {
               </button>
             </div>
           )}
-
         </div>
       </section>
     </>
+  );
+}
+
+// COMPONENTE PAI (Necessário para evitar erros de build com useSearchParams)
+export default function PortfolioClientPage(props: { 
+  initialItems: PortfolioItemWithService[],
+  services: { id: string; name: string }[]
+}) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        {/* Aqui você pode colocar um loader se preferir */}
+      </div>
+    }>
+      <PortfolioContent {...props} />
+    </Suspense>
   );
 }

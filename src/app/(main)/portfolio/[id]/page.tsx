@@ -84,7 +84,7 @@ export default async function PortfolioDetailsPage({ params }: { params: { id: s
             className="inline-flex items-center gap-2 text-gray-400 hover:text-m2-green transition-colors font-medium mb-6 md:mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green rounded-sm text-sm md:text-base"
           >
             <LucideIcons.ArrowLeft className="w-4 h-4" aria-hidden="true" />
-            Voltar para a Galeria
+            Voltar para o Portfólio
           </Link>
 
           <div className="max-w-4xl border-l-4 border-m2-green pl-4 md:pl-8">

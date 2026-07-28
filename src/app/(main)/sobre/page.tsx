@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Sobre a M2 PROJECTA',
+  title: 'Sobre',
   description: 'Mais do que imagens, entregamos uma nova perspectiva para o seu negócio.',
 };
 
@@ -53,7 +53,6 @@ export default async function SobrePage() {
             className="object-cover object-center"
             priority
           />
-          {/* Gradiente escuro focado na parte inferior para leitura perfeita do texto */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent z-0"></div>
         </div>
         
@@ -87,15 +86,15 @@ export default async function SobrePage() {
               </div>
             </div>
             
-            {/* Coluna Imagem */}
-            <div className="order-1 lg:order-2 relative w-full h-[400px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl shadow-m2-green/10 group">
+            {/* Coluna Imagem - ATUALIZADA: Adicionado max-w-[480px] e altura reduzida para ficar mais sutil */}
+            <div className="order-1 lg:order-2 relative w-full max-w-[480px] mx-auto lg:ml-auto h-[350px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl shadow-m2-green/10 group">
               <div className="absolute inset-0 group-hover:bg-transparent transition-colors duration-500 z-10 mix-blend-overlay"></div>
               <Image
                 src={contentImage}
                 alt="História da M2 Projecta"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
               />
             </div>
 
@@ -186,44 +185,47 @@ export default async function SobrePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {teamMembers.map((member) => (
-              <div 
-                key={member.id} 
-                className="group relative bg-[#111] rounded-2xl border border-white/5 overflow-hidden transition-all duration-300 hover:border-m2-green/30 hover:-translate-y-2 flex flex-col"
-              >
-                {/* Área da Imagem (Proporção 4:3 para retrato elegante) */}
-                {/* Área da Imagem (Proporção 4:3 para retrato elegante) */}
-<div className="relative w-full aspect-[4/3] overflow-hidden bg-[#1a1a1a]">
-  <Image 
-    src={member.image || '/assets/testimonials/exemplo1.jpg'}
-    alt={`Foto de ${member.name}`} 
-    fill
-    sizes="(max-width: 768px) 100vw, 33vw"
-    // ALTERAÇÃO AQUI: mudei de 'object-top' para 'object-center'
-    className="object-cover object-center transition-transform duration-700 group-hover:scale-105 filter grayscale group-hover:grayscale-0"
-  />
-  {/* Gradiente sutil em cima da foto */}
-  <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-transparent to-transparent"></div>
-</div>
-                
-                {/* Informações */}
-                <div className="p-8 relative">
-                  <h3 className="text-2xl font-bold text-white mb-1">{member.name}</h3>
-                  <p className="text-m2-green font-medium mb-4">{member.jobDescription}</p>
-                  
-                  {member.personalQuote && (
-                    <div className="relative">
-                      <span className="absolute -top-4 -left-2 text-4xl text-gray-800 font-serif leading-none">&quot;</span>
-                      <p className="text-gray-400 italic text-sm pl-4 relative z-10 leading-relaxed">
-                        {member.personalQuote}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
+  {teamMembers.map((member) => (
+    <div 
+      key={member.id} 
+      className="group relative bg-[#111] rounded-2xl border border-white/5 overflow-hidden transition-all duration-300 hover:border-m2-green/30 hover:-translate-y-2 flex flex-col w-full max-w-[280px] mx-auto shadow-xl"
+    >
+    
+      {/* Container da imagem: Ajustado para preencher toda a largura */}
+      <div className="relative w-full aspect-square overflow-hidden bg-[#1a1a1a]">
+        <Image 
+          src={member.image || '/assets/testimonials/exemplo1.jpg'}
+          alt={`Foto de ${member.name}`} 
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          /* 
+             Removemos o 'p-2' (padding) para que a foto ocupe 100% da largura.
+             Mantenha o 'rounded-t-2xl' se quiser que a foto acompanhe o arredondamento superior do card.
+          */
+          className="object-contain object-center transition-transform duration-700 group-hover:scale-105 filter grayscale group-hover:grayscale-0 rounded-t-2xl"
+        />
+        {/* Gradiente sutil em cima da foto */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-transparent to-transparent pointer-events-none"></div>
+      </div>
+      
+      {/* Informações: Mantemos o padding aqui para afastar o texto das bordas */}
+      <div className="p-5 md:p-6 relative">
+        <h3 className="text-xl md:text-2xl font-bold text-white mb-1">{member.name}</h3>
+        <p className="text-m2-green text-sm md:text-base font-medium mb-3 md:mb-4">{member.jobDescription}</p>
+        
+        {member.personalQuote && (
+          <div className="relative mt-2">
+            <span className="absolute -top-4 -left-2 text-4xl text-gray-800 font-serif leading-none">&quot;</span>
+            <p className="text-gray-400 italic text-xs md:text-sm pl-4 relative z-10 leading-relaxed">
+              {member.personalQuote}
+            </p>
           </div>
+        )}
+      </div>
+    </div>
+  ))}
+</div>
 
           {teamMembers.length === 0 && (
             <div className="text-center py-12">
