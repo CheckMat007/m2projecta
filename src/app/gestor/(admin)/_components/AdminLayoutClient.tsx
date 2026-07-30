@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { SidebarClient } from './sidebar-client';
-import { NotificationBellClient } from './NotificationBellClient'; // Ajuste o import se necessário
+import { NotificationBellClient } from './NotificationBellClient';
 import type { Session } from 'next-auth';
 import * as LucideIcons from 'lucide-react';
 
@@ -35,7 +35,9 @@ export function AdminLayoutClient({
   };
 
   return (
-    <div className="flex min-h-screen bg-m2-dark">
+    // CORREÇÃO: O bg-m2-dark fixo foi substituído para se adaptar ao tema
+    <div className="flex min-h-screen bg-gray-50 dark:bg-m2-dark transition-colors duration-300">
+      
       {/* Sidebar Client: Gerencia Header Mobile e Sidebar Desktop */}
       <SidebarClient 
         user={user}
@@ -49,7 +51,7 @@ export function AdminLayoutClient({
         />
       </SidebarClient>
       
-      {/* CORREÇÃO PRINCIPAL AQUI:
+      {/* 
          1. w-full: Garante que o conteúdo use a largura disponível.
          2. md:ml-*: As margens laterais só aplicam no Desktop (md). No mobile é 0.
          3. pt-20: Adiciona espaço no topo APENAS no mobile (para não ficar atrás do header).

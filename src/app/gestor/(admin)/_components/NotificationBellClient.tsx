@@ -62,32 +62,32 @@ export function NotificationBellClient({ initialNotifications, initialUnreadCoun
       <Popover open={isPopoverOpen} onOpenChange={handleOpenPopover}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="relative">
-            <Bell size={20} />
+            <Bell size={20} className="text-gray-600 dark:text-gray-300" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-sm">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 p-0">
+        <PopoverContent className="w-80 p-0 shadow-md border-gray-200 dark:border-gray-800">
           <div className="space-y-2">
-            <div className="flex justify-between items-center p-2 border-b border-gray-800">
-                <h4 className="font-medium leading-none px-2">Notificações</h4>
-                <Button variant="ghost" size="icon" onClick={handleRefresh} disabled={isRefreshing}>
+            <div className="flex justify-between items-center p-2 border-b border-gray-200 dark:border-gray-800">
+                <h4 className="font-medium leading-none px-2 text-gray-900 dark:text-white">Notificações</h4>
+                <Button variant="ghost" size="icon" onClick={handleRefresh} disabled={isRefreshing} className="text-gray-500 hover:text-gray-900 dark:hover:text-white">
                     <RotateCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
                 </Button>
             </div>
             {notifications.length === 0 ? (
               <p className="text-sm text-center text-gray-500 p-4">Nenhuma notificação encontrada.</p>
             ) : (
-              <div className="max-h-96 overflow-y-auto p-2">
+              <div className="max-h-96 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
                 {notifications.map((notification) => (
-                  <div key={notification.id} onClick={() => handleNotificationClick(notification)} className="flex items-start gap-3 p-2 rounded-md hover:bg-gray-800 cursor-pointer">
+                  <div key={notification.id} onClick={() => handleNotificationClick(notification)} className="flex items-start gap-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors">
                     {!notification.isRead && <div className="mt-1.5 h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />}
                     <div className={notification.isRead ? 'pl-5' : ''}>
-                      <p className="text-sm font-semibold">{notification.title}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{notification.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         Enviado por: {notification.sender?.name || 'Sistema'}
                       </p>
                     </div>
@@ -100,17 +100,17 @@ export function NotificationBellClient({ initialNotifications, initialUnreadCoun
       </Popover>
 
       <Dialog open={!!selectedNotification} onOpenChange={(isOpen) => !isOpen && setSelectedNotification(null)}>
-        <DialogContent className="max-h-[90vh] flex flex-col"> {/* Garante que o modal não passe da tela */}
+        <DialogContent className="max-h-[90vh] flex flex-col sm:max-w-[425px] border-gray-200 dark:border-gray-800"> 
           <DialogHeader>
-            <DialogTitle>{selectedNotification?.title}</DialogTitle>
+            <DialogTitle className="text-gray-900 dark:text-white">{selectedNotification?.title}</DialogTitle>
           </DialogHeader>
           
-          {/* CORREÇÃO AQUI: Scroll na área de texto */}
-          <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap overflow-y-auto max-h-[60vh] pr-2">
+          {/* CORREÇÃO: dark:prose-invert para alternar a tipografia automaticamente */}
+          <div className="prose dark:prose-invert prose-sm max-w-none whitespace-pre-wrap overflow-y-auto max-h-[60vh] pr-2 text-gray-700 dark:text-gray-300">
             {selectedNotification?.message}
           </div>
 
-          <p className="text-xs text-gray-500 pt-4 border-t border-gray-800 shrink-0">
+          <p className="text-xs text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-800 shrink-0">
             Enviado por: {selectedNotification?.sender?.name || 'Sistema'}
           </p>
         </DialogContent>

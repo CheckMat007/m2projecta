@@ -2,8 +2,18 @@
 'use client';
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export function DashboardCharts({ contracts }: { contracts: { value: number, updatedAt: Date }[] }) {
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Aguarda a montagem no cliente para evitar erros de hidratação (SSR mismatch)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Processar dados para agrupar por mês
   const dataMap = new Map<string, number>();
   
@@ -24,28 +34,46 @@ export function DashboardCharts({ contracts }: { contracts: { value: number, upd
 
   const data = Array.from(dataMap).map(([name, total]) => ({ name, total }));
 
+  // Se o componente ainda não montou no cliente, renderiza um esqueleto vazio
+  // para manter o tamanho e evitar flashes na tela
+  if (!mounted) {
+    return <div className="w-full h-[350px]"></div>;
+  }
+
+  // Define se está no modo escuro para aplicar as cores condicionais
+  const isDark = theme === 'dark';
+
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart data={data}>
         <XAxis 
             dataKey="name" 
-            stroke="#888888" 
+            stroke={isDark ? "#888888" : "#6b7280"} // Texto e linha mais escuros no modo claro
             fontSize={12} 
             tickLine={false} 
             axisLine={false} 
         />
         <YAxis
-          stroke="#888888"
+          stroke={isDark ? "#888888" : "#6b7280"}
           fontSize={12}
           tickLine={false}
           axisLine={false}
           tickFormatter={(value) => `R$${value}`}
         />
         <Tooltip 
-            contentStyle={{ backgroundColor: '#111', border: '1px solid #333' }}
+            contentStyle={{ 
+              backgroundColor: isDark ? '#111827' : '#ffffff', 
+              border: `1px solid ${isDark ? '#374151' : '#e5e7eb'}`,
+              borderRadius: '8px',
+              color: isDark ? '#f9fafb' : '#111827'
+            }}
+            itemStyle={{
+              color: isDark ? '#a3e635' : '#65a30d'
+            }}
             formatter={(value: number) => [`R$ ${value.toFixed(2)}`, 'Receita']}
         />
-        <Bar dataKey="total" fill="#a3e635" radius={[4, 4, 0, 0]} />
+        {/* Usamos um verde mais escuro no modo claro para dar contraste com o fundo branco */}
+        <Bar dataKey="total" fill={isDark ? "#a3e635" : "#65a30d"} radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
