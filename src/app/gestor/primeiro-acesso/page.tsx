@@ -4,7 +4,7 @@ import { FirstAccessForm } from "./_components/FirstAccessForm";
 
 export default function PrimeiroAcessoPage() {
   return (
-    <div className="min-h-screen bg-m2-dark text-white flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-m2-dark text-gray-900 dark:text-white flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="flex justify-center">
           <div className="w-52 h-auto">

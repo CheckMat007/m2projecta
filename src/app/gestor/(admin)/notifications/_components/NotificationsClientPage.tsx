@@ -57,19 +57,19 @@ function SendNotificationForm({ allUsers, currentUser, onFormSubmit }: { allUser
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 pt-2">
       <div className="space-y-2">
-        <Label htmlFor="title" className="text-gray-200">Título</Label>
-        <Input id="title" name="title" required placeholder="Ex: Manutenção do Sistema" className="bg-gray-900 border-gray-700 focus:border-m2-green" />
+        <Label htmlFor="title" className="text-gray-700 dark:text-gray-200">Título</Label>
+        <Input id="title" name="title" required placeholder="Ex: Manutenção do Sistema" className="bg-background border-input focus:border-m2-green" />
       </div>
       
       <div className="space-y-2">
         <Label htmlFor="message" className="text-gray-200">Mensagem</Label>
-        <Textarea id="message" name="message" required rows={4} placeholder="Digite o conteúdo da notificação..." className="bg-gray-900 border-gray-700 focus:border-m2-green resize-none" />
+        <Textarea id="message" name="message" required rows={4} placeholder="Digite o conteúdo da notificação..." className="bg-background border-input focus:border-m2-green resize-none" />
       </div>
 
-      <div className="flex items-center space-x-3 rounded-md border border-gray-800 bg-gray-900/50 p-4">
+      <div className="flex items-center space-x-3 rounded-md border border-border bg-card p-4">
         <Switch id="isBroadcast" checked={isBroadcast} onCheckedChange={setIsBroadcast} />
         <div className="flex flex-col">
-            <Label htmlFor="isBroadcast" className="text-white cursor-pointer">Enviar para todos</Label>
+            <Label htmlFor="isBroadcast" className="text-gray-900 dark:text-white cursor-pointer">Enviar para todos</Label>
             <span className="text-xs text-gray-500">Todos os usuários ativos receberão esta mensagem.</span>
         </div>
       </div>
@@ -140,7 +140,7 @@ export function NotificationsClientPage({
       {/* Cabeçalho e Botão de Ação */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">Notificações</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Notificações</h1>
           <p className="text-gray-400 text-sm">Gerencie a comunicação interna da equipe.</p>
         </div>
         
@@ -151,7 +151,7 @@ export function NotificationsClientPage({
               Nova Mensagem
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col bg-gray-950 border-gray-800">
+          <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col bg-card border-border">
             <DialogHeader>
                 <DialogTitle>Nova Notificação</DialogTitle>
             </DialogHeader>
@@ -163,9 +163,9 @@ export function NotificationsClientPage({
       </div>
 
       {/* --- VISUALIZAÇÃO DESKTOP (TABELA) --- */}
-      <div className="hidden md:block rounded-lg border border-gray-800 bg-gray-900/30 overflow-hidden">
+      <div className="hidden md:block rounded-lg border border-border bg-card overflow-hidden">
         <Table>
-          <TableHeader className="bg-gray-900/80">
+          <TableHeader className="bg-muted/10 dark:bg-gray-900/80">
             <TableRow className="border-gray-800 hover:bg-gray-900/80">
               <TableHead className="text-gray-400 font-medium w-[40%]">Título</TableHead>
               <TableHead className="text-gray-400 font-medium">Enviado por</TableHead>
@@ -181,7 +181,7 @@ export function NotificationsClientPage({
                 className="border-gray-800 cursor-pointer hover:bg-gray-800/50 transition-colors group"
                 onClick={() => setReadingNotification(notification)} 
               >
-                <TableCell className="font-medium text-white group-hover:text-m2-green transition-colors">
+                <TableCell className="font-medium text-gray-900 dark:text-white group-hover:text-m2-green transition-colors">
                     <div className="flex items-center gap-2">
                         {!notification.isBroadcast && <MailOpen size={14} className="text-gray-500" />}
                         {notification.title}
@@ -200,13 +200,13 @@ export function NotificationsClientPage({
                                 <Trash2 size={16} />
                             </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent className="bg-gray-950 border-gray-800">
+                        <AlertDialogContent className="bg-card border-border">
                             <AlertDialogHeader>
                                 <AlertDialogTitle>Excluir notificação?</AlertDialogTitle>
                                 <AlertDialogDescription>Isso removerá a mensagem para todos os destinatários. Esta ação é irreversível.</AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                                <AlertDialogCancel className="bg-transparent border-gray-700 hover:bg-gray-800 text-white">Cancelar</AlertDialogCancel>
+                                <AlertDialogCancel className="bg-transparent border-gray-700 hover:bg-gray-800 text-gray-900 dark:text-white">Cancelar</AlertDialogCancel>
                                 <AlertDialogAction onClick={() => handleDelete(notification.id)} className="bg-red-600 hover:bg-red-700 text-white border-0">Excluir</AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
@@ -225,16 +225,16 @@ export function NotificationsClientPage({
             <div 
                 key={notification.id}
                 onClick={() => setReadingNotification(notification)}
-                className="bg-gray-900/30 border border-gray-800 rounded-lg p-4 active:bg-gray-800 transition-colors cursor-pointer relative"
+                className="bg-card border border-border rounded-lg p-4 active:bg-muted/30 transition-colors cursor-pointer relative"
             >
                 <div className="flex justify-between items-start mb-2">
                     <div className="pr-8">
-                        <h3 className="font-semibold text-white line-clamp-1">{notification.title}</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-1">{notification.title}</h3>
                         <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                             <UserIcon size={10} /> {notification.sender?.name || 'Sistema'}
                         </p>
                     </div>
-                    <span className="text-[10px] text-gray-500 whitespace-nowrap bg-gray-900 px-1.5 py-0.5 rounded border border-gray-800">
+                    <span className="text-[10px] text-gray-500 whitespace-nowrap bg-muted px-1.5 py-0.5 rounded border border-border">
                         {format(new Date(notification.createdAt), "dd/MM", { locale: ptBR })}
                     </span>
                 </div>
@@ -257,13 +257,13 @@ export function NotificationsClientPage({
                                         <Trash2 size={12} className="mr-1" /> Excluir
                                     </Button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent className="bg-gray-950 border-gray-800 w-[90%] rounded-lg">
+                                <AlertDialogContent className="bg-card border-border w-[90%] rounded-lg">
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>Excluir?</AlertDialogTitle>
                                         <AlertDialogDescription className="text-sm">Essa ação não pode ser desfeita.</AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter className="flex-row gap-2 justify-end">
-                                        <AlertDialogCancel className="mt-0 bg-transparent border-gray-700 text-white h-8 text-xs">Cancelar</AlertDialogCancel>
+                                        <AlertDialogCancel className="mt-0 bg-transparent border-gray-700 text-gray-900 dark:text-white h-8 text-xs">Cancelar</AlertDialogCancel>
                                         <AlertDialogAction onClick={() => handleDelete(notification.id)} className="bg-red-600 text-white h-8 text-xs">Sim, excluir</AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -276,7 +276,7 @@ export function NotificationsClientPage({
       </div>
 
       {initialNotifications.length === 0 && (
-        <div className="flex flex-col items-center justify-center p-12 text-gray-500 bg-gray-900/20 rounded-lg border border-gray-800 border-dashed">
+        <div className="flex flex-col items-center justify-center p-12 text-gray-500 bg-muted/10 rounded-lg border border-border border-dashed">
             <AlertCircle className="w-10 h-10 mb-3 opacity-20" />
             <p>Nenhuma notificação encontrada.</p>
         </div>
@@ -284,7 +284,7 @@ export function NotificationsClientPage({
 
       {/* --- DIALOG DE LEITURA --- */}
       <Dialog open={!!readingNotification} onOpenChange={(isOpen) => !isOpen && setReadingNotification(null)}>
-        <DialogContent className="max-h-[85vh] flex flex-col bg-gray-950 border-gray-800 w-[90%] sm:w-full rounded-xl">
+        <DialogContent className="max-h-[85vh] flex flex-col bg-card border-border w-[90%] sm:w-full rounded-xl">
           <DialogHeader className="border-b border-gray-800 pb-4">
             <div className="flex flex-col gap-1">
                 <span className="text-xs text-m2-green font-medium uppercase tracking-wider">Notificação</span>

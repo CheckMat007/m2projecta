@@ -57,7 +57,7 @@ export function FirstAccessForm() {
             name="newPassword" 
             type={showNewPassword ? 'text' : 'password'} 
             required 
-            className="bg-gray-800 border-gray-700 pr-10" 
+          className="bg-background border-input pr-10" 
             value={newPassword} 
             onChange={(e) => setNewPassword(e.target.value)} 
           />
@@ -75,7 +75,7 @@ export function FirstAccessForm() {
             name="confirmPassword" 
             type={showConfirmPassword ? 'text' : 'password'} 
             required 
-            className="bg-gray-800 border-gray-700 pr-10" 
+            className="bg-background border-input pr-10" 
             value={confirmPassword} 
             onChange={(e) => setConfirmPassword(e.target.value)} 
           />

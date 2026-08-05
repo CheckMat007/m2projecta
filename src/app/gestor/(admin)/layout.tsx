@@ -68,7 +68,8 @@ export default async function GestorLayout({
   );
 
   return (
-    <div className="min-h-screen bg-m2-dark text-white">
+    // ALTERAÇÃO AQUI: bg-gray-50 para light e dark:bg-m2-dark (sua cor original) para dark.
+    <div className="min-h-screen bg-gray-50 dark:bg-m2-dark text-gray-900 dark:text-white transition-colors duration-300">
       <AdminLayoutClient
         user={user}
         menuItems={accessibleMenuItems}
