@@ -1,7 +1,8 @@
 // src/app/gestor/login/_components/login-form.tsx
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 // useRouter não é mais necessário para o redirecionamento
 import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,9 @@ export function LoginForm() {
   
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -55,12 +59,12 @@ export function LoginForm() {
       {/* O resto do seu JSX permanece o mesmo */}
       <div className="space-y-2">
         <Label htmlFor="email">E-mail</Label>
-        <Input id="email" name="email" type="email" placeholder="seu.email@exemplo.com" required className="bg-gray-800 border-gray-700" />
+        <Input id="email" name="email" type="email" placeholder="seu.email@exemplo.com" required className="bg-background border-input" />
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Senha</Label>
         <div className="relative">
-          <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Sua senha" required className="bg-gray-800 border-gray-700 pr-10" />
+          <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Sua senha" required className="bg-background border-input pr-10" />
           <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white" aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}>
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
@@ -71,11 +75,11 @@ export function LoginForm() {
           ref={recaptchaRef}
           sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
           onChange={(token) => setRecaptchaToken(token)}
-          theme="dark"
+          theme={mounted && theme === 'dark' ? 'dark' : 'light'}
         />
       </div>
       {error && (
-        <p className="text-sm text-red-400 bg-red-900/30 p-2 rounded-md">
+        <p className="text-sm text-red-400 dark:text-red-300 bg-red-900/30 dark:bg-red-900/20 p-2 rounded-md">
           {error}
         </p>
       )}

@@ -26,7 +26,7 @@ export const PasswordStrength = ({ password = '', minLength = 10 }: PasswordStre
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 p-3 bg-gray-900/50 rounded-md">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 p-3 bg-card rounded-md border border-border">
       <Requirement label={`Pelo menos ${minLength} caracteres`} meets={hasMinChars} />
       <Requirement label="Uma letra maiúscula" meets={hasUppercase} />
       <Requirement label="Uma letra minúscula" meets={hasLowercase} />

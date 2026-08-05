@@ -26,7 +26,7 @@ export default async function TagsPage() {
   return (
     <div className="space-y-8">
         <div>
-            <Link href="/gestor/blog" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4">
+            <Link href="/gestor/blog" className="flex items-center gap-2 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4">
                 <ChevronLeft size={20} />
                 Voltar para o blog
             </Link>
