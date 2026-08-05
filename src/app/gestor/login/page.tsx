@@ -7,7 +7,7 @@ import Logo from '@/components/ui/Logo';
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-m2-dark text-white flex flex-col items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-m2-dark text-white flex flex-col items-center justify-center p-4">
       <Link 
         href="/" 
         className="absolute top-8 left-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"

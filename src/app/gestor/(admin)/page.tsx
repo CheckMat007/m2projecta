@@ -76,7 +76,7 @@ export default async function AdminDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         
         {/* ALTERAÇÃO: bg-white sólido ao invés de bg-white/50 */}
-        <Card className="bg-white dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-none">
+          <Card className="bg-white dark:bg-card border-gray-200 dark:border-border shadow-sm dark:shadow-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Clientes Totais</CardTitle>
             <Users className="h-4 w-4 text-green-600 dark:text-m2-green" />
@@ -87,7 +87,7 @@ export default async function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-none">
+        <Card className="bg-white dark:bg-card border-gray-200 dark:border-border shadow-sm dark:shadow-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Contratos (Mês)</CardTitle>
             <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />

@@ -76,14 +76,14 @@ const DesktopUserDropdown = ({ user, isCollapsed }: { user: Session['user'], isC
             <>
               <div className="overflow-hidden flex-1 min-w-0">
                 <p className="font-bold text-gray-900 dark:text-white truncate">{firstName}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">Ver perfil</p>
+                <p className="cursor-pointer text-sm text-gray-500 dark:text-gray-400 truncate">Ver perfil</p>
               </div>
               <LucideIcons.ChevronDown size={16} className="text-gray-400 flex-shrink-0" />
             </>
           )}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" side={isCollapsed ? "right" : "bottom"} align="start">
-        <DropdownMenuItem asChild><Link href="/gestor/perfil"><LucideIcons.UserCog size={16} className="mr-2" />Editar Perfil</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link href="/gestor/perfil"><LucideIcons.UserCog size={16} className="mr-2 cursor-pointer" />Editar Perfil</Link></DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => signOut({ callbackUrl: '/gestor/login' })} className="text-red-500 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/50"><LogoutButton asMenuItem /></DropdownMenuItem>
       </DropdownMenuContent>
@@ -106,7 +106,7 @@ const NavItem = ({ href, icon: Icon, label, isCollapsed, onClick }: { href: stri
               <Icon size={20} /> <span className="sr-only">{label}</span>
             </Link>
           </TooltipTrigger>
-          <TooltipContent side="right" className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-200 dark:border-gray-800"><p>{label}</p></TooltipContent>
+          <TooltipContent side="right" className="bg-white dark:bg-card text-gray-900 dark:text-white border-gray-200 dark:border-border"><p>{label}</p></TooltipContent>
         </Tooltip>
       </TooltipProvider>
     );
@@ -135,7 +135,7 @@ const MenuList = ({ menuItems, isCollapsed, openMenuLabel, setOpenMenuLabel, onI
                     <Icon size={20} /> <span className="sr-only">{item.label}</span>
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="right" className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-200 dark:border-gray-800"><p>{item.label}</p></TooltipContent>
+                <TooltipContent side="right" className="bg-white dark:bg-card text-gray-900 dark:text-white border-gray-200 dark:border-border"><p>{item.label}</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           );
@@ -216,7 +216,7 @@ export const SidebarClient = ({ user, menuItems, children, isCollapsed, toggleSi
             </Button>
           </div>
           
-          <Link href="/gestor/perfil" className="flex items-center gap-3 bg-white dark:bg-gray-900/50 p-3 rounded-2xl border border-gray-200 dark:border-gray-800 mb-6 hover:border-gray-300 dark:hover:border-gray-700 transition-all group shadow-sm dark:shadow-none">
+          <Link href="/gestor/perfil" className="cursor-pointer flex items-center gap-3 bg-white dark:bg-gray-900/50 p-3 rounded-2xl border border-gray-200 dark:border-gray-800 mb-6 hover:border-gray-300 dark:hover:border-gray-700 transition-all group shadow-sm dark:shadow-none">
             <div className="w-12 h-12 rounded-full border-2 border-m2-green overflow-hidden flex-shrink-0">
                {user?.image ? <Image src={user.image} alt={firstName} width={48} height={48} className="object-cover w-full h-full" /> : <LucideIcons.User className="w-full h-full p-2 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400" />}
             </div>

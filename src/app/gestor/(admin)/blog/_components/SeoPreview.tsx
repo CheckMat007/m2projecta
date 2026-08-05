@@ -12,14 +12,14 @@ export function SeoPreview({ title, description }: SeoPreviewProps) {
   const defaultDescription = "Esta é a descrição que aparecerá no Google. Tente mantê-la concisa e atrativa, com até 160 caracteres.";
 
   return (
-    <div className="p-4 border border-gray-700 rounded-lg bg-gray-900/50">
-      <h4 className="text-sm font-semibold mb-2">Pré-visualização do Google</h4>
+    <div className="p-4 border border-border rounded-lg bg-card">
+      <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">Pré-visualização do Google</h4>
       <div className="font-sans">
         <p className="text-blue-400 text-lg truncate hover:underline cursor-pointer">
           {title || defaultTitle}
         </p>
         <p className="text-green-400 text-sm">{siteUrl}</p>
-        <p className="text-gray-400 text-sm mt-1 line-clamp-2">
+        <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
           {description || defaultDescription}
         </p>
       </div>
