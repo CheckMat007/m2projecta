@@ -5,17 +5,17 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
-// Função auxiliar para extrair o ID do vídeo (já suporta os dois formatos)
+// Função auxiliar para extrair o ID do vídeo (suporta links normais, youtu.be, embed e Shorts)
 function extractYouTubeId(url: string): string | null {
-  // RegEx que funciona para a maioria dos links do YouTube (watch, youtu.be, embed)
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  // RegEx que funciona para a maioria dos links do YouTube (watch, youtu.be, embed, shorts)
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
 
   // Se encontrar um ID de 11 caracteres, retorna ele
   if (match && match[2].length === 11) {
     return match[2];
   }
-  
+
   // Se o usuário colar SÓ o ID, também funciona
   if (url.length === 11) {
     return url;
@@ -24,16 +24,23 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
+// Função auxiliar para detectar se o link é um YouTube Shorts (vídeo vertical)
+function isYouTubeShort(url: string): boolean {
+  return url.includes('youtube.com/shorts/');
+}
+
 // Schema de validação ATUALIZADO:
-// Agora aceita um dos dois formatos de link
+// Agora aceita links normais, youtu.be e Shorts
 const heroSchema = z.object({
   youtubeLink: z.string()
     .min(11, "URL ou ID inválido.")
-    .refine((url) => 
-      url.startsWith("https://www.youtube.com/watch?") || 
+    .refine((url) =>
+      url.startsWith("https://www.youtube.com/watch?") ||
+      url.startsWith("https://www.youtube.com/shorts/") ||
+      url.startsWith("https://youtube.com/shorts/") ||
       url.startsWith("https://youtu.be/") ||
       url.length === 11, // Permite colar só o ID
-      "O link deve ser um link válido do YouTube (youtube.com ou youtu.be)"
+      "O link deve ser um link válido do YouTube (youtube.com, youtu.be ou Shorts)"
     ),
 });
 
@@ -65,17 +72,20 @@ export async function updateHeroVideo(formData: FormData) {
     return { success: false, message: 'Não foi possível extrair um ID válido do link. Verifique o link.' };
   }
 
-  // 2. Salva APENAS O ID no banco de dados
+  // 2. Detecta se é um Shorts (vídeo vertical)
+  const isVertical = isYouTubeShort(validatedFields.data.youtubeLink);
+
+  // 3. Salva o ID e a orientação no banco de dados
   try {
     const homeData = await getHomePageData();
-    
-    if (homeData.youtubeVideoId === videoId) {
+
+    if (homeData.youtubeVideoId === videoId && homeData.youtubeVideoIsVertical === isVertical) {
       return { success: true, message: 'Nenhuma alteração detectada.' };
     }
 
     await prisma.homePage.update({
       where: { id: homeData.id },
-      data: { youtubeVideoId: videoId },
+      data: { youtubeVideoId: videoId, youtubeVideoIsVertical: isVertical },
     });
 
     revalidatePath('/');
