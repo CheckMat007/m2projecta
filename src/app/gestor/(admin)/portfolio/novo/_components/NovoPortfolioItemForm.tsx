@@ -21,12 +21,14 @@ import {
   CardTitle, 
   CardDescription 
 } from "@/components/ui/card";
-import { 
-  Loader2, 
-  UploadCloud, 
+import {
+  Loader2,
+  UploadCloud,
   ArrowLeft,
   Youtube,
-  Globe
+  Globe,
+  X,
+  ImagePlus
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { createPortfolioItem } from '../../actions';
@@ -68,6 +70,11 @@ export function NovoPortfolioItemForm({
   const formRef = useRef<HTMLFormElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Galeria de fotos adicionais
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const [isGalleryDragging, setIsGalleryDragging] = useState(false);
+
   // Estados dos inputs (para contadores)
   const [title, setTitle] = useState('');
   const [shortDesc, setShortDesc] = useState('');
@@ -105,10 +112,31 @@ export function NovoPortfolioItemForm({
       return;
     }
 
+    // Upload das imagens da galeria
+    let galleryImageUrls: string[] = [];
+    if (galleryFiles.length > 0) {
+      try {
+        galleryImageUrls = await Promise.all(
+          galleryFiles.map(async (galleryFile) => {
+            const uploadResponse = await fetch(`/api/upload?filename=${galleryFile.name}`, { method: 'POST', body: galleryFile });
+            if (!uploadResponse.ok) throw new Error('Falha no upload de uma imagem da galeria.');
+            const newBlob = await uploadResponse.json();
+            return newBlob.url as string;
+          })
+        );
+      } catch (error) {
+        console.error(error);
+        toast.error("Erro ao fazer upload das imagens da galeria.");
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
     formData.set('coverImage', coverImageUrl);
-    
+    formData.set('galleryImages', JSON.stringify(galleryImageUrls));
+
     // Server Action
     const result = await createPortfolioItem(formData);
     
@@ -133,6 +161,26 @@ export function NovoPortfolioItemForm({
     } else {
       toast.error("Apenas arquivos de imagem são permitidos.");
     }
+  };
+
+  // Galeria: adicionar/remover fotos
+  const addGalleryFiles = (files: FileList | File[]) => {
+    const imageFiles = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    if (imageFiles.length === 0) {
+      toast.error("Apenas arquivos de imagem são permitidos.");
+      return;
+    }
+    setGalleryFiles((prev) => [...prev, ...imageFiles]);
+  };
+  const removeGalleryFile = (index: number) => {
+    setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+  const handleGalleryDragOver = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsGalleryDragging(true); };
+  const handleGalleryDragLeave = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsGalleryDragging(false); };
+  const handleGalleryDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsGalleryDragging(false);
+    if (e.dataTransfer.files?.length) addGalleryFiles(e.dataTransfer.files);
   };
 
   return (
@@ -383,13 +431,54 @@ export function NovoPortfolioItemForm({
                         </div>
                     </div>
 
+                    {/* Galeria de Fotos */}
+                    <div className="space-y-2">
+                        <Label>Galeria de Fotos</Label>
+                        <p className="text-xs text-muted-foreground">Fotos adicionais exibidas na página do projeto, além da capa.</p>
+                        <Input
+                            type="file"
+                            multiple
+                            className="hidden"
+                            ref={galleryInputRef}
+                            onChange={(e) => { if (e.target.files) addGalleryFiles(e.target.files); e.target.value = ''; }}
+                            accept="image/png, image/jpeg, image/webp"
+                        />
+                        <div className="grid grid-cols-3 gap-2">
+                            {galleryFiles.map((galleryFile, index) => (
+                                <div key={index} className="relative aspect-square rounded-md overflow-hidden border border-border group">
+                                    <Image src={URL.createObjectURL(galleryFile)} alt={`Foto da galeria ${index + 1}`} fill className="object-cover" />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeGalleryFile(index)}
+                                        className="absolute top-1 right-1 bg-black/70 hover:bg-destructive text-white rounded-full p-1 transition-colors"
+                                        aria-label="Remover foto"
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </div>
+                            ))}
+                            <div
+                                className={`
+                                    relative aspect-square rounded-md border-2 border-dashed flex items-center justify-center cursor-pointer transition-all
+                                    ${isGalleryDragging ? 'border-primary bg-primary/10' : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30'}
+                                `}
+                                onDragOver={handleGalleryDragOver}
+                                onDragLeave={handleGalleryDragLeave}
+                                onDrop={handleGalleryDrop}
+                                onClick={() => galleryInputRef.current?.click()}
+                            >
+                                <ImagePlus className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                        </div>
+                    </div>
+
                     {/* URL de Vídeo */}
                     <div className="space-y-2">
                         <Label htmlFor="videoUrl" className="flex items-center gap-2">
                             <Youtube className="h-4 w-4 text-red-500" /> Vídeo do YouTube
                         </Label>
-                        <Input id="videoUrl" name="videoUrl" placeholder="https://youtu.be/..." />
-                        <p className="text-xs text-muted-foreground">Opcional. Substitui a capa por um player na página do projeto.</p>
+                        <Input id="videoUrl" name="videoUrl" placeholder="https://youtu.be/... ou .../shorts/..." />
+                        <p className="text-xs text-muted-foreground">Opcional. Aceita vídeos normais e Shorts (a orientação é detectada automaticamente).</p>
                     </div>
                 </CardContent>
             </Card>

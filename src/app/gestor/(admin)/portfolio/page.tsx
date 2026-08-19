@@ -49,8 +49,8 @@ export default async function PortfolioPage() {
   // Helper para Status Badge
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'PUBLISHED': 
-        return <Badge className="bg-m2-green/20 text-green-700 dark:text-green-400 border-transparent hover:bg-m2-green/30">Publicado</Badge>;
+      case 'PUBLISHED':
+        return <Badge className="bg-m2-green text-black border-transparent hover:bg-m2-green/90">Publicado</Badge>;
       default: 
         return <Badge variant="secondary">Rascunho</Badge>;
     }

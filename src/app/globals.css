@@ -207,6 +207,15 @@
   transition: background-image 0.5s ease-in-out;
 }
 
+/* --- 4. Portfolio Gallery Slider (Project Detail Page) Styles --- */
+
+.portfolio-gallery-slider .swiper-button-custom {
+  opacity: 1;
+  pointer-events: auto;
+}
+.portfolio-gallery-slider .swiper-button-custom.prev { left: 0.75rem; }
+.portfolio-gallery-slider .swiper-button-custom.next { right: 0.75rem; }
+
 /*
 ============================================
   RESPONSIVE STYLES (MOBILE)

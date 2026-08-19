@@ -18,9 +18,9 @@ async function checkFeaturedLimit() {
   return featuredCount;
 }
 
-// Função auxiliar para extrair o ID do vídeo do YouTube
+// Função auxiliar para extrair o ID do vídeo do YouTube (suporta vídeos normais e Shorts)
 function extractYouTubeId(url: string): string | null {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
   if (match && match[2].length === 11) {
     return match[2];
@@ -31,6 +31,11 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
+// Função auxiliar para detectar se o link é um YouTube Shorts (vídeo vertical)
+function isYouTubeShort(url: string): boolean {
+  return url.includes('youtube.com/shorts/');
+}
+
 // Schema de validação do Zod ATUALIZADO
 const portfolioItemSchema = z.object({
   title: z.string().min(3, 'O título deve ter pelo menos 3 caracteres.').max(100, 'O título deve ter no máximo 100 caracteres.'),
@@ -38,12 +43,25 @@ const portfolioItemSchema = z.object({
   shortDescription: z.string().min(10, 'A descrição curta deve ter pelo menos 10 caracteres.').max(200, 'A descrição curta deve ter no máximo 200 caracteres.'),
   longDescription: z.string().min(20, 'A descrição longa deve ter pelo menos 20 caracteres.'),
   coverImage: z.string().url('A URL da imagem de capa é inválida.'),
+  galleryImages: z.array(z.string().url('Uma das URLs da galeria é inválida.')).default([]),
   videoUrl: z.string().nullable().optional(),
+  videoIsVertical: z.boolean().default(false),
   status: z.nativeEnum(Status),
   isFeatured: z.boolean(),
   seoTitle: z.string().max(60, 'O Título SEO deve ter no máximo 60 caracteres.').optional(),
   seoDescription: z.string().max(160, 'A Descrição SEO deve ter no máximo 160 caracteres.').optional(),
 });
+
+// Função auxiliar para extrair a lista de URLs da galeria enviada como JSON
+function parseGalleryImages(raw: FormDataEntryValue | undefined): string[] {
+  if (!raw || typeof raw !== 'string') return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((url) => typeof url === 'string') : [];
+  } catch {
+    return [];
+  }
+}
 
 // Ação de CRIAR (Atualizada)
 export async function createPortfolioItem(formData: FormData) {
@@ -59,19 +77,23 @@ export async function createPortfolioItem(formData: FormData) {
 
   const fullVideoUrl = data.videoUrl as string;
   let videoId: string | null = null;
+  let videoIsVertical = false;
 
   if (fullVideoUrl && fullVideoUrl.trim() !== '') {
     videoId = extractYouTubeId(fullVideoUrl);
     if (!videoId) {
       return { success: false, message: 'A URL do vídeo do YouTube é inválida.' };
     }
+    videoIsVertical = isYouTubeShort(fullVideoUrl);
   }
-  
+
   const parsedData = {
     ...data,
     status: data.status as Status,
     isFeatured: isFeatured,
     videoUrl: videoId,
+    videoIsVertical,
+    galleryImages: parseGalleryImages(data.galleryImages),
   };
 
   const validatedFields = portfolioItemSchema.safeParse(parsedData);
@@ -121,12 +143,14 @@ export async function updatePortfolioItem(id: string, formData: FormData) {
 
   const fullVideoUrl = data.videoUrl as string;
   let videoId: string | null = null;
+  let videoIsVertical = false;
 
   if (fullVideoUrl && fullVideoUrl.trim() !== '') {
     videoId = extractYouTubeId(fullVideoUrl);
     if (!videoId) {
       return { success: false, message: 'A URL do vídeo do YouTube é inválida.' };
     }
+    videoIsVertical = isYouTubeShort(fullVideoUrl);
   }
 
   const parsedData = {
@@ -134,8 +158,10 @@ export async function updatePortfolioItem(id: string, formData: FormData) {
     status: data.status as Status,
     isFeatured: isFeatured,
     videoUrl: videoId,
+    videoIsVertical,
+    galleryImages: parseGalleryImages(data.galleryImages),
   };
-  
+
   const validatedFields = portfolioItemSchema.safeParse(parsedData);
 
   if (!validatedFields.success) {
@@ -159,7 +185,9 @@ export async function updatePortfolioItem(id: string, formData: FormData) {
     if (newData.shortDescription !== currentItem.shortDescription) dataToUpdate.shortDescription = newData.shortDescription;
     if (newData.longDescription !== currentItem.longDescription) dataToUpdate.longDescription = newData.longDescription;
     if (newData.coverImage !== currentItem.coverImage) dataToUpdate.coverImage = newData.coverImage;
+    if (JSON.stringify(newData.galleryImages) !== JSON.stringify(currentItem.galleryImages)) dataToUpdate.galleryImages = newData.galleryImages;
     if (newData.videoUrl !== currentItem.videoUrl) dataToUpdate.videoUrl = newData.videoUrl;
+    if (newData.videoIsVertical !== currentItem.videoIsVertical) dataToUpdate.videoIsVertical = newData.videoIsVertical;
     if (newData.status !== currentItem.status) dataToUpdate.status = newData.status;
     if (newData.isFeatured !== currentItem.isFeatured) dataToUpdate.isFeatured = newData.isFeatured;
     if (newData.seoTitle !== currentItem.seoTitle) dataToUpdate.seoTitle = newData.seoTitle;

@@ -55,6 +55,7 @@ async function getHomePageData() {
   
   return {
     heroVideoId: homeData?.youtubeVideoId || 'xk4lN3K5jzg',
+    heroVideoIsVertical: homeData?.youtubeVideoIsVertical || false,
     portfolioItems: formattedPortfolio,
     testimonials: formattedTestimonials,
     faqItems,
@@ -63,11 +64,12 @@ async function getHomePageData() {
 }
 
 export default async function Page() {
-  const { heroVideoId, portfolioItems, testimonials, faqItems, services } = await getHomePageData();
+  const { heroVideoId, heroVideoIsVertical, portfolioItems, testimonials, faqItems, services } = await getHomePageData();
 
   return (
     <HomeClientPage
       heroVideoId={heroVideoId}
+      heroVideoIsVertical={heroVideoIsVertical}
       portfolioItems={portfolioItems}
       testimonials={testimonials}
       faqItems={faqItems}
