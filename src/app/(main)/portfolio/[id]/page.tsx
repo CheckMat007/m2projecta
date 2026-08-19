@@ -3,8 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Metadata, ResolvingMetadata } from "next"; 
+import { Metadata, ResolvingMetadata } from "next";
 import * as LucideIcons from "lucide-react";
+import { PortfolioGallerySlider } from "@/components/PortfolioGallerySlider";
 
 // --- 1. CONFIGURAÇÃO DE SEO DINÂMICO ---
 export async function generateMetadata(
@@ -60,6 +61,10 @@ async function getProject(id: string) {
 // --- 3. COMPONENTE DA PÁGINA ---
 export default async function PortfolioDetailsPage({ params }: { params: { id: string } }) {
   const project = await getProject(params.id);
+  const galleryImages = project.galleryImages && project.galleryImages.length > 0
+    ? [project.coverImage, ...project.galleryImages]
+    : [project.coverImage];
+  const isVerticalVideo = Boolean(project.videoUrl) && project.videoIsVertical;
 
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden bg-[#050505]">
@@ -132,16 +137,38 @@ export default async function PortfolioDetailsPage({ params }: { params: { id: s
             {/* Coluna Direita: O Estudo de Caso */}
             <div className="lg:col-span-8 order-1 lg:order-2">
               
-              {/* IMAGEM DE DESTAQUE - Adicionada para visualização limpa */}
-              <div className="mb-8 md:mb-12 relative w-full aspect-video rounded-xl md:rounded-2xl overflow-hidden border border-white/5 shadow-2xl bg-[#0a0a0a] group">
-                <Image 
-                  src={project.coverImage}
-                  alt={`Visualização da imagem do projeto: ${project.title}`}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 66vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  priority
-                />
+              {/* SEÇÃO DE MÍDIA (Galeria + Vídeo) */}
+              <div className={`mb-8 md:mb-12 flex flex-col gap-6 md:gap-8 ${isVerticalVideo ? 'md:flex-row md:items-start' : ''}`}>
+                <div className={isVerticalVideo ? 'md:flex-1 min-w-0' : 'w-full'}>
+                  <PortfolioGallerySlider images={galleryImages} alt={`Foto do projeto: ${project.title}`} />
+                </div>
+
+                {project.videoUrl && (
+                  <div className={isVerticalVideo ? 'w-full max-w-[280px] mx-auto md:mx-0 md:w-[280px] md:shrink-0' : 'w-full'}>
+                    <h3 className="text-sm md:text-base font-bold text-white mb-3 md:mb-4 uppercase tracking-wide flex items-center gap-2">
+                      <LucideIcons.PlayCircle className="text-m2-green w-4 h-4 md:w-5 md:h-5" aria-hidden="true" />
+                      Registro Visual
+                    </h3>
+                    <div
+                      className={
+                        isVerticalVideo
+                          ? "relative w-full aspect-[9/16] overflow-hidden rounded-xl md:rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a]"
+                          : "aspect-video w-full overflow-hidden rounded-xl md:rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a]"
+                      }
+                    >
+                      <iframe
+                        className="w-full h-full"
+                        src={`https://www.youtube.com/embed/${project.videoUrl}`}
+                        title={`Vídeo do projeto ${project.title}`}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen
+                        loading="lazy"
+                      ></iframe>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Lead / Short Description */}
@@ -153,32 +180,9 @@ export default async function PortfolioDetailsPage({ params }: { params: { id: s
               </div>
 
               {/* Long Description (Prose) */}
-              <div className="prose prose-invert prose-sm md:prose-base max-w-none prose-p:text-gray-400 prose-p:leading-relaxed prose-headings:text-white prose-a:text-m2-green mb-12 md:mb-16">
+              <div className="prose prose-invert prose-sm md:prose-base max-w-none prose-p:text-gray-400 prose-p:leading-relaxed prose-headings:text-white prose-a:text-m2-green">
                 <div className="whitespace-pre-wrap">{project.longDescription}</div>
               </div>
-
-              {/* Seção de Vídeo (se existir) */}
-              {project.videoUrl && (
-                <div className="mt-10 md:mt-16 pt-10 md:pt-16 border-t border-white/5">
-                  <h3 className="text-lg md:text-xl font-bold text-white mb-6 md:mb-8 uppercase tracking-wide flex items-center gap-2 md:gap-3">
-                    <LucideIcons.PlayCircle className="text-m2-green w-5 h-5 md:w-6 md:h-6" aria-hidden="true" />
-                    Registro Visual
-                  </h3>
-                  
-                  <div className="aspect-video w-full overflow-hidden rounded-xl md:rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a]">
-                    <iframe 
-                      className="w-full h-full"
-                      src={`https://www.youtube.com/embed/${project.videoUrl}`}
-                      title={`Vídeo do projeto ${project.title}`}
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      allowFullScreen
-                      loading="lazy"
-                    ></iframe>
-                  </div>
-                </div>
-              )}
 
             </div>
           </div>

@@ -24,7 +24,9 @@ import {
 
 export default async function InicioPage() {
   const homeData = await getHomePageData();
-  const currentVideoLink = `https://www.youtube.com/watch?v=${homeData.youtubeVideoId}`;
+  const currentVideoLink = homeData.youtubeVideoIsVertical
+    ? `https://www.youtube.com/shorts/${homeData.youtubeVideoId}`
+    : `https://www.youtube.com/watch?v=${homeData.youtubeVideoId}`;
 
 
 

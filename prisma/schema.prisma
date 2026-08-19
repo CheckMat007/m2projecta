@@ -191,8 +191,9 @@ model AboutPageContent {
 }
 
 model HomePage {
-  id             String @id @default(cuid())
-  youtubeVideoId String
+  id                     String  @id @default(cuid())
+  youtubeVideoId         String
+  youtubeVideoIsVertical Boolean @default(false)
 }
 
 model Testimonial {
@@ -232,7 +233,9 @@ model PortfolioItem {
   shortDescription String   @db.Text
   longDescription  String   @db.Text
   coverImage       String
+  galleryImages    String[] @default([])
   videoUrl         String?
+  videoIsVertical  Boolean  @default(false)
   status           Status   @default(DRAFT)
   isFeatured       Boolean  @default(false)
   seoTitle         String?

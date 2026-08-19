@@ -43,14 +43,13 @@ export function InicioForm({ currentLink }: { currentLink: string }) {
           Cole o link completo da barra de endereços ou do botão COMPARTILHAR.
         </p>
         <p className="text-xs text-gray-500">
-          Ex: https://youtu.be/ID (Shorts não são suportados no momento)
+          Aceita vídeos normais (https://youtu.be/ID) e Shorts (https://www.youtube.com/shorts/ID). A orientação é detectada automaticamente.
         </p>
-        <Input 
-          id="youtubeLink" 
+        <Input
+          id="youtubeLink"
           name="youtubeLink"
           placeholder="https://www.youtube.com/..."
           defaultValue={currentLink}
-          className="bg-gray-800 border-gray-700" 
           required
         />
       </div>
