@@ -61,6 +61,7 @@ export default async function GestorLayout({
     { href: "/gestor/projetos", icon: 'Briefcase', label: "Gerenciar Projetos", permission: 'manage_projects' },
     { href: "/gestor/portfolio", icon: 'LayoutDashboard', label: "Gerenciar Portfólio", permission: 'manage_portfolio' },
     { href: "/gestor/equipe", icon: 'UserCog', label: "Gerenciar Equipe", permission: 'manage_team' },
+    { href: "/gestor/tutoriais", icon: 'GraduationCap', label: "Tutoriais", permission: 'any' },
   ];
 
   const accessibleMenuItems = menuItems.filter(item =>

@@ -25,13 +25,14 @@ export async function generateMetadata(
   const previousImages = (await parent).openGraph?.images || [];
 
   return {
-    title: `${service.name} | M2 Projecta`, 
-    description: service.shortDescription, 
-    keywords: [service.name, "serviços drone", "imagens aéreas", "M2 Projecta"], 
+    title: `${service.name} | M2 Projecta`,
+    description: service.shortDescription,
+    keywords: [service.name, "serviços drone", "imagens aéreas", "M2 Projecta"],
+    alternates: { canonical: `/servicos/${params.slug}` },
     openGraph: {
       title: service.name,
       description: service.shortDescription,
-      images: [service.image, ...previousImages], 
+      images: [service.image, ...previousImages],
     },
   };
 }
@@ -191,7 +192,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {service.portfolioItems.map((item: PortfolioItem) => (
-                <Link href={`/portfolio/${item.id}`} key={item.id} className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green rounded-2xl">
+                <Link href={`/portfolio/${item.slug}`} key={item.id} className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green rounded-2xl">
                   <div className="relative overflow-hidden rounded-2xl aspect-[4/3] bg-[#111] border border-white/5 shadow-xl">
                     <Image 
                       src={item.coverImage} 

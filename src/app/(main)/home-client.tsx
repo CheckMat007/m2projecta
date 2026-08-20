@@ -2,14 +2,14 @@
 'use client'; 
 
 import React, { useState, ReactNode } from 'react';
-import Script from 'next/script';
-import Image from 'next/image'; 
+import Image from 'next/image';
 import Link from "next/link";
 import { YouTubeEmbed } from '@next/third-parties/google';
 import { PortfolioSlider } from '@/components/PortfolioSlider';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Building, CheckCircle, Clock, Users, Video, Settings } from 'lucide-react';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
+import { JsonLd } from '@/components/JsonLd';
 import { iconMap } from '@/lib/icons';
 import type { Service } from '@prisma/client';
 
@@ -266,30 +266,9 @@ export default function HomeClientPage({ heroVideoId, heroVideoIsVertical, portf
         </div>
       </section>
       
-      {faqSchema && (
-        <Script
-          id="faq-schema"
-          type="application/ld+json"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(faqSchema),
-          }}
-        />
-      )}
-
-      {/* --- SCRIPTS ANALYTICS --- */}
-      <Script 
-        src="https://www.googletagmanager.com/gtag/js?id=G-6F0RMM5CY2" 
-        strategy="afterInteractive" 
-      />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-6F0RMM5CY2');
-        `}
-      </Script>
+      {/* Renderizado via <JsonLd> (não next/script) para ir no HTML da primeira
+          resposta do servidor — crawlers que não executam JS ainda conseguem ler o schema. */}
+      {faqSchema && <JsonLd data={faqSchema} />}
     </>
   );
 }

@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Termos e Condições | M2 Projecta',
   description: 'Leia os termos e condições de uso do site e dos serviços da M2 Projecta.',
+  alternates: { canonical: '/termos-e-condicoes' },
 };
 
 export default function TermosECondicoesPage() {

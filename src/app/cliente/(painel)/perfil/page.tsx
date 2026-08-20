@@ -22,8 +22,8 @@ export default async function ClientProfilePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Meu Perfil</h1>
-        <p className="text-gray-400">Visualize seus dados cadastrais e gerencie sua segurança.</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Meu Perfil</h1>
+        <p className="text-gray-500 dark:text-gray-400">Visualize seus dados cadastrais e gerencie sua segurança.</p>
       </div>
       
       <ClientProfileForm client={clientData} />

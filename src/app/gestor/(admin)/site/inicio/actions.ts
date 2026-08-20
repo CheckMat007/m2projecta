@@ -4,6 +4,20 @@
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+
+// Helper de segurança
+async function canManageSite() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return false;
+  if (session.user.role === 'MASTER') return true;
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { permissions: { select: { name: true } } }
+  });
+  return user?.permissions.some(p => p.name === 'manage_site') || false;
+}
 
 // Função auxiliar para extrair o ID do vídeo (suporta links normais, youtu.be, embed e Shorts)
 function extractYouTubeId(url: string): string | null {
@@ -56,6 +70,10 @@ export async function getHomePageData() {
 
 // Server Action ATUALIZADA
 export async function updateHeroVideo(formData: FormData) {
+  if (!(await canManageSite())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   const validatedFields = heroSchema.safeParse({
     youtubeLink: formData.get('youtubeLink'),
   });
@@ -112,6 +130,10 @@ const testimonialSchema = z.object({
 
 // AÇÃO PARA CRIAR UM NOVO DEPOIMENTO
 export async function createTestimonial(formData: FormData) {
+  if (!(await canManageSite())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   const validatedFields = testimonialSchema.safeParse(Object.fromEntries(formData));
 
   if (!validatedFields.success) {
@@ -144,6 +166,10 @@ export async function createTestimonial(formData: FormData) {
 
 // AÇÃO PARA EXCLUIR UM DEPOIMENTO
 export async function deleteTestimonial(id: string) {
+  if (!(await canManageSite())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   if (!id) {
     return { success: false, message: 'ID do depoimento não fornecido.' };
   }
@@ -164,6 +190,10 @@ export async function deleteTestimonial(id: string) {
 
 // AÇÃO PARA ATUALIZAR UM DEPOIMENTO (será usada na página de edição)
 export async function updateTestimonial(id: string, formData: FormData) {
+  if (!(await canManageSite())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   const validatedFields = testimonialSchema.safeParse(Object.fromEntries(formData));
 
   if (!validatedFields.success) {
@@ -198,6 +228,10 @@ const faqItemSchema = z.object({
 
 // AÇÃO PARA CRIAR UM NOVO ITEM DE FAQ
 export async function createFaqItem(formData: FormData) {
+  if (!(await canManageSite())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   const validatedFields = faqItemSchema.safeParse(Object.fromEntries(formData));
 
   if (!validatedFields.success) {
@@ -229,6 +263,9 @@ export async function createFaqItem(formData: FormData) {
 
 // AÇÃO PARA EXCLUIR UM ITEM DE FAQ
 export async function deleteFaqItem(id: string) {
+  if (!(await canManageSite())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
   if (!id) return { success: false, message: 'ID não fornecido.' };
   try {
     await prisma.faqItem.delete({ where: { id } });
@@ -243,6 +280,10 @@ export async function deleteFaqItem(id: string) {
 
 // AÇÃO PARA ATUALIZAR UM ITEM DE FAQ
 export async function updateFaqItem(id: string, formData: FormData) {
+  if (!(await canManageSite())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   const validatedFields = faqItemSchema.safeParse(Object.fromEntries(formData));
 
   if (!validatedFields.success) {

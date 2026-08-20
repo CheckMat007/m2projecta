@@ -1,32 +1,52 @@
-// src/app/(main)/portfolio/[id]/page.tsx
+// src/app/(main)/portfolio/[slug]/page.tsx
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Metadata, ResolvingMetadata } from "next";
 import * as LucideIcons from "lucide-react";
+import { cache } from "react";
 import { PortfolioGallerySlider } from "@/components/PortfolioGallerySlider";
 
-// --- 1. CONFIGURAÇÃO DE SEO DINÂMICO ---
-export async function generateMetadata(
-  { params }: { params: { id: string } },
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+// --- 1. RESOLUÇÃO COMPARTILHADA (slug atual OU id antigo) ---
+// `cache()` garante que generateMetadata e a página, ao chamarem isto com o mesmo
+// parâmetro, disparem só uma consulta ao banco por requisição, em vez de duas.
+const resolveProject = cache(async (slugOrId: string) => {
   const project = await prisma.portfolioItem.findUnique({
-    where: { id: params.id },
-    select: { 
-        title: true, 
-        shortDescription: true, 
-        seoTitle: true,         
-        seoDescription: true,   
-        coverImage: true 
-    }
+    where: { slug: slugOrId },
+    include: { service: true },
   });
 
-  if (!project) {
+  if (project) {
+    return { status: 'found' as const, project, canonicalSlug: project.slug };
+  }
+
+  // Compatibilidade com links antigos (/portfolio/[id]) indexados por
+  // motores de busca antes da migração para URLs amigáveis (slug).
+  const legacyProject = await prisma.portfolioItem.findUnique({
+    where: { id: slugOrId },
+    include: { service: true },
+  });
+
+  if (legacyProject) {
+    return { status: 'found' as const, project: legacyProject, canonicalSlug: legacyProject.slug };
+  }
+
+  return { status: 'not-found' as const };
+});
+
+// --- 2. CONFIGURAÇÃO DE SEO DINÂMICO ---
+export async function generateMetadata(
+  { params }: { params: { slug: string } },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const resolution = await resolveProject(params.slug);
+
+  if (resolution.status === 'not-found') {
     return { title: "Projeto não encontrado" };
   }
 
+  const { project, canonicalSlug } = resolution;
   const pageTitle = project.seoTitle || `${project.title} | M2 Projecta`;
   const pageDescription = project.seoDescription || project.shortDescription;
   const previousImages = (await parent).openGraph?.images || [];
@@ -35,6 +55,7 @@ export async function generateMetadata(
     title: pageTitle,
     description: pageDescription,
     keywords: [project.title, "portfólio drone", "case de sucesso", "imagens aéreas", "M2 Projecta"],
+    alternates: { canonical: `/portfolio/${canonicalSlug}` },
     openGraph: {
       title: pageTitle,
       description: pageDescription,
@@ -43,24 +64,25 @@ export async function generateMetadata(
   };
 }
 
-// --- 2. BUSCA DE DADOS ---
-async function getProject(id: string) {
-  const project = await prisma.portfolioItem.findUnique({
-    where: { id },
-    include: {
-      service: true, 
-    },
-  });
+// --- 3. BUSCA DE DADOS ---
+async function getProject(slug: string) {
+  const resolution = await resolveProject(slug);
 
-  if (!project) {
+  if (resolution.status === 'not-found') {
     notFound();
   }
-  return project;
+
+  // Se veio de um id antigo, manda para a URL canônica em vez de renderizar direto.
+  if (resolution.canonicalSlug !== slug) {
+    permanentRedirect(`/portfolio/${resolution.canonicalSlug}`);
+  }
+
+  return resolution.project;
 }
 
-// --- 3. COMPONENTE DA PÁGINA ---
-export default async function PortfolioDetailsPage({ params }: { params: { id: string } }) {
-  const project = await getProject(params.id);
+// --- 4. COMPONENTE DA PÁGINA ---
+export default async function PortfolioDetailsPage({ params }: { params: { slug: string } }) {
+  const project = await getProject(params.slug);
   const galleryImages = project.galleryImages && project.galleryImages.length > 0
     ? [project.coverImage, ...project.galleryImages]
     : [project.coverImage];

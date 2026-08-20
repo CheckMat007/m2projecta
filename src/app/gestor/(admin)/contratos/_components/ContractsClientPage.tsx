@@ -46,17 +46,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from 'sonner';
-import { 
-  PlusCircle, 
-  Edit, 
-  FileText, 
-  ArrowRight, 
-  ChevronsUpDown, 
-  Check, 
-  UploadCloud,  
+import {
+  PlusCircle,
+  Edit,
+  FileText,
+  ArrowRight,
+  ChevronsUpDown,
+  Check,
+  UploadCloud,
   FileCheck,
   Briefcase,
-  Paperclip
+  Paperclip,
+  Sparkles
 } from 'lucide-react';
 import { upsertContractAction } from '../actions';
 
@@ -383,9 +384,16 @@ export function ContractsClientPage({ initialContracts, clients, preSelectedClie
                 </p>
             </div>
             
-            <Button onClick={() => setIsCreateOpen(true)} className="w-full sm:w-auto bg-m2-green text-black hover:bg-m2-green/90 font-medium shadow-sm">
-                <PlusCircle size={18} className="mr-2" /> Novo Contrato
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Button asChild variant="outline" className="w-full sm:w-auto font-medium shadow-sm">
+                    <Link href="/gestor/contratos/gerar">
+                        <Sparkles size={18} className="mr-2" /> Gerar Contrato
+                    </Link>
+                </Button>
+                <Button onClick={() => setIsCreateOpen(true)} className="w-full sm:w-auto bg-m2-green text-black hover:bg-m2-green/90 font-medium shadow-sm">
+                    <PlusCircle size={18} className="mr-2" /> Novo Contrato
+                </Button>
+            </div>
         </div>
 
         {/* --- GRID DE CARDS (Layout Otimizado) --- */}
@@ -402,7 +410,14 @@ export function ContractsClientPage({ initialContracts, clients, preSelectedClie
                                     {contract.client.tradeName}
                                 </CardTitle>
                             </div>
-                            {getStatusBadge(contract.status)}
+                            <div className="flex flex-col items-end gap-1">
+                                {getStatusBadge(contract.status)}
+                                {contract.isGenerated && (
+                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-m2-green/30 text-m2-green">
+                                        <Sparkles size={10} className="mr-1" /> Gerado
+                                    </Badge>
+                                )}
+                            </div>
                         </CardHeader>
                         
                         <CardContent className="py-4 flex-grow">

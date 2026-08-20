@@ -12,10 +12,32 @@ export const authOptions: NextAuthOptions = {
     // Apenas o provedor de credenciais
     CredentialsProvider({
       name: "Credentials",
-      credentials: { email: { label: "Email", type: "email" }, password: { label: "Password", type: "password" } },
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+        recaptchaToken: { label: "reCAPTCHA Token", type: "text" },
+      },
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials.password) return null;
+
+          // Os formulários de login coletam um token do reCAPTCHA, mas até aqui ele nunca
+          // era verificado no servidor — qualquer script podia chamar este endpoint direto
+          // e tentar senhas ilimitadamente sem passar pelo widget. Sem `RECAPTCHA_SECRET_KEY`
+          // configurada, falha fechado (nega o login) em vez de pular a checagem.
+          if (!process.env.RECAPTCHA_SECRET_KEY || !credentials.recaptchaToken) return null;
+
+          const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              secret: process.env.RECAPTCHA_SECRET_KEY,
+              response: credentials.recaptchaToken,
+            }),
+          });
+          const verifyData = await verifyResponse.json();
+          if (!verifyData.success) return null;
+
           const user = await prisma.user.findUnique({ where: { email: credentials.email } });
           if (!user) return null;
           const valid = await bcrypt.compare(credentials.password, user.password);

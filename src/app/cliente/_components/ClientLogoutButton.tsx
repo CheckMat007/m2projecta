@@ -18,7 +18,7 @@ export function ClientLogoutButton({ isCollapsed }: { isCollapsed?: boolean }) {
                             variant="ghost" 
                             size="icon" 
                             onClick={handleLogout} 
-                            className="text-red-400 hover:text-red-300 hover:bg-red-900/20 h-10 w-10"
+                            className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 h-10 w-10"
                         >
                             <LogOut size={20} />
                             <span className="sr-only">Sair</span>
@@ -35,7 +35,7 @@ export function ClientLogoutButton({ isCollapsed }: { isCollapsed?: boolean }) {
             variant="ghost" 
             size="sm" 
             onClick={handleLogout} 
-            className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+            className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
         >
             <LogOut size={16} className="mr-2" /> Sair
         </Button>

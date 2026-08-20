@@ -10,6 +10,7 @@ import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import Logo from '@/components/ui/Logo';
 import ReCAPTCHA from 'react-google-recaptcha'; // 1. Importar reCAPTCHA
+import { RECAPTCHA_SITE_KEY } from '@/lib/site';
 
 export default function ClientLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -70,12 +71,18 @@ export default function ClientLoginPage() {
 
           {/* 4. Componente reCAPTCHA */}
           <div className="flex justify-center my-4">
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-              onChange={(token) => setRecaptchaToken(token)}
-              theme="dark"
-            />
+            {RECAPTCHA_SITE_KEY ? (
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={RECAPTCHA_SITE_KEY}
+                onChange={(token) => setRecaptchaToken(token)}
+                theme="dark"
+              />
+            ) : (
+              <p className="text-xs text-red-400 text-center">
+                Verificação de segurança indisponível no momento. Tente novamente mais tarde.
+              </p>
+            )}
           </div>
 
           <Button type="submit" className="w-full bg-m2-green text-black hover:bg-m2-green/80" disabled={isLoading || !recaptchaToken}>

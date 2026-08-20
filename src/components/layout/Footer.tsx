@@ -68,16 +68,20 @@ export const Footer = () => {
             <div className="w-full">
               <h3 className="font-bold text-lg text-white mb-4 uppercase tracking-wider">Navegação</h3>
               <ul className="space-y-3">
-                {['Início', 'Sobre Nós', 'Serviços', 'Portfólio', 'Blog', 'Contato'].map((item) => {
-                  const href = item === 'Início' ? '/' : `/${item.toLowerCase().replace(' ', '-').replace('ó', 'o')}`;
-                  return (
-                    <li key={item}>
-                      <Link href={href} className="text-gray-400 hover:text-m2-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green rounded-sm px-1 -ml-1 transition-colors">
-                        {item}
-                      </Link>
-                    </li>
-                  )
-                })}
+                {[
+                  { label: 'Início', href: '/' },
+                  { label: 'Sobre Nós', href: '/sobre' },
+                  { label: 'Serviços', href: '/servicos' },
+                  { label: 'Portfólio', href: '/portfolio' },
+                  { label: 'Blog', href: '/blog' },
+                  { label: 'Contato', href: '/contato' },
+                ].map(({ label, href }) => (
+                  <li key={href}>
+                    <Link href={href} className="text-gray-400 hover:text-m2-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green rounded-sm px-1 -ml-1 transition-colors">
+                      {label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
             

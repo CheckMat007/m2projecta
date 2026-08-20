@@ -125,8 +125,20 @@ model Contract {
 
   clientId       String
   client         Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
+
   projects       Project[]
+
+  // Preenchidos apenas quando o contrato é criado pelo gerador de proposta (não em upload manual)
+  isGenerated           Boolean   @default(false)
+  proposalDate          DateTime?
+  proposalTitle         String?
+  serviceDescription    String?   @db.Text
+  captureLocations      String[]  @default([])
+  deliveryTerms         String?   @db.Text
+  investmentDescription String?   @db.Text
+  generalTerms          String?   @db.Text
+  contactName           String?
+  contactPhone          String?
 
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -229,6 +241,7 @@ model Service {
 
 model PortfolioItem {
   id               String   @id @default(cuid())
+  slug             String   @unique
   title            String
   shortDescription String   @db.Text
   longDescription  String   @db.Text

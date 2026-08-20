@@ -149,8 +149,8 @@ function PortfolioContent({ initialItems, services }: {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     className={`${isFeatured ? 'md:col-span-2 md:row-span-1' : 'col-span-1'} w-full min-w-0`}
                   >
-                    <Link 
-                      href={`/portfolio/${item.id}`} 
+                    <Link
+                      href={`/portfolio/${item.slug}`}
                       className="group relative block w-full aspect-video md:aspect-auto md:h-full min-h-[280px] overflow-hidden rounded-2xl bg-[#0a0a0a] border border-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green"
                     >
                       <Image 

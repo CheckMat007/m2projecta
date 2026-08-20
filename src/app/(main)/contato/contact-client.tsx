@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import type { Service } from '@prisma/client';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { RECAPTCHA_SITE_KEY } from '@/lib/site';
 
 export default function ContactClientPage({ services }: { services: Service[] }) {
   const [messageLength, setMessageLength] = useState(0);
@@ -216,12 +217,18 @@ export default function ContactClientPage({ services }: { services: Service[] })
                 </div>
 
                 <div className="flex justify-center py-2">
-                    <ReCAPTCHA
-                        ref={recaptchaRef}
-                        sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-                        onChange={(token) => setRecaptchaToken(token)}
-                        theme="dark"
-                    />
+                    {RECAPTCHA_SITE_KEY ? (
+                      <ReCAPTCHA
+                          ref={recaptchaRef}
+                          sitekey={RECAPTCHA_SITE_KEY}
+                          onChange={(token) => setRecaptchaToken(token)}
+                          theme="dark"
+                      />
+                    ) : (
+                      <p className="text-xs text-red-400 text-center">
+                        Verificação de segurança indisponível no momento. Tente novamente mais tarde ou fale conosco pelo WhatsApp.
+                      </p>
+                    )}
                 </div>
 
                 <button 

@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { RECAPTCHA_SITE_KEY } from '@/lib/site';
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -71,12 +72,18 @@ export function LoginForm() {
         </div>
       </div>
       <div className="flex justify-center">
-        <ReCAPTCHA
-          ref={recaptchaRef}
-          sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-          onChange={(token) => setRecaptchaToken(token)}
-          theme={mounted && theme === 'dark' ? 'dark' : 'light'}
-        />
+        {RECAPTCHA_SITE_KEY ? (
+          <ReCAPTCHA
+            ref={recaptchaRef}
+            sitekey={RECAPTCHA_SITE_KEY}
+            onChange={(token) => setRecaptchaToken(token)}
+            theme={mounted && theme === 'dark' ? 'dark' : 'light'}
+          />
+        ) : (
+          <p className="text-xs text-red-400 text-center">
+            Verificação de segurança indisponível no momento. Tente novamente mais tarde.
+          </p>
+        )}
       </div>
       {error && (
         <p className="text-sm text-red-400 dark:text-red-300 bg-red-900/30 dark:bg-red-900/20 p-2 rounded-md">
