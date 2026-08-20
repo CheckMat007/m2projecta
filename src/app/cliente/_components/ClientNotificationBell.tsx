@@ -34,6 +34,7 @@ export function ClientNotificationBell({ initialNotifications, initialUnreadCoun
     setIsPopoverOpen(isOpen);
     if (isOpen && unreadCount > 0) {
       setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       await markClientNotificationsAsRead();
     }
   };
@@ -65,7 +66,7 @@ export function ClientNotificationBell({ initialNotifications, initialUnreadCoun
     <>
       <Popover open={isPopoverOpen} onOpenChange={handleOpenPopover}>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" className="relative text-gray-400 hover:text-white">
+          <Button variant="ghost" size="icon" className="relative text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
             <Bell size={20} />
             {unreadCount > 0 && (
               <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-m2-green text-black text-xs font-bold">
@@ -74,24 +75,24 @@ export function ClientNotificationBell({ initialNotifications, initialUnreadCoun
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 p-0 border-gray-800 bg-black text-white" align="end">
+        <PopoverContent className="w-80 p-0 border-gray-200 dark:border-gray-800" align="end">
           <div className="space-y-2">
-            <div className="flex justify-between items-center p-2 border-b border-gray-800">
+            <div className="flex justify-between items-center p-2 border-b border-gray-200 dark:border-gray-800">
                 <h4 className="font-medium leading-none px-2 text-m2-green">Notificações</h4>
-                <Button variant="ghost" size="icon" onClick={handleRefresh} disabled={isRefreshing} className="h-8 w-8">
+                <Button variant="ghost" size="icon" onClick={handleRefresh} disabled={isRefreshing} className="h-8 w-8 text-gray-500 hover:text-gray-900 dark:hover:text-white">
                     <RotateCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
                 </Button>
             </div>
             {notifications.length === 0 ? (
               <p className="text-sm text-center text-gray-500 p-4">Nenhuma notificação.</p>
             ) : (
-              <div className="max-h-80 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-700">
+              <div className="max-h-80 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
                 {notifications.map((notif) => (
-                  <div key={notif.id} onClick={() => handleNotificationClick(notif)} className="flex items-start gap-3 p-3 rounded-md hover:bg-gray-900 cursor-pointer transition-colors">
+                  <div key={notif.id} onClick={() => handleNotificationClick(notif)} className="flex items-start gap-3 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer transition-colors">
                     {!notif.isRead && <div className="mt-1.5 h-2 w-2 rounded-full bg-m2-green flex-shrink-0" />}
                     <div className={notif.isRead ? 'pl-5' : ''}>
-                      <p className="text-sm font-semibold text-gray-200">{notif.title}</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{notif.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {notif.sender?.name || 'M2 Projecta'}
                       </p>
                     </div>
@@ -104,9 +105,9 @@ export function ClientNotificationBell({ initialNotifications, initialUnreadCoun
       </Popover>
 
       <Dialog open={!!selectedNotification} onOpenChange={(isOpen) => !isOpen && setSelectedNotification(null)}>
-        <DialogContent className="bg-black border-gray-800 text-white">
+        <DialogContent className="border-gray-200 dark:border-gray-800">
           <DialogHeader><DialogTitle className="text-m2-green">{selectedNotification?.title}</DialogTitle></DialogHeader>
-          <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap text-gray-300">
+          <div className="prose dark:prose-invert prose-sm max-w-none whitespace-pre-wrap text-gray-700 dark:text-gray-300">
             {selectedNotification?.message}
           </div>
         </DialogContent>

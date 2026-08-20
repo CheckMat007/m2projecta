@@ -1,9 +1,11 @@
 // src/app/cliente/_components/ClientSidebar.tsx
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import * as LucideIcons from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -25,9 +27,33 @@ interface ClientSidebarProps {
   children: ReactNode;
 }
 
+// Mesmo padrão do botão de tema usado no painel gestor (sidebar-client.tsx)
+const ThemeToggle = () => {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return <div className="w-10 h-10" />;
+
+  const isDark = theme === 'dark';
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+      title="Alternar tema"
+    >
+      {isDark ? <LucideIcons.Sun size={20} /> : <LucideIcons.Moon size={20} />}
+    </Button>
+  );
+};
+
 export function ClientSidebar({ user, isCollapsed, toggleSidebar, children }: ClientSidebarProps) {
   const pathname = usePathname();
-  const displayName = user.name; 
+  const displayName = user.name;
 
   const menuItems = [
     { href: "/cliente", icon: LucideIcons.LayoutDashboard, label: "Resumo" },
@@ -50,26 +76,26 @@ export function ClientSidebar({ user, isCollapsed, toggleSidebar, children }: Cl
   ];
 
   return (
-    <aside className={`fixed top-0 left-0 bg-black/50 h-screen flex flex-col border-r border-gray-800 transition-all duration-300 ease-in-out z-50 ${isCollapsed ? 'w-20 p-2' : 'w-64 p-4'}`}>
-      
+    <aside className={`fixed top-0 left-0 bg-white/95 dark:bg-black/95 backdrop-blur-sm h-screen flex flex-col border-r border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out z-50 ${isCollapsed ? 'w-20 p-2' : 'w-64 p-4'}`}>
+
       {/* SEÇÃO DO USUÁRIO */}
       <div className={`mb-8 ${isCollapsed ? 'flex justify-center' : ''}`}>
-        <Link 
+        <Link
             href="/cliente/perfil"
-            className={`flex items-center gap-4 min-w-0 p-2 rounded-md hover:bg-gray-800/50 transition-colors border border-transparent hover:border-gray-800 ${isCollapsed ? 'justify-center rounded-full h-12 w-12' : ''}`}
+            className={`flex items-center gap-4 min-w-0 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors border border-transparent hover:border-gray-200 dark:hover:border-gray-800 ${isCollapsed ? 'justify-center rounded-full h-12 w-12' : ''}`}
             title="Ir para meu perfil"
         >
-            <div className="w-10 h-10 rounded-full border-2 border-m2-green bg-gray-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+            <div className="w-10 h-10 rounded-full border-2 border-m2-green bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden flex-shrink-0">
                 {user.image ? (
                     <Image src={user.image} alt={user.name} width={40} height={40} className="object-cover w-full h-full" />
                 ) : (
-                    <LucideIcons.Building2 className="text-gray-400" size={20} />
+                    <LucideIcons.Building2 className="text-gray-500 dark:text-gray-400" size={20} />
                 )}
             </div>
             {!isCollapsed && (
                 <div className="min-w-0 overflow-hidden">
-                    <p className="font-bold text-white truncate text-sm">{displayName}</p>
-                    <p className="text-xs text-gray-500 truncate">Ver perfil</p>
+                    <p className="font-bold text-gray-900 dark:text-white truncate text-sm">{displayName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 truncate">Ver perfil</p>
                 </div>
             )}
         </Link>
@@ -92,7 +118,7 @@ export function ClientSidebar({ user, isCollapsed, toggleSidebar, children }: Cl
                     <Link 
                         href={item.href} 
                         {...targetProps}
-                        className={`flex items-center justify-center h-10 w-10 mx-auto rounded-md transition-colors ${isActive ? 'bg-m2-green text-black' : 'hover:bg-gray-800 text-gray-300 hover:text-white'}`}
+                        className={`flex items-center justify-center h-10 w-10 mx-auto rounded-md transition-colors ${isActive ? 'bg-m2-green text-black' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}
                     >
                       <item.icon size={20} />
                       <span className="sr-only">{item.label}</span>
@@ -109,7 +135,7 @@ export function ClientSidebar({ user, isCollapsed, toggleSidebar, children }: Cl
                 key={item.href} 
                 href={item.href} 
                 {...targetProps}
-                className={`flex items-center gap-3 p-2 rounded-md transition-colors ${isActive ? 'bg-m2-green text-black' : 'hover:bg-gray-800 text-gray-300 hover:text-white'}`}
+                className={`flex items-center gap-3 p-2 rounded-md transition-colors ${isActive ? 'bg-m2-green text-black' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}
             >
               <item.icon size={20} />
               <span className="truncate">{item.label}</span>
@@ -119,24 +145,26 @@ export function ClientSidebar({ user, isCollapsed, toggleSidebar, children }: Cl
       </nav>
 
       {/* RODAPÉ E AÇÕES (CENTRALIZADOS) */}
-      <div className="mt-auto pt-4 border-t border-gray-800">
+      <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-800">
         <div className={`mb-4 text-center ${isCollapsed ? 'hidden' : 'block'}`}>
             <Link href="/" className="inline-block h-auto w-24"><Logo /></Link>
         </div>
-        
+
         <div className={`flex items-center gap-2 ${isCollapsed ? 'flex-col-reverse justify-center' : 'justify-center'}`}>
-            
-            <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={toggleSidebar} 
-                className="text-gray-400 hover:text-white"
+
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSidebar}
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                 title={isCollapsed ? "Expandir" : "Recolher"}
             >
                 {isCollapsed ? <LucideIcons.ChevronsRight size={20} /> : <LucideIcons.ChevronsLeft size={20} />}
             </Button>
 
             {children}
+
+            <ThemeToggle />
 
             <ClientLogoutButton isCollapsed={isCollapsed} />
 
