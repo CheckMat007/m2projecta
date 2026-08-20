@@ -51,7 +51,31 @@ const contractSchema = z.object({
   observations: z.string().optional(),
   // Campos para edição
   contractId: z.string().optional(),
+  // Preenchidos apenas pelo gerador de proposta (/gestor/contratos/gerar) — o formulário de
+  // upload manual nunca envia estes campos, então ficam undefined e o Prisma simplesmente
+  // não os toca (nem em criação, nem em edição).
+  isGenerated: z.boolean().optional(),
+  proposalDate: z.string().optional(),
+  proposalTitle: z.string().optional(),
+  serviceDescription: z.string().optional(),
+  captureLocations: z.array(z.string()).optional(),
+  deliveryTerms: z.string().optional(),
+  investmentDescription: z.string().optional(),
+  generalTerms: z.string().optional(),
+  contactName: z.string().optional(),
+  contactPhone: z.string().optional(),
 });
+
+// Igual ao padrão já usado em portfolio/actions.ts para galleryImages
+function parseCaptureLocations(raw: FormDataEntryValue | undefined): string[] {
+  if (!raw || typeof raw !== 'string') return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((item) => typeof item === 'string') : [];
+  } catch {
+    return [];
+  }
+}
 
 // --- ACTION: CRIAR OU ATUALIZAR CONTRATO ---
 export async function upsertContractAction(formData: FormData) {
@@ -61,13 +85,35 @@ export async function upsertContractAction(formData: FormData) {
     }
 
     const rawData = Object.fromEntries(formData);
-    const validated = contractSchema.safeParse(rawData);
+    // Só inclui os campos do gerador quando eles realmente vieram no FormData (isto é, quando
+    // a submissão veio do formulário de gerar proposta) — assim, na edição manual de um
+    // contrato gerado, esses campos ficam undefined e o Prisma não os sobrescreve.
+    const parsedData = {
+      ...rawData,
+      isGenerated: rawData.isGenerated !== undefined ? rawData.isGenerated === 'true' : undefined,
+      captureLocations: rawData.captureLocations !== undefined
+        ? parseCaptureLocations(rawData.captureLocations)
+        : undefined,
+    };
+    const validated = contractSchema.safeParse(parsedData);
 
     if (!validated.success) {
       return { success: false, message: validated.error.issues[0].message };
     }
 
     const data = validated.data;
+    const proposalFields = {
+      isGenerated: data.isGenerated,
+      proposalDate: data.proposalDate ? new Date(data.proposalDate) : undefined,
+      proposalTitle: data.proposalTitle,
+      serviceDescription: data.serviceDescription,
+      captureLocations: data.captureLocations,
+      deliveryTerms: data.deliveryTerms,
+      investmentDescription: data.investmentDescription,
+      generalTerms: data.generalTerms,
+      contactName: data.contactName,
+      contactPhone: data.contactPhone,
+    };
 
     // --- MODO EDIÇÃO ---
     if (data.contractId) {
@@ -79,16 +125,17 @@ export async function upsertContractAction(formData: FormData) {
           status: data.status,
           fileUrl: data.fileUrl,
           observations: data.observations,
+          ...proposalFields,
         }
       });
       revalidatePath('/gestor/contratos');
       return { success: true, message: "Contrato atualizado com sucesso!" };
-    } 
-    
+    }
+
     // --- MODO CRIAÇÃO ---
     else {
       const contractNumber = await generateContractNumber();
-      
+
       await prisma.contract.create({
         data: {
           contractNumber,
@@ -97,6 +144,7 @@ export async function upsertContractAction(formData: FormData) {
           status: data.status,
           fileUrl: data.fileUrl,
           observations: data.observations,
+          ...proposalFields,
         }
       });
 
