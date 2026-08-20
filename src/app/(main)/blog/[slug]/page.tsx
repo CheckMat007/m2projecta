@@ -9,6 +9,8 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ArrowLeft, Clock, ArrowRight } from 'lucide-react';
 import { PostInteraction } from '../_components/PostInteraction';
+import { JsonLd } from '@/components/JsonLd';
+import { SITE_URL } from '@/lib/site';
 import { cookies } from 'next/headers';
 import type { Post, Category } from '@prisma/client';
 import type { Metadata, ResolvingMetadata } from 'next';
@@ -36,6 +38,7 @@ export async function generateMetadata(
   return {
     title: pageTitle,
     description: post.seoDescription,
+    alternates: { canonical: `/blog/${params.slug}` },
     openGraph: {
       title: pageTitle,
       description: post.seoDescription || undefined,
@@ -148,9 +151,40 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
   const showUpdatedAt = post.updatedAt.getTime() - post.createdAt.getTime() > 1000 * 60 * 5;
 
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.seoDescription || undefined,
+    "image": post.featuredImageUrl ? [post.featuredImageUrl] : undefined,
+    "datePublished": post.createdAt.toISOString(),
+    "dateModified": post.updatedAt.toISOString(),
+    "author": {
+      "@type": "Person",
+      "name": post.author.name || "M2 Projecta",
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "M2 Projecta",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${SITE_URL}/logo.png`,
+      },
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/blog/${post.slug}`,
+    },
+    ...(post.categories.length > 0 && {
+      "keywords": post.categories.map((category) => category.name).join(", "),
+    }),
+  };
+
   return (
     <article className="w-full max-w-[100vw] overflow-x-hidden bg-[#050505] min-h-screen">
-      
+
+      <JsonLd data={articleSchema} />
+
       {/* HEADER IMERSIVO (HERO DO ARTIGO) */}
       <header className="relative w-full min-h-[60vh] md:min-h-[80vh] flex flex-col justify-end pb-12 md:pb-24">
         <div className="absolute inset-0 z-0 bg-[#111]">

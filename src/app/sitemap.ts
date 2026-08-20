@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const portfolioItems = await prisma.portfolioItem.findMany({
     where: { status: 'PUBLISHED' },
     select: {
-      id: true,
+      slug: true,
       updatedAt: true,
     },
   });
@@ -44,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const portfolioRoutes = portfolioItems.map((item) => ({
-    url: `${baseUrl}/portfolio/${item.id}`,
+    url: `${baseUrl}/portfolio/${item.slug}`,
     lastModified: item.updatedAt,
     changeFrequency: 'monthly' as const,
     priority: 0.7,

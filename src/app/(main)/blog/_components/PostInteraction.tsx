@@ -22,6 +22,12 @@ export function PostInteraction({ postId, initialLikes, initialDislikes, userVot
   const [isPending, startTransition] = useTransition();
 
   const handleVote = (voteType: VoteType) => {
+    // Guarda o estado imediatamente antes deste clique (não o estado do carregamento
+    // da página) para poder desfazer só esta tentativa se a Server Action falhar.
+    const previousLikes = likes;
+    const previousDislikes = dislikes;
+    const previousVote = currentVote;
+
     startTransition(async () => {
       let newLikes = likes;
       let newDislikes = dislikes;
@@ -53,10 +59,11 @@ export function PostInteraction({ postId, initialLikes, initialDislikes, userVot
       // Chama a Server Action para salvar a mudança no banco
       const result = await voteOnPostAction({ postId, voteType });
       if (!result.success) {
-        // Se a action falhar, reverte a UI para o estado inicial
-        setLikes(initialLikes);
-        setDislikes(initialDislikes);
-        setCurrentVote(userVote);
+        // Se a action falhar, reverte a UI só até antes deste clique (não até o
+        // carregamento da página, o que apagaria votos anteriores já salvos com sucesso)
+        setLikes(previousLikes);
+        setDislikes(previousDislikes);
+        setCurrentVote(previousVote);
         toast.error(result.message || "Ocorreu um erro ao registrar seu voto.");
       }
     });

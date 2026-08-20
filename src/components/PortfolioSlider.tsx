@@ -54,6 +54,16 @@ export const PortfolioSlider = memo(function PortfolioSlider({ portfolioItems, o
         // 'onRealIndexChange' funciona perfeitamente com loop={true}.
         // Ele dispara assim que o slide ativo muda logicamente, garantindo que o fundo atualize.
         onRealIndexChange={(swiper) => onActiveIndexChange(swiper.realIndex)}
+        // Em modo loop, o Swiper às vezes não sincroniza a classe 'swiper-slide-active'
+        // (da qual o link "Ver Projeto" depende para ficar visível/clicável) no slide
+        // central logo após montar — só corrige sozinho após a primeira navegação.
+        // Forçar um update logo após a inicialização resolve isso sem esperar o clique na seta.
+        onSwiper={(swiper) => {
+          requestAnimationFrame(() => {
+            swiper.update();
+            swiper.slideToLoop(swiper.realIndex, 0, false);
+          });
+        }}
       >
         {portfolioItems.map((item) => (
           <SwiperSlide key={item.id} className="!w-[80%] md:!w-[50%] lg:!w-[40%]">

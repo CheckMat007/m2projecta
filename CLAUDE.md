@@ -100,4 +100,7 @@ DATABASE_URL="postgresql://user:password@host:port/db"   # Supabase Postgres
 NEXTAUTH_SECRET="..."
 NEXTAUTH_URL="http://localhost:3000"
 BLOB_READ_WRITE_TOKEN="..."                                 # Vercel Blob
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY="..."                        # Google reCAPTCHA v2 site key — used by the contact form and both login forms (gestor + cliente). If unset, those forms show a fallback message instead of a permanently-disabled submit button.
+RECAPTCHA_SECRET_KEY="..."                                  # Google reCAPTCHA v2 secret key — verified server-side in src/lib/auth.ts's authorize() on every credentials login. Required: if unset, login fails closed (denies all logins) rather than skipping verification.
+CRON_SECRET="..."                                           # Bearer token required by /api/cron/reviews (see vercel.json). Required: if unset, the route fails closed (401s every request) rather than becoming public.
 ```

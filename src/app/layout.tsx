@@ -6,8 +6,7 @@ import Providers from './providers';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.m2projecta.com.br'),
-  manifest: "/manifest.json",
-  
+
   title: {
     template: '%s | M2 Projecta',
     default:
@@ -79,54 +78,6 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
-const schema = {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  "@id": "https://www.m2projecta.com.br/#localbusiness",
-  "name": "M2 Projecta",
-  "url": "https://www.m2projecta.com.br/",
-  "logo": "https://www.m2projecta.com.br/logo.png",
-  "image": "https://www.m2projecta.com.br/logo.png",
-  "description":
-    "Empresa especializada em imagens aéreas com drone, vídeos corporativos, imobiliários, eventos e imagens 360° no Vale do Paraíba.",
-  "telephone": "+55 12 99131-6774",
-  "priceRange": "$$",
-
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "Av. Dom Duarte Leopoldo e Silva, 131",
-    "addressLocality": "Taubaté",
-    "addressRegion": "SP",
-    "postalCode": "12070-590",
-    "addressCountry": "BR"
-  },
-
-  "areaServed": [
-    { "@type": "City", "name": "Taubaté" },
-    { "@type": "City", "name": "Tremembé" },
-    { "@type": "City", "name": "Pindamonhangaba" },
-    { "@type": "City", "name": "Ubatuba" },
-    { "@type": "City", "name": "Caraguatatuba" },
-    { "@type": "City", "name": "São Luís do Paraitinga" },
-    { "@type": "City", "name": "Campos do Jordão" },
-    { "@type": "City", "name": "Cruzeiro" },
-    { "@type": "City", "name": "Cachoeira Paulista" },
-    { "@type": "City", "name": "Guaratinguetá" },
-    { "@type": "City", "name": "Aparecida" },
-    { "@type": "City", "name": "São José dos Campos" },
-    { "@type": "City", "name": "Jacareí" },
-    { "@type": "City", "name": "Caçapava" }
-  ],
-  "sameAs": [
-    "https://www.instagram.com/m2projecta/",
-    "https://www.youtube.com/@M2Projecta",
-    "https://www.tiktok.com/@m2.projecta"
-  ],
-  "makesOffer": [
-    /* ... Encurtado visualmente para você, mas mantenha suas ofertas originais ... */
-  ]
-};
-
 export default function RootLayout({
   children,
 }: {
@@ -136,12 +87,6 @@ export default function RootLayout({
     // 1. Adicionado suppressHydrationWarning
     // 2. Adicionado className="dark" para o primeiro carregamento (SSR)
     <html lang="pt-BR" className="scroll-smooth dark" suppressHydrationWarning>
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      </head>
       <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>

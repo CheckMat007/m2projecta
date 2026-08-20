@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: 'Nossos Serviços | M2 Projecta',
   description: 'Conheça nosso catálogo de soluções em imagens aéreas, timelapse, inspeções e monitoramento de obras.',
+  alternates: { canonical: '/servicos' },
 };
 
 // Busca os dados no servidor

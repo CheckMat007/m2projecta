@@ -10,6 +10,9 @@ const withPWA = withPWAInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // @react-pdf/renderer é distribuído só como ESM; sem isso o Next tenta tratá-lo como
+  // "external" no bundle do servidor e quebra com "ESM packages need to be imported".
+  transpilePackages: ['@react-pdf/renderer'],
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [

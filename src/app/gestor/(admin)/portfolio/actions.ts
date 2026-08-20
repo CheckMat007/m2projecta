@@ -5,10 +5,36 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { PortfolioItem, Status } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
 const MAX_FEATURED_ITEMS = 10;
+
+// Helper de segurança
+async function canManagePortfolio() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return false;
+  if (session.user.role === 'MASTER') return true;
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { permissions: { select: { name: true } } }
+  });
+  return user?.permissions.some(p => p.name === 'manage_portfolio') || false;
+}
+
+// Função para gerar um slug a partir de um título (ex: "Meu Projeto Incrível" -> "meu-projeto-incrivel")
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize("NFD") // Remove acentos
+    .replace(new RegExp('[\\u0300-\\u036f]', 'g'), "")
+    .replace(/[^a-z0-9\s-]/g, "") // Remove caracteres não alfanuméricos, exceto espaços e hífens
+    .trim()
+    .replace(/\s+/g, "-") // Substitui espaços por hífens
+    .replace(/-+/g, "-"); // Remove hífens duplicados
+}
 
 // Função auxiliar para checar o limite de destaques
 async function checkFeaturedLimit() {
@@ -65,6 +91,10 @@ function parseGalleryImages(raw: FormDataEntryValue | undefined): string[] {
 
 // Ação de CRIAR (Atualizada)
 export async function createPortfolioItem(formData: FormData) {
+  if (!(await canManagePortfolio())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   const data = Object.fromEntries(formData);
   const isFeatured = data.isFeatured === 'on';
 
@@ -104,9 +134,15 @@ export async function createPortfolioItem(formData: FormData) {
     return { success: false, message: errorMessage };
   }
 
+  let slug = generateSlug(validatedFields.data.title);
+  const existingSlug = await prisma.portfolioItem.findUnique({ where: { slug } });
+  if (existingSlug) {
+    slug = `${slug}-${Math.random().toString(36).substring(2, 7)}`;
+  }
+
   try {
     await prisma.portfolioItem.create({
-      data: validatedFields.data,
+      data: { ...validatedFields.data, slug },
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
@@ -118,13 +154,18 @@ export async function createPortfolioItem(formData: FormData) {
 
   revalidatePath('/gestor/portfolio');
   revalidatePath('/portfolio');
+  revalidatePath(`/portfolio/${slug}`);
   revalidatePath('/');
-  
+
   redirect('/gestor/portfolio');
 }
 
 // Ação de ATUALIZAR (Atualizada com a checagem)
 export async function updatePortfolioItem(id: string, formData: FormData) {
+  if (!(await canManagePortfolio())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   const data = Object.fromEntries(formData);
   const isFeatured = data.isFeatured === 'on';
 
@@ -169,6 +210,8 @@ export async function updatePortfolioItem(id: string, formData: FormData) {
     return { success: false, message: errorMessage };
   }
 
+  let itemSlug: string;
+
   try {
     const currentItem = await prisma.portfolioItem.findUnique({
       where: { id: id },
@@ -176,6 +219,7 @@ export async function updatePortfolioItem(id: string, formData: FormData) {
     if (!currentItem) {
       return { success: false, message: 'Projeto não encontrado.' };
     }
+    itemSlug = currentItem.slug;
 
     const dataToUpdate: Partial<PortfolioItem> = {};
     const newData = validatedFields.data;
@@ -210,14 +254,19 @@ export async function updatePortfolioItem(id: string, formData: FormData) {
   revalidatePath('/gestor/portfolio');
   revalidatePath(`/gestor/portfolio/editar/${id}`);
   revalidatePath('/portfolio');
+  revalidatePath(`/portfolio/${itemSlug}`);
   revalidatePath('/');
-  
+
   // Retorna sucesso para o cliente lidar com o redirect
   return { success: true, message: 'Projeto atualizado com sucesso!' };
 }
 
 // Ação de DELETAR
 export async function deletePortfolioItem(id: string) {
+  if (!(await canManagePortfolio())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   if (!id) {
     return { success: false, message: 'ID do item não fornecido.' };
   }
@@ -240,6 +289,10 @@ export async function deletePortfolioItem(id: string) {
 
 // AÇÃO PARA O SWITCH DA TABELA
 export async function toggleFeaturedStatus(id: string, newStatus: boolean) {
+  if (!(await canManagePortfolio())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   if (newStatus === true) {
     const featuredCount = await checkFeaturedLimit();
     if (featuredCount >= MAX_FEATURED_ITEMS) {

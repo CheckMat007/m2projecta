@@ -4,6 +4,20 @@
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+
+// Helper de segurança
+async function canManageSite() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return false;
+  if (session.user.role === 'MASTER') return true;
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { permissions: { select: { name: true } } }
+  });
+  return user?.permissions.some(p => p.name === 'manage_site') || false;
+}
 
 // Schema de validação para o conteúdo da página "Sobre"
 const contentSchema = z.object({
@@ -14,6 +28,10 @@ const contentSchema = z.object({
 
 // Ação para ATUALIZAR o conteúdo da página "Sobre"
 export async function updateAboutContent(formData: FormData) {
+  if (!(await canManageSite())) {
+    return { success: false, message: 'Acesso negado.' };
+  }
+
   const validatedFields = contentSchema.safeParse(Object.fromEntries(formData));
 
   if (!validatedFields.success) {

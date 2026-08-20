@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: 'Nosso Portfólio',
   description: 'Explore nossos projetos recentes e veja como transformamos a visão de construtoras e imobiliárias com tecnologia de ponta.',
+  alternates: { canonical: '/portfolio' },
 };
 
 // Esta função agora busca os itens E os serviços relacionados

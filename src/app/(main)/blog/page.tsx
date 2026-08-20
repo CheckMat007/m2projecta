@@ -12,6 +12,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: 'Blog | M2 Projecta',
   description: 'Fique atualizado sobre notícias e informações importantes sobre drones e imagens aéreas.',
+  alternates: { canonical: '/blog' },
 };
 
 type PostCardData = Post & {

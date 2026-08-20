@@ -39,15 +39,16 @@ export default async function ClientPanelLayout({
   const { notifications, unreadCount } = await getClientNotifications();
 
   return (
-    <div className="min-h-screen bg-m2-dark text-white">
-      <ClientLayoutClient 
+    <div className="min-h-screen bg-gray-50 dark:bg-m2-dark text-gray-900 dark:text-white transition-colors duration-300">
+      <ClientLayoutClient
         user={userDisplay}
         initialNotifications={notifications}
         initialUnreadCount={unreadCount}
       >
         {children}
       </ClientLayoutClient>
-      <Toaster richColors theme="dark" />
+      {/* theme="dark" removido para que o Toaster leia a preferência do next-themes, igual ao painel gestor */}
+      <Toaster richColors />
     </div>
   );
 }

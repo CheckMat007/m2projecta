@@ -11,10 +11,13 @@ import { revalidatePath } from 'next/cache';
 async function canManageServices() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return false;
-  // Ajuste conforme suas regras (MASTER ou permissão específica)
   if (session.user.role === 'MASTER') return true;
-  // Se tiver permissão específica, adicione aqui
-  return false; 
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { permissions: { select: { name: true } } }
+  });
+  // "Serviços" é uma subseção de "Gerenciar Site" no menu, então usa a mesma permissão.
+  return user?.permissions.some(p => p.name === 'manage_site') || false;
 }
 
 // --- FUNÇÕES UTILITÁRIAS ---
