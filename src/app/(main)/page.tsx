@@ -4,6 +4,11 @@
 import { prisma } from '@/lib/prisma';
 import HomeClientPage from './home-client';
 import GoogleReviews from '@/components/GoogleReviews';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
 
 // Esta função busca todos os dados para a página inicial
 async function getHomePageData() {
@@ -41,7 +46,7 @@ async function getHomePageData() {
     title: item.title,
     category: item.service?.name || 'Sem Categoria', // Usa o nome do serviço
     image: item.coverImage,
-    link: `/portfolio/${item.id}`,
+    link: `/portfolio/${item.slug}`,
     backgroundImage: item.coverImage,
   }));
 

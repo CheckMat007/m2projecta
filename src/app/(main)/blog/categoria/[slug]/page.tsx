@@ -30,6 +30,7 @@ export async function generateMetadata(
   return {
     title: `${category.name} | Blog M2 Projecta`,
     description: `Navegue por todos os artigos e novidades sobre ${category.name} no blog da M2 Projecta.`,
+    alternates: { canonical: `/blog/categoria/${params.slug}` },
   };
 }
 

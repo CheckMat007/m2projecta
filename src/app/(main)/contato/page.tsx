@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: 'Fale Conosco | M2 Projecta',
   description: 'Entre em contato para orçamentos de imagens aéreas e produções audiovisuais.',
+  alternates: { canonical: '/contato' },
 };
 
 export default async function ContatoPage() {

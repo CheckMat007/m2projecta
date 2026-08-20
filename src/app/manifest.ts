@@ -4,21 +4,24 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'M2 Projecta',
     short_name: 'M2 Projecta',
-    description: 'Site e CMS da M2 Projecta',
+    description: 'Painel de gestão (CMS) da M2 Projecta',
     start_url: '/gestor/login',
-    display: 'standalone', 
+    scope: '/gestor/',
+    display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#1b4d3e', 
+    theme_color: '#1b4d3e',
     icons: [
       {
-        src: '/apple-icon.png',
+        src: '/icon-192.png',
         sizes: '192x192',
         type: 'image/png',
+        purpose: 'any',
       },
       {
-        src: '/apple-icon.png',
+        src: '/icon-512.png',
         sizes: '512x512',
         type: 'image/png',
+        purpose: 'any',
       },
     ],
   }

@@ -31,6 +31,7 @@ export async function generateMetadata(
   return {
     title: `Tag: #${tag.name} | Blog M2 Projecta`,
     description: `Navegue por todos os artigos, cases e novidades marcados com a tag #${tag.name} no blog da M2 Projecta.`,
+    alternates: { canonical: `/blog/tag/${params.slug}` },
   };
 }
 

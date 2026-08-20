@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Política de Privacidade | M2 Projecta',
   description: 'Conheça nossa política de privacidade e como lidamos com as informações coletadas em nosso site.',
+  alternates: { canonical: '/politica-de-privacidade' },
 };
 
 export default function PoliticaDePrivacidadePage() {

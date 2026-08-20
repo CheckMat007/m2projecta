@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: 'Sobre',
   description: 'Mais do que imagens, entregamos uma nova perspectiva para o seu negócio.',
+  alternates: { canonical: '/sobre' },
 };
 
 // --- DATA FETCHING (Mantido intacto) ---
