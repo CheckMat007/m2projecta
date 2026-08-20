@@ -125,11 +125,12 @@ export const Header = ({ services = [] }: HeaderProps) => {
         </div>
         
         {/* BOTÃO DO MENU MOBILE (Apenas para abrir) */}
-        <button 
+        <button
           aria-expanded={isMenuOpen}
           aria-controls="mobile-menu"
           aria-label="Abrir menu"
-          className={`md:hidden text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green rounded-md p-1 relative transition-opacity ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} 
+          tabIndex={isMenuOpen ? -1 : 0}
+          className={`md:hidden text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green rounded-md p-1 relative transition-opacity ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
           onClick={() => setIsMenuOpen(true)}
         >
           <Menu size={28} aria-hidden="true" />

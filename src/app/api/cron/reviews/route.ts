@@ -12,8 +12,10 @@ interface GooglePlaceReview {
 }
 
 export async function GET(request: Request) {
+  // Falha fechado: se CRON_SECRET não estiver configurada, nega por padrão em vez de
+  // pular a checagem e deixar o endpoint público.
   const authHeader = request.headers.get('authorization');
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
   }
 
