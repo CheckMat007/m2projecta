@@ -2,13 +2,13 @@
 // Este é um Server Component.
 
 import { getServerSession } from 'next-auth';
-import { SessionProvider } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import type { User, Permission } from '@prisma/client';
 import * as LucideIcons from 'lucide-react';
 import { AdminLayoutClient } from './_components/AdminLayoutClient';
+import { SessionProviderWrapper } from './_components/SessionProviderWrapper';
 import { getNotificationsForBell } from './notifications/actions';
 
 // Tipos e helper (sem alterações)
@@ -74,7 +74,7 @@ export default async function GestorLayout({
     <div className="min-h-screen bg-gray-50 dark:bg-m2-dark text-gray-900 dark:text-white transition-colors duration-300">
       {/* SessionProvider só é necessário aqui (useSession é usado em perfil/equipe) — o site
           público não usa next-auth/react, então fica de fora do layout raiz. */}
-      <SessionProvider>
+      <SessionProviderWrapper>
         <AdminLayoutClient
           user={user}
           menuItems={accessibleMenuItems}
@@ -83,7 +83,7 @@ export default async function GestorLayout({
         >
           {children}
         </AdminLayoutClient>
-      </SessionProvider>
+      </SessionProviderWrapper>
     </div>
   );
 }
