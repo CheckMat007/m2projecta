@@ -2,10 +2,19 @@
 
 import type { Metadata } from 'next';
 
+const pageTitle = 'Política de Privacidade';
+const pageDescription = 'Conheça nossa política de privacidade e como lidamos com as informações coletadas em nosso site.';
+
 export const metadata: Metadata = {
-  title: 'Política de Privacidade | M2 Projecta',
-  description: 'Conheça nossa política de privacidade e como lidamos com as informações coletadas em nosso site.',
+  title: pageTitle,
+  description: pageDescription,
   alternates: { canonical: '/politica-de-privacidade' },
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: '/politica-de-privacidade',
+    type: 'website',
+  },
 };
 
 export default function PoliticaDePrivacidadePage() {

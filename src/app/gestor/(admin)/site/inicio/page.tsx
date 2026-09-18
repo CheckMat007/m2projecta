@@ -1,11 +1,15 @@
 // src/app/gestor/(admin)/site/inicio/page.tsx
 
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/auth';
+import type { User, Permission } from '@prisma/client';
 import { Separator } from "@/components/ui/separator";
 import { getHomePageData } from './actions';
 import { InicioForm } from './_components/InicioForm';
 import { FaqManager } from "./_components/FaqManager";
 import { prisma } from "@/lib/prisma";
-import { 
+import {
   Card, 
   CardContent, 
   CardHeader, 
@@ -22,7 +26,27 @@ import {
   
 } from "lucide-react";
 
+// Helper de permissão
+type UserWithPermissions = User & { permissions: Permission[] };
+const hasPermission = (user: UserWithPermissions | null, permissionName: string): boolean => {
+  if (!user) return false;
+  if (user.role === 'MASTER') return true;
+  return user.permissions?.some(p => p.name === permissionName);
+};
+
 export default async function InicioPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) redirect('/gestor/login');
+
+  const currentUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { permissions: true },
+  });
+
+  if (!hasPermission(currentUser, 'manage_site')) {
+    redirect('/gestor');
+  }
+
   const homeData = await getHomePageData();
   const currentVideoLink = homeData.youtubeVideoIsVertical
     ? `https://www.youtube.com/shorts/${homeData.youtubeVideoId}`

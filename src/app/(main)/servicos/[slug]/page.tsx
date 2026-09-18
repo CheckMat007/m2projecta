@@ -4,35 +4,59 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Metadata, ResolvingMetadata } from "next";
-import * as LucideIcons from "lucide-react"; 
+import * as LucideIcons from "lucide-react";
 import { Service, PortfolioItem } from "@prisma/client";
+import { YouTubeEmbed } from '@next/third-parties/google';
+import { cache } from "react";
+import { JsonLd } from "@/components/JsonLd";
+import { SITE_URL } from "@/lib/site";
+import { breadcrumbSchema } from "@/lib/breadcrumb";
+
+export const revalidate = 3600;
+
+// `cache()` garante que generateMetadata e a página, ao chamarem isto com o mesmo
+// slug, disparem só uma consulta ao banco por requisição (mesmo padrão de
+// portfolio/[slug]/page.tsx e blog/[slug]/page.tsx).
+const getService = cache(async (slug: string): Promise<ServiceWithPortfolio | null> => {
+  const service = await prisma.service.findUnique({
+    where: { slug },
+    include: {
+      portfolioItems: {
+        where: { status: 'PUBLISHED' },
+        orderBy: { createdAt: 'desc' },
+      },
+    },
+  });
+
+  return service;
+});
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const service = await prisma.service.findUnique({
-    where: { slug: params.slug },
-    select: { name: true, shortDescription: true, image: true }
-  });
+  const service = await getService(params.slug);
 
   if (!service) {
     return {
       title: "Serviço não encontrado",
+      robots: { index: false },
     };
   }
 
   const previousImages = (await parent).openGraph?.images || [];
 
   return {
-    title: `${service.name} | M2 Projecta`,
+    title: service.name,
     description: service.shortDescription,
     keywords: [service.name, "serviços drone", "imagens aéreas", "M2 Projecta"],
     alternates: { canonical: `/servicos/${params.slug}` },
     openGraph: {
       title: service.name,
       description: service.shortDescription,
-      images: [service.image, ...previousImages],
+      url: `/servicos/${params.slug}`,
+      type: 'website',
+      images: [{ url: service.image, alt: service.name }, ...previousImages],
     },
   };
 }
@@ -48,23 +72,8 @@ export async function generateStaticParams() {
   }));
 }
 
-async function getServiceDetails(slug: string): Promise<ServiceWithPortfolio | null> {
-  const service = await prisma.service.findUnique({
-    where: { slug: slug },
-    include: {
-      portfolioItems: {
-        where: { status: 'PUBLISHED' },
-        orderBy: { createdAt: 'desc' },
-      },
-    },
-  });
-
-  if (!service) return null;
-  return service;
-}
-
 export default async function ServiceDetailPage({ params }: { params: { slug: string } }) {
-  const service = await getServiceDetails(params.slug);
+  const service = await getService(params.slug);
 
   if (!service) {
     notFound();
@@ -73,8 +82,36 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
   // @ts-expect-error - Acesso dinâmico à biblioteca de ícones
   const IconComponent = LucideIcons[service.icon] || LucideIcons.Building;
 
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${SITE_URL}/servicos/${service.slug}#service`,
+    "name": service.name,
+    "description": service.shortDescription,
+    "image": service.image,
+    "url": `${SITE_URL}/servicos/${service.slug}`,
+    "serviceType": service.name,
+    "provider": { "@id": `${SITE_URL}/#localbusiness` },
+    ...(service.portfolioItems.length > 0 && {
+      "workExample": service.portfolioItems.map((item) => ({
+        "@type": "CreativeWork",
+        "name": item.title,
+        "url": `${SITE_URL}/portfolio/${item.slug}`,
+      })),
+    }),
+  };
+
+  const breadcrumb = breadcrumbSchema([
+    { name: "Início", url: "/" },
+    { name: "Serviços", url: "/servicos" },
+    { name: service.name },
+  ]);
+
   return (
     <>
+      <JsonLd data={serviceSchema} />
+      <JsonLd data={breadcrumb} />
+
       {/* 1. HERO SECTION (Corrigido Padding Mobile) */}
       <section className="relative w-full min-h-[60vh] md:h-[75vh] flex items-center md:items-end pb-16 md:pb-24 bg-[#050505]">
         <div className="absolute inset-0 z-0">
@@ -150,17 +187,8 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
                     <LucideIcons.PlayCircle className="text-m2-green w-6 h-6" aria-hidden="true" />
                     Veja em Ação
                   </h3>
-                  <div className="aspect-video w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a]">
-                    <iframe 
-                      className="w-full h-full"
-                      src={`https://www.youtube.com/embed/${service.videoUrl}`}
-                      title={`Vídeo demonstrativo sobre ${service.name}`}
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                      referrerPolicy="strict-origin-when-cross-origin" 
-                      allowFullScreen
-                      loading="lazy"
-                    ></iframe>
+                  <div className="aspect-video w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a] relative [&_lite-youtube]:w-full [&_lite-youtube]:h-full [&_lite-youtube]:absolute [&_lite-youtube]:top-0 [&_lite-youtube]:left-0">
+                    <YouTubeEmbed videoid={service.videoUrl} params="rel=0&modestbranding=1" />
                   </div>
                 </div>
               )}

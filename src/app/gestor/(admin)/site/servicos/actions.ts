@@ -99,16 +99,22 @@ export async function upsertServiceAction(formData: FormData) {
       });
 
       // Revalida a página antiga e a nova (caso o slug mude)
-      revalidatePath(`/servicos/${currentService.slug}`); 
+      revalidatePath(`/servicos/${currentService.slug}`);
       revalidatePath(`/servicos/${slug}`);
-      
+
       // Revalida as listagens
       revalidatePath('/servicos');
       revalidatePath('/gestor/site/servicos');
-      
+      // O nome/slug do serviço também aparece na home, no menu/rodapé (layout), no
+      // seletor de serviço do formulário de contato e nos filtros do portfólio.
+      revalidatePath('/');
+      revalidatePath('/contato');
+      revalidatePath('/portfolio');
+      revalidatePath('/', 'layout');
+
       return { success: true, message: 'Serviço atualizado com sucesso!' };
-    } 
-    
+    }
+
     // --- MODO CRIAÇÃO ---
     else {
        const existingSlug = await prisma.service.findUnique({ where: { slug } });
@@ -120,6 +126,10 @@ export async function upsertServiceAction(formData: FormData) {
 
        revalidatePath('/servicos');
        revalidatePath('/gestor/site/servicos');
+       revalidatePath('/');
+       revalidatePath('/contato');
+       revalidatePath('/portfolio');
+       revalidatePath('/', 'layout');
        return { success: true, message: 'Serviço criado com sucesso!' };
     }
 
@@ -139,9 +149,13 @@ export async function deleteService(id: string) {
     }
 
     await prisma.service.delete({ where: { id } });
-    
+
     revalidatePath('/gestor/site/servicos');
     revalidatePath('/servicos');
+    revalidatePath('/');
+    revalidatePath('/contato');
+    revalidatePath('/portfolio');
+    revalidatePath('/', 'layout');
     return { success: true, message: 'Serviço excluído com sucesso!' };
   } catch (error) {
     console.error("Erro ao excluir serviço:", error);

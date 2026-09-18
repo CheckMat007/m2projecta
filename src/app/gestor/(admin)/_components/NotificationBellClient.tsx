@@ -32,12 +32,17 @@ export function NotificationBellClient({ initialNotifications, initialUnreadCoun
     }
   };
 
-  const handleNotificationClick = (notification: NotificationWithReadStatus) => {
+  const handleNotificationClick = async (notification: NotificationWithReadStatus) => {
     setSelectedNotification(notification);
-    
+
     if (!notification.isRead) {
       setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, isRead: true } : n));
-      markSingleNotificationAsReadAction(notification.id);
+      const result = await markSingleNotificationAsReadAction(notification.id);
+      if (!result.success) {
+        // Reverte o estado otimista se o servidor não confirmar a leitura
+        setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, isRead: false } : n));
+        toast.error("Erro ao marcar notificação como lida.");
+      }
     }
   };
   

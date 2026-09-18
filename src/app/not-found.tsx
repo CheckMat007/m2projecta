@@ -1,26 +1,27 @@
 // src/app/not-found.tsx
-'use client';
+import Image from 'next/image';
+import { BackButton } from '@/components/BackButton';
+import type { Metadata } from 'next';
 
-import { useRouter } from 'next/navigation';
-import Image from 'next/image'; // Importe o componente Image
-
-// Removemos a definição do componente DroneIcon daqui
+// Componente de servidor (o antigo era 'use client' e por isso não podia exportar
+// metadata — a página 404 herdava o título padrão do layout raiz, igual ao da home).
+// A interatividade (botão "voltar") foi isolada em BackButton.
+export const metadata: Metadata = {
+  title: 'Página não encontrada',
+  robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
-  const router = useRouter();
-
   return (
-    // 1. COR DE FUNDO ATUALIZADA AQUI
     <div className="bg-[#2e2c2c] min-h-screen flex flex-col items-center justify-center text-center p-6 text-white overflow-hidden">
-      
-      {/* 2. IMAGEM SUBSTITUINDO O DRONE SVG */}
+
       <div className="mb-4">
-        <Image 
-          src="/assets/icone.png" // <-- Coloque o caminho para a sua imagem aqui
+        <Image
+          src="/assets/icone.png"
           alt="Ilustração de um drone de busca"
-          width={180} // Ajuste a largura conforme necessário
-          height={180} // Ajuste a altura conforme necessário
-          className="animate-search-float" // Usando a animação de flutuar que já temos
+          width={180}
+          height={180}
+          className="animate-search-float"
         />
       </div>
 
@@ -33,12 +34,9 @@ export default function NotFound() {
         Nosso drone de busca procurou por toda parte, mas não conseguiu encontrar as coordenadas desta página.
       </p>
 
-      <button 
-        onClick={() => router.back()}
-        className="mt-10 bg-m2-green text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-white transition-colors duration-300 transform hover:scale-105 inline-block"
-      >
+      <BackButton className="mt-10 bg-m2-green text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-white transition-colors duration-300 transform hover:scale-105 inline-block">
         Voltar para a página anterior
-      </button>
+      </BackButton>
     </div>
   );
 }

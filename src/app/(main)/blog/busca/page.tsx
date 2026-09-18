@@ -6,14 +6,13 @@ import { redirect } from 'next/navigation';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ArrowLeft, ArrowRight, SearchX } from 'lucide-react';
-import type { Post, Category } from '@prisma/client';
 import type { Metadata } from 'next';
 
 // --- 1. CONFIGURAÇÃO DE SEO ---
-// Em páginas de busca dinâmica, é boa prática bloquear a indexação (noindex) 
+// Em páginas de busca dinâmica, é boa prática bloquear a indexação (noindex)
 // para evitar conteúdo duplicado nos motores de busca.
 export const metadata: Metadata = {
-  title: 'Resultados da Busca | Blog M2 Projecta',
+  title: 'Resultados da Busca | Blog',
   description: 'Resultados da sua pesquisa no blog da M2 Projecta.',
   robots: {
     index: false,
@@ -21,9 +20,17 @@ export const metadata: Metadata = {
   }
 };
 
-type PostCardData = Post & {
+const SEARCH_RESULTS_LIMIT = 30;
+
+type PostCardData = {
+  id: string;
+  slug: string;
+  title: string;
+  seoDescription: string | null;
+  featuredImageUrl: string | null;
+  createdAt: Date;
   author: { name: string | null };
-  categories: Category[];
+  categories: { name: string }[];
 };
 
 // --- 2. COMPONENTE DE CARD SINCRONIZADO ---
@@ -73,6 +80,10 @@ function PostCard({ post }: { post: PostCardData }) {
 
 // --- 3. BUSCA DE DADOS ---
 async function getSearchResults(query: string) {
+  // O filtro `contains` no `content` ainda funciona mesmo sem selecionar esse campo —
+  // ele entra no WHERE da consulta, não no retorno. `take` limita o pior caso (um termo
+  // genérico que bate em boa parte do blog) e `select` evita baixar o HTML completo de
+  // cada post encontrado só para exibir um card.
   const posts = await prisma.post.findMany({
     where: {
       status: 'PUBLISHED',
@@ -83,10 +94,17 @@ async function getSearchResults(query: string) {
       ],
     },
     orderBy: { createdAt: 'desc' },
-    include: {
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      seoDescription: true,
+      featuredImageUrl: true,
+      createdAt: true,
       author: { select: { name: true } },
-      categories: { take: 1 },
+      categories: { select: { name: true }, take: 1 },
     },
+    take: SEARCH_RESULTS_LIMIT,
   });
 
   return posts;
@@ -131,7 +149,7 @@ export default async function SearchPage({
               &quot;{query}&quot;
             </h1>
             <p className="mt-4 md:mt-6 text-gray-400 text-base md:text-lg max-w-2xl mx-auto">
-              Encontramos {posts.length} {posts.length === 1 ? 'artigo' : 'artigos'} com este termo.
+              Encontramos {posts.length}{posts.length === SEARCH_RESULTS_LIMIT ? '+' : ''} {posts.length === 1 ? 'artigo' : 'artigos'} com este termo.
             </p>
           </div>
         </div>
@@ -140,11 +158,14 @@ export default async function SearchPage({
       {/* CONTEÚDO (Grid de Resultados) */}
       <section className="container mx-auto px-4 md:px-6 py-16 md:py-24">
         {posts.length > 0 ? (
+          <>
+          <h2 className="sr-only">Resultados da busca</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>
+          </>
         ) : (
           /* ESTADO VAZIO */
           <div className="text-center py-20 md:py-32 border border-white/5 rounded-3xl bg-[#111] max-w-3xl mx-auto">

@@ -1,18 +1,21 @@
 // src/app/(main)/portfolio/portfolio-client.tsx
 'use client';
 
-import { useState, useRef, useEffect, Suspense } from 'react';
+import { useState, useRef, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, ArrowRight } from 'lucide-react';
-import type { PortfolioItem, Service } from '@prisma/client';
 
 const ITEMS_PER_PAGE = 6;
 
-type PortfolioItemWithService = PortfolioItem & {
-  service: Service | null;
+type PortfolioItemWithService = {
+  id: string;
+  slug: string;
+  title: string;
+  coverImage: string;
+  service: { name: string } | null;
 };
 
 // COMPONENTE INTERNO COM A LÓGICA
@@ -28,14 +31,16 @@ function PortfolioContent({ initialItems, services }: {
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   
   const portfolioRef = useRef<HTMLElement>(null);
-  const categories = ['Todos', ...services.map(s => s.name)];
+  // Memoizado para manter identidade estável entre renders (senão o efeito abaixo,
+  // que depende de 'categories', rodaria de novo a cada render e refaria o scroll).
+  const categories = useMemo(() => ['Todos', ...services.map(s => s.name)], [services]);
 
-  // Efeito para atualizar o filtro caso o usuário navegue pelos botões da página de serviços 
+  // Efeito para atualizar o filtro caso o usuário navegue pelos botões da página de serviços
   // e mude a URL sem recarregar a página inteira
   useEffect(() => {
     if (categoriaUrl && categories.includes(categoriaUrl)) {
       setActiveFilter(categoriaUrl);
-      
+
       // Opcional: fazer o scroll automático direto para a grid quando vier de outra página
       setTimeout(() => {
         if (portfolioRef.current) {
@@ -44,7 +49,7 @@ function PortfolioContent({ initialItems, services }: {
         }
       }, 500); // pequeno delay para garantir a renderização
     }
-  }, [categoriaUrl]);
+  }, [categoriaUrl, categories]);
 
   const filteredItems = activeFilter === 'Todos'
     ? initialItems
@@ -79,6 +84,7 @@ function PortfolioContent({ initialItems, services }: {
             src="/assets/hero-image.JPG"
             alt="Vista aérea panorâmica de um projeto da M2 Projecta"
             fill
+            sizes="100vw"
             className="object-cover opacity-60"
             priority
           />

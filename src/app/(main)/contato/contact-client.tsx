@@ -1,25 +1,38 @@
 // src/app/(main)/contato/contact-client.tsx
 'use client'; 
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { FaInstagram, FaEnvelope, FaWhatsapp, FaMapMarkerAlt, FaTiktok } from 'react-icons/fa';
 import InputMask from 'react-input-mask';
-import { Header } from '@/components/layout/Header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import type { Service } from '@prisma/client';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { RECAPTCHA_SITE_KEY } from '@/lib/site';
 
-export default function ContactClientPage({ services }: { services: Service[] }) {
+// O widget do reCAPTCHA (iframe + JS do Google) só é necessário perto do envio do
+// formulário — carregado em um chunk separado em vez de bloquear o bundle inicial da página.
+// (next/dynamic não repassa ref para o componente carregado, então resetamos o widget
+// trocando sua `key` — o que força o React a remontá-lo do zero — em vez de chamar reset()).
+const ReCAPTCHA = dynamic(() => import('react-google-recaptcha'), {
+  ssr: false,
+  loading: () => <div className="h-[78px] w-[304px] rounded-md bg-white/5 animate-pulse" />,
+});
+
+type ContactService = { id: string; name: string };
+
+export default function ContactClientPage({ services }: { services: ContactService[] }) {
   const [messageLength, setMessageLength] = useState(0);
-  const [service, setService] = useState(""); 
+  const [service, setService] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estados para o Captcha
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const [recaptchaKey, setRecaptchaKey] = useState(0);
+  const resetRecaptcha = () => {
+    setRecaptchaToken(null);
+    setRecaptchaKey(k => k + 1);
+  };
 
   const [formStatus, setFormStatus] = useState({
     submitted: false,
@@ -52,13 +65,11 @@ export default function ContactClientPage({ services }: { services: Service[] })
         setService("");
         
         // Resetar Captcha
-        recaptchaRef.current?.reset();
-        setRecaptchaToken(null);
+        resetRecaptcha();
       } else {
         const responseData = await response.json();
-        
-        recaptchaRef.current?.reset();
-        setRecaptchaToken(null);
+
+        resetRecaptcha();
 
         if (responseData.errors) {
             setFormStatus({ submitted: true, success: false, message: responseData.errors.map((error: { message: string }) => error.message).join(', ') });
@@ -70,17 +81,14 @@ export default function ContactClientPage({ services }: { services: Service[] })
       console.error("Erro de rede ao enviar formulário:", error);
       setFormStatus({ submitted: true, success: false, message: 'Ocorreu um erro de rede. Verifique sua conexão e tente novamente.' });
       
-      recaptchaRef.current?.reset();
-      setRecaptchaToken(null);
+      resetRecaptcha();
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <main className="w-full max-w-[100vw] overflow-x-hidden bg-[#050505] min-h-screen">
-      <Header services={services} />
-
+    <div className="w-full max-w-[100vw] overflow-x-hidden bg-[#050505] min-h-screen">
       {/* HERO SECTION DE CONTATO */}
       <section className="relative w-full pb-10 bg-black overflow-hidden flex flex-col items-center justify-center text-center px-4 pt-28 md:pt-32">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[400px] md:w-[700px] md:h-[700px] bg-m2-green/10 blur-[120px] md:blur-[150px] rounded-full pointer-events-none" aria-hidden="true" />
@@ -101,7 +109,7 @@ export default function ContactClientPage({ services }: { services: Service[] })
             {/* Lado Esquerdo: Infos */}
             <div className="text-center md:text-left flex flex-col h-full space-y-8">
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-4 uppercase tracking-wide">Canais de Atendimento</h3>
+                  <h2 className="text-xl font-bold text-white mb-4 uppercase tracking-wide">Canais de Atendimento</h2>
                   <div className="space-y-4">
                       <a href="mailto:contato@m2projecta.com.br" className="flex items-center justify-center md:justify-start group gap-3">
                         <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-m2-green/20 transition-colors">
@@ -119,7 +127,7 @@ export default function ContactClientPage({ services }: { services: Service[] })
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-4 uppercase tracking-wide">Siga a M2</h3>
+                  <h2 className="text-xl font-bold text-white mb-4 uppercase tracking-wide">Siga a M2</h2>
                   <div className="flex items-center justify-center md:justify-start gap-4">
                       <a href="https://www.instagram.com/m2projecta/" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-m2-green hover:border-m2-green hover:bg-m2-green/10 transition-all">
                           <FaInstagram className="h-6 w-6" />
@@ -131,7 +139,7 @@ export default function ContactClientPage({ services }: { services: Service[] })
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-4 uppercase tracking-wide">Localização</h3>
+                  <h2 className="text-xl font-bold text-white mb-4 uppercase tracking-wide">Localização</h2>
                   <div className="flex flex-col items-center md:items-start">
                       <div className="flex items-center mb-4 gap-3">
                           <FaMapMarkerAlt className="text-m2-green h-5 w-5 flex-shrink-0" />
@@ -219,7 +227,7 @@ export default function ContactClientPage({ services }: { services: Service[] })
                 <div className="flex justify-center py-2">
                     {RECAPTCHA_SITE_KEY ? (
                       <ReCAPTCHA
-                          ref={recaptchaRef}
+                          key={recaptchaKey}
                           sitekey={RECAPTCHA_SITE_KEY}
                           onChange={(token) => setRecaptchaToken(token)}
                           theme="dark"
@@ -249,6 +257,6 @@ export default function ContactClientPage({ services }: { services: Service[] })
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

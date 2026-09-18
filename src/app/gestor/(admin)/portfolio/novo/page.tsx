@@ -1,8 +1,20 @@
 // src/app/gestor/(admin)/portfolio/novo/page.tsx
 // Este é o Componente de Servidor
 
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/auth';
+import type { User, Permission } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { NovoPortfolioItemForm } from './_components/NovoPortfolioItemForm';
+
+// Helper de permissão
+type UserWithPermissions = User & { permissions: Permission[] };
+const hasPermission = (user: UserWithPermissions | null, permissionName: string): boolean => {
+  if (!user) return false;
+  if (user.role === 'MASTER') return true;
+  return user.permissions?.some(p => p.name === permissionName);
+};
 
 const MAX_FEATURED_ITEMS = 10;
 
@@ -20,6 +32,18 @@ async function getFormData() {
 }
 
 export default async function NovoPortfolioItemPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) redirect('/gestor/login');
+
+  const currentUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { permissions: true },
+  });
+
+  if (!hasPermission(currentUser, 'manage_portfolio')) {
+    redirect('/gestor');
+  }
+
   const { featuredCount, services } = await getFormData();
 
   // Renderiza o formulário (cliente) e passa todos os dados necessários
