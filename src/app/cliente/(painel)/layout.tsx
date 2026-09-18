@@ -1,7 +1,6 @@
 // src/app/cliente/(painel)/layout.tsx
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
-import { SessionProvider } from 'next-auth/react';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { Toaster } from "@/components/ui/sonner";
@@ -41,18 +40,15 @@ export default async function ClientPanelLayout({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-m2-dark text-gray-900 dark:text-white transition-colors duration-300">
-      {/* Mesmo motivo do painel gestor: SessionProvider só é preciso onde useSession() é usado. */}
-      <SessionProvider>
-        <ClientLayoutClient
-          user={userDisplay}
-          initialNotifications={notifications}
-          initialUnreadCount={unreadCount}
-        >
-          {children}
-        </ClientLayoutClient>
-        {/* theme="dark" removido para que o Toaster leia a preferência do next-themes, igual ao painel gestor */}
-        <Toaster richColors />
-      </SessionProvider>
+      <ClientLayoutClient
+        user={userDisplay}
+        initialNotifications={notifications}
+        initialUnreadCount={unreadCount}
+      >
+        {children}
+      </ClientLayoutClient>
+      {/* theme="dark" removido para que o Toaster leia a preferência do next-themes, igual ao painel gestor */}
+      <Toaster richColors />
     </div>
   );
 }
