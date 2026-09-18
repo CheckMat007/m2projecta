@@ -6,30 +6,66 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Input } from '@/components/ui/input';
 import { Search, ArrowRight, Rss } from 'lucide-react';
-import type { Post, Category } from '@prisma/client';
 import type { Metadata } from "next";
 
+const pageTitle = 'Blog | Drones, Inspeções e Imagens Aéreas';
+const pageDescription = 'Artigos sobre drones, inspeções de obra, mercado imobiliário e produção audiovisual aérea. Dicas e novidades da M2 Projecta no Vale do Paraíba.';
+
 export const metadata: Metadata = {
-  title: 'Blog | M2 Projecta',
-  description: 'Fique atualizado sobre notícias e informações importantes sobre drones e imagens aéreas.',
+  title: pageTitle,
+  description: pageDescription,
   alternates: { canonical: '/blog' },
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: '/blog',
+    type: 'website',
+  },
 };
 
-type PostCardData = Post & {
+export const revalidate = 3600;
+
+// Só os campos que os cards abaixo realmente renderizam — evita baixar o corpo HTML
+// completo do post (campo `content`, que pode ser grande) para uma listagem.
+const postCardSelect = {
+  id: true,
+  slug: true,
+  title: true,
+  seoDescription: true,
+  featuredImageUrl: true,
+  createdAt: true,
+  estimatedReadingTime: true,
+  author: { select: { name: true } },
+  categories: { select: { name: true }, take: 1 },
+} as const;
+
+type PostCardData = {
+  id: string;
+  slug: string;
+  title: string;
+  seoDescription: string | null;
+  featuredImageUrl: string | null;
+  createdAt: Date;
+  estimatedReadingTime: number | null;
   author: { name: string | null };
-  categories: Category[];
+  categories: { name: string }[];
 };
 
 // --- DATA FETCHING ---
 async function getBlogData() {
-  const featuredPost = await prisma.post.findFirst({
-    where: { status: 'PUBLISHED', isFeatured: true },
-    orderBy: { createdAt: 'desc' },
-    include: {
-      author: { select: { name: true } },
-      categories: { take: 1 },
-    }
-  });
+  // 'categories' não depende de 'featuredPost', então roda em paralelo com ele;
+  // 'regularPosts' precisa do id do destaque para excluí-lo, então só pode rodar depois.
+  const [featuredPost, categories] = await Promise.all([
+    prisma.post.findFirst({
+      where: { status: 'PUBLISHED', isFeatured: true },
+      orderBy: { createdAt: 'desc' },
+      select: postCardSelect,
+    }),
+    prisma.category.findMany({
+      where: { posts: { some: { status: 'PUBLISHED' } } },
+      orderBy: { name: 'asc' }
+    }),
+  ]);
 
   const regularPosts = await prisma.post.findMany({
     where: {
@@ -37,16 +73,8 @@ async function getBlogData() {
       id: featuredPost ? { not: featuredPost.id } : undefined,
     },
     orderBy: { createdAt: 'desc' },
-    include: {
-      author: { select: { name: true } },
-      categories: { take: 1 },
-    },
+    select: postCardSelect,
     take: 6,
-  });
-
-  const categories = await prisma.category.findMany({
-    where: { posts: { some: { status: 'PUBLISHED' } } },
-    orderBy: { name: 'asc' }
   });
 
   return { featuredPost, regularPosts, categories };

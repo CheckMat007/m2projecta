@@ -6,31 +6,58 @@ import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ArrowLeft, ArrowRight, FolderSearch } from 'lucide-react';
-import type { Post, Category } from '@prisma/client';
 import type { Metadata } from 'next';
+import { cache } from 'react';
+import { JsonLd } from '@/components/JsonLd';
+import { breadcrumbSchema } from '@/lib/breadcrumb';
 
-type PostCardData = Post & {
+type PostCardData = {
+  id: string;
+  slug: string;
+  title: string;
+  seoDescription: string | null;
+  featuredImageUrl: string | null;
+  createdAt: Date;
   author: { name: string | null };
-  categories: Category[];
+  categories: { name: string }[];
 };
+
+export const revalidate = 3600;
+
+// `cache()` garante que generateMetadata e a página, ao chamarem isto com o mesmo
+// slug, disparem só uma consulta ao banco por requisição.
+const getCategory = cache(async (slug: string) => {
+  return prisma.category.findUnique({ where: { slug } });
+});
+
+// Sem generateStaticParams de propósito: pré-renderar todas as categorias (mais todas
+// as tags e posts) de uma vez no build estourou o limite de conexões do Postgres do
+// Supabase. `revalidate` acima + cache() abaixo já dão ISR — a página só é gerada sob
+// demanda, na primeira visita a cada categoria.
 
 // --- 1. SEO DINÂMICO PARA A CATEGORIA ---
 export async function generateMetadata(
   { params }: { params: { slug: string } },
 ): Promise<Metadata> {
-  const category = await prisma.category.findUnique({
-    where: { slug: params.slug },
-    select: { name: true }
-  });
+  const category = await getCategory(params.slug);
 
   if (!category) {
-    return { title: "Categoria não encontrada" };
+    return { title: "Categoria não encontrada", robots: { index: false } };
   }
 
+  const pageTitle = `${category.name} | Blog`;
+  const pageDescription = `Navegue por todos os artigos e novidades sobre ${category.name} no blog da M2 Projecta.`;
+
   return {
-    title: `${category.name} | Blog M2 Projecta`,
-    description: `Navegue por todos os artigos e novidades sobre ${category.name} no blog da M2 Projecta.`,
+    title: pageTitle,
+    description: pageDescription,
     alternates: { canonical: `/blog/categoria/${params.slug}` },
+    openGraph: {
+      title: pageTitle,
+      description: pageDescription,
+      url: `/blog/categoria/${params.slug}`,
+      type: 'website',
+    },
   };
 }
 
@@ -81,27 +108,33 @@ function PostCard({ post }: { post: PostCardData }) {
 
 // --- 3. BUSCA DE DADOS ---
 async function getCategoryData(slug: string) {
-  const category = await prisma.category.findUnique({
-    where: { slug },
-  });
+  // Independentes entre si (ambas só precisam do slug da rota) — rodam em paralelo.
+  const [category, posts] = await Promise.all([
+    getCategory(slug),
+    prisma.post.findMany({
+      where: {
+        status: 'PUBLISHED',
+        categories: {
+          some: { slug },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        seoDescription: true,
+        featuredImageUrl: true,
+        createdAt: true,
+        author: { select: { name: true } },
+        categories: { select: { name: true }, take: 1 },
+      },
+    }),
+  ]);
 
   if (!category) {
     return { category: null, posts: [] };
   }
-
-  const posts = await prisma.post.findMany({
-    where: {
-      status: 'PUBLISHED',
-      categories: {
-        some: { slug },
-      },
-    },
-    orderBy: { createdAt: 'desc' },
-    include: {
-      author: { select: { name: true } },
-      categories: { take: 1 },
-    },
-  });
 
   return { category, posts };
 }
@@ -114,9 +147,16 @@ export default async function CategoryArchivePage({ params }: { params: { slug: 
     notFound();
   }
 
+  const breadcrumb = breadcrumbSchema([
+    { name: "Início", url: "/" },
+    { name: "Blog", url: "/blog" },
+    { name: category.name },
+  ]);
+
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden bg-[#050505] min-h-screen">
-      
+      <JsonLd data={breadcrumb} />
+
       {/* HEADER DA CATEGORIA */}
       <section className="relative w-full pt-32 pb-16 md:pt-48 md:pb-24 bg-black overflow-hidden flex items-center justify-center text-center">
         {/* Glow de fundo */}
@@ -148,11 +188,14 @@ export default async function CategoryArchivePage({ params }: { params: { slug: 
       {/* CONTEÚDO (Grid de Posts) */}
       <section className="container mx-auto px-4 md:px-6 py-16 md:py-24">
         {posts.length > 0 ? (
+          <>
+          <h2 className="sr-only">Artigos em {category.name}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>
+          </>
         ) : (
           /* ESTADO VAZIO */
           <div className="text-center py-20 md:py-32 border border-white/5 rounded-3xl bg-[#111] max-w-3xl mx-auto">

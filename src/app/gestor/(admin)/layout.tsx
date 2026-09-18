@@ -2,6 +2,7 @@
 // Este é um Server Component.
 
 import { getServerSession } from 'next-auth';
+import { SessionProvider } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -71,14 +72,18 @@ export default async function GestorLayout({
   return (
     // ALTERAÇÃO AQUI: bg-gray-50 para light e dark:bg-m2-dark (sua cor original) para dark.
     <div className="min-h-screen bg-gray-50 dark:bg-m2-dark text-gray-900 dark:text-white transition-colors duration-300">
-      <AdminLayoutClient
-        user={user}
-        menuItems={accessibleMenuItems}
-        initialNotifications={notifications}
-        initialUnreadCount={unreadCount}
-      >
-        {children}
-      </AdminLayoutClient>
+      {/* SessionProvider só é necessário aqui (useSession é usado em perfil/equipe) — o site
+          público não usa next-auth/react, então fica de fora do layout raiz. */}
+      <SessionProvider>
+        <AdminLayoutClient
+          user={user}
+          menuItems={accessibleMenuItems}
+          initialNotifications={notifications}
+          initialUnreadCount={unreadCount}
+        >
+          {children}
+        </AdminLayoutClient>
+      </SessionProvider>
     </div>
   );
 }

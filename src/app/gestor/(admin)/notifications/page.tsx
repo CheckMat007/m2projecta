@@ -65,14 +65,20 @@ export default async function NotificationsPage() {
 
   const allUsers = await prisma.user.findMany({
     orderBy: { name: 'asc' },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, role: true },
   });
+
+  // 'manage_notifications' (checado acima) só controla o acesso a esta página/lista.
+  // Enviar uma notificação exige a permissão separada 'send_notifications' — o formulário
+  // de envio só é exibido se o usuário também tiver essa permissão.
+  const canSend = hasPermission(currentUser, 'send_notifications');
 
   return (
     <NotificationsClientPage
       initialNotifications={notifications}
       allUsers={allUsers}
       currentUser={currentUser}
+      canSend={canSend}
     />
   );
 }

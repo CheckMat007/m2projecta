@@ -1,5 +1,6 @@
 // src/components/GoogleReviews.tsx
 import { prisma } from '@/lib/prisma';
+import { getGoogleReviewStats } from '@/lib/reviews';
 import Image from 'next/image'; // <--- Import obrigatório
 
 // Helper para renderizar as estrelas
@@ -30,18 +31,23 @@ function StarRating({ rating, size = "sm" }: { rating: number, size?: "sm" | "lg
 }
 
 export default async function GoogleReviews() {
-  const reviews = await prisma.googleReview.findMany({
-    orderBy: { rating: 'desc' },
-    take: 5, 
-  });
+  // As duas consultas são independentes (uma lista os 5 melhores depoimentos, a outra
+  // agrega a média/contagem de TODAS as avaliações) — rodam em paralelo, e a agregação é
+  // compartilhada (via cache()) com o JSON-LD do layout, então a nota exibida aqui é
+  // sempre a mesma nota real declarada no dado estruturado, não uma média só dos 5 exibidos.
+  const [reviews, stats] = await Promise.all([
+    prisma.googleReview.findMany({
+      orderBy: { rating: 'desc' },
+      take: 5,
+    }),
+    getGoogleReviewStats(),
+  ]);
 
-  if (reviews.length === 0) {
+  if (reviews.length === 0 || !stats._avg.rating) {
     return null;
   }
 
-  const averageRating = (
-    reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
-  ).toFixed(1);
+  const averageRating = stats._avg.rating.toFixed(1);
 
   return (
     <section className="py-20 bg-black relative border-t border-gray-900">

@@ -1,25 +1,36 @@
 // src/app/(main)/blog/_components/PostInteraction.tsx
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
-import { voteOnPostAction } from '../actions';
+import { voteOnPostAction, getUserVoteForPostAction } from '../actions';
 import { toast } from 'sonner';
 import { VoteType } from '@prisma/client';
 
 interface PostInteractionProps {
   postId: string;
+  slug: string;
   initialLikes: number;
   initialDislikes: number;
-  userVote?: VoteType | null;
 }
 
-export function PostInteraction({ postId, initialLikes, initialDislikes, userVote }: PostInteractionProps) {
+export function PostInteraction({ postId, slug, initialLikes, initialDislikes }: PostInteractionProps) {
   const [likes, setLikes] = useState(initialLikes);
   const [dislikes, setDislikes] = useState(initialDislikes);
-  const [currentVote, setCurrentVote] = useState(userVote);
+  const [currentVote, setCurrentVote] = useState<VoteType | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // O voto do visitante atual é pessoal (depende de sessão/cookie), então não pode
+  // vir do HTML estático da página — buscamos após montar, só para destacar o botão
+  // certo (as contagens já vêm corretas do servidor).
+  useEffect(() => {
+    let active = true;
+    getUserVoteForPostAction(postId).then(vote => {
+      if (active) setCurrentVote(vote);
+    });
+    return () => { active = false; };
+  }, [postId]);
 
   const handleVote = (voteType: VoteType) => {
     // Guarda o estado imediatamente antes deste clique (não o estado do carregamento
@@ -57,7 +68,7 @@ export function PostInteraction({ postId, initialLikes, initialDislikes, userVot
       setCurrentVote(newVote);
       
       // Chama a Server Action para salvar a mudança no banco
-      const result = await voteOnPostAction({ postId, voteType });
+      const result = await voteOnPostAction({ postId, voteType, slug });
       if (!result.success) {
         // Se a action falhar, reverte a UI só até antes deste clique (não até o
         // carregamento da página, o que apagaria votos anteriores já salvos com sucesso)

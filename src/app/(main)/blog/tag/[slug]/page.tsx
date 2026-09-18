@@ -6,32 +6,59 @@ import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ArrowLeft, ArrowRight, Hash } from 'lucide-react';
-import type { Post, Category } from '@prisma/client';
 import type { Metadata } from 'next';
+import { cache } from 'react';
+import { JsonLd } from '@/components/JsonLd';
+import { breadcrumbSchema } from '@/lib/breadcrumb';
 
-type PostCardData = Post & {
+type PostCardData = {
+  id: string;
+  slug: string;
+  title: string;
+  seoDescription: string | null;
+  featuredImageUrl: string | null;
+  createdAt: Date;
   author: { name: string | null };
-  categories: Category[];
+  categories: { name: string }[];
 };
+
+export const revalidate = 3600;
+
+// `cache()` garante que generateMetadata e a página, ao chamarem isto com o mesmo
+// slug, disparem só uma consulta ao banco por requisição.
+const getTag = cache(async (slug: string) => {
+  return prisma.tag.findUnique({ where: { slug } });
+});
+
+// Sem generateStaticParams de propósito: pré-renderar todas as tags (mais todas as
+// categorias e posts) de uma vez no build estourou o limite de conexões do Postgres do
+// Supabase. `revalidate` acima + cache() abaixo já dão ISR — a página só é gerada sob
+// demanda, na primeira visita a cada tag.
 
 // --- 1. SEO DINÂMICO PARA A TAG ---
 export async function generateMetadata(
   { params }: { params: { slug: string } },
-  
+
 ): Promise<Metadata> {
-  const tag = await prisma.tag.findUnique({
-    where: { slug: params.slug },
-    select: { name: true }
-  });
+  const tag = await getTag(params.slug);
 
   if (!tag) {
-    return { title: "Tag não encontrada" };
+    return { title: "Tag não encontrada", robots: { index: false } };
   }
 
+  const pageTitle = `Tag: #${tag.name} | Blog`;
+  const pageDescription = `Navegue por todos os artigos, cases e novidades marcados com a tag #${tag.name} no blog da M2 Projecta.`;
+
   return {
-    title: `Tag: #${tag.name} | Blog M2 Projecta`,
-    description: `Navegue por todos os artigos, cases e novidades marcados com a tag #${tag.name} no blog da M2 Projecta.`,
+    title: pageTitle,
+    description: pageDescription,
     alternates: { canonical: `/blog/tag/${params.slug}` },
+    openGraph: {
+      title: pageTitle,
+      description: pageDescription,
+      url: `/blog/tag/${params.slug}`,
+      type: 'website',
+    },
   };
 }
 
@@ -82,27 +109,33 @@ function PostCard({ post }: { post: PostCardData }) {
 
 // --- 3. BUSCA DE DADOS ---
 async function getTagData(slug: string) {
-  const tag = await prisma.tag.findUnique({
-    where: { slug },
-  });
+  // Independentes entre si (ambas só precisam do slug da rota) — rodam em paralelo.
+  const [tag, posts] = await Promise.all([
+    getTag(slug),
+    prisma.post.findMany({
+      where: {
+        status: 'PUBLISHED',
+        tags: {
+          some: { slug },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        seoDescription: true,
+        featuredImageUrl: true,
+        createdAt: true,
+        author: { select: { name: true } },
+        categories: { select: { name: true }, take: 1 },
+      },
+    }),
+  ]);
 
   if (!tag) {
     return { tag: null, posts: [] };
   }
-
-  const posts = await prisma.post.findMany({
-    where: {
-      status: 'PUBLISHED',
-      tags: {
-        some: { slug },
-      },
-    },
-    orderBy: { createdAt: 'desc' },
-    include: {
-      author: { select: { name: true } },
-      categories: { take: 1 },
-    },
-  });
 
   return { tag, posts };
 }
@@ -115,9 +148,16 @@ export default async function TagArchivePage({ params }: { params: { slug: strin
     notFound();
   }
 
+  const breadcrumb = breadcrumbSchema([
+    { name: "Início", url: "/" },
+    { name: "Blog", url: "/blog" },
+    { name: `#${tag.name}` },
+  ]);
+
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden bg-[#050505] min-h-screen">
-      
+      <JsonLd data={breadcrumb} />
+
       {/* HEADER DA TAG */}
       <section className="relative w-full pt-32 pb-16 md:pt-48 md:pb-24 bg-black overflow-hidden flex items-center justify-center text-center">
         {/* Glow de fundo */}
@@ -149,11 +189,14 @@ export default async function TagArchivePage({ params }: { params: { slug: strin
       {/* CONTEÚDO (Grid de Posts) */}
       <section className="container mx-auto px-4 md:px-6 py-16 md:py-24">
         {posts.length > 0 ? (
+          <>
+          <h2 className="sr-only">Artigos com a tag #{tag.name}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>
+          </>
         ) : (
           /* ESTADO VAZIO */
           <div className="text-center py-20 md:py-32 border border-white/5 rounded-3xl bg-[#111] max-w-3xl mx-auto">

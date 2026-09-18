@@ -2,7 +2,7 @@
 // Este é o novo Componente de Servidor
 
 import { prisma } from '@/lib/prisma';
-import HomeClientPage from './home-client';
+import HomeContent from './home-content';
 import GoogleReviews from '@/components/GoogleReviews';
 import type { Metadata } from 'next';
 
@@ -10,35 +10,41 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
 };
 
+export const revalidate = 3600;
+
 // Esta função busca todos os dados para a página inicial
 async function getHomePageData() {
-  // 1. Busca o ID do vídeo da Hero
-  const homeData = await prisma.homePage.findFirst();
-  
-  // 2. Busca os itens de portfólio, incluindo o serviço relacionado
-  const portfolioItems = await prisma.portfolioItem.findMany({
-    where: { isFeatured: true, status: 'PUBLISHED' },
-    take: 5,
-    orderBy: { createdAt: 'desc' },
-    include: { service: true }, // Inclui os dados do serviço
-  });
+  // As 4 consultas abaixo são independentes entre si — rodam em paralelo em vez de
+  // uma esperando a outra terminar. (O antigo 'Testimonial' model foi removido daqui:
+  // a home exibe GoogleReviews hoje, não depoimentos manuais — a consulta e a
+  // transformação continuavam rodando em todo request só para um resultado nunca
+  // renderizado por HomeContent. O CMS de depoimentos em /gestor/site/inicio continua
+  // intacto, só a busca morta na home pública foi removida.)
+  const [homeData, portfolioItems, faqItems, services] = await Promise.all([
+    // 1. ID do vídeo da Hero
+    prisma.homePage.findFirst(),
 
-  // 3. Busca os depoimentos
-  const testimonials = await prisma.testimonial.findMany({
-    take: 5,
-    orderBy: { order: 'asc' },
-  });
+    // 2. Itens de portfólio, incluindo o serviço relacionado
+    prisma.portfolioItem.findMany({
+      where: { isFeatured: true, status: 'PUBLISHED' },
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      include: { service: { select: { name: true } } },
+    }),
 
-  // 4. Busca os itens do FAQ
-  const faqItems = await prisma.faqItem.findMany({
-    take: 8,
-    orderBy: { order: 'asc' },
-  });
+    // 3. Itens do FAQ
+    prisma.faqItem.findMany({
+      take: 8,
+      orderBy: { order: 'asc' },
+    }),
 
-  // 5. Busca todos os serviços para os cards
-  const services = await prisma.service.findMany({
-    orderBy: { createdAt: 'asc' },
-  });
+    // 4. Serviços para os cards (só os campos realmente usados na home)
+    prisma.service.findMany({
+      select: { name: true, slug: true, shortDescription: true, icon: true },
+      orderBy: { createdAt: 'asc' },
+      take: 5,
+    }),
+  ]);
 
   // Formata os dados para o formato que o componente cliente espera
   const formattedPortfolio = portfolioItems.map(item => ({
@@ -50,35 +56,25 @@ async function getHomePageData() {
     backgroundImage: item.coverImage,
   }));
 
-  const formattedTestimonials = testimonials.map(item => ({
-    quote: { start: item.quote, highlight: item.highlight || '', end: '' },
-    name: item.name,
-    company: item.company,
-    image: item.image || '/assets/testimonials/exemplo1.jpg',
-    backgroundImage: portfolioItems.find(p => p.service?.name === item.company)?.coverImage || '/assets/portfolio/dutra.JPG',
-  }));
-  
   return {
     heroVideoId: homeData?.youtubeVideoId || 'xk4lN3K5jzg',
     heroVideoIsVertical: homeData?.youtubeVideoIsVertical || false,
     portfolioItems: formattedPortfolio,
-    testimonials: formattedTestimonials,
     faqItems,
     services, // Passa a lista de serviços completa
   };
 }
 
 export default async function Page() {
-  const { heroVideoId, heroVideoIsVertical, portfolioItems, testimonials, faqItems, services } = await getHomePageData();
+  const { heroVideoId, heroVideoIsVertical, portfolioItems, faqItems, services } = await getHomePageData();
 
   return (
-    <HomeClientPage
+    <HomeContent
       heroVideoId={heroVideoId}
       heroVideoIsVertical={heroVideoIsVertical}
       portfolioItems={portfolioItems}
-      testimonials={testimonials}
       faqItems={faqItems}
-      services={services} 
+      services={services}
       googleReviews={<GoogleReviews />}
     />
   );

@@ -61,7 +61,6 @@ export const PortfolioGallerySlider = memo(function PortfolioGallerySlider({ ima
                 fill
                 sizes="(max-width: 1024px) 100vw, 66vw"
                 className="object-cover"
-                priority={index === 0}
               />
             </div>
           </SwiperSlide>

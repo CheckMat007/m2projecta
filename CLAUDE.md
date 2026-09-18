@@ -87,7 +87,7 @@ YouTube links (hero video on `HomePage`, video on `PortfolioItem`) are stored as
 
 ### Swiper carousels
 
-Multiple public-site carousels (`PortfolioSlider`, `TestimonialsSlider`, `PortfolioGallerySlider`, home hero, etc.) all use `swiper/react` with a shared custom-styled chrome defined once in `src/app/globals.css` (`.swiper-button-custom`, `.swiper-pagination-capsule`) rather than Swiper's default CSS skin. Each slider component supplies its own scoped `nextEl`/`prevEl`/pagination `el` class names and, if it needs positioning different from the shared defaults, adds a small scoped override block in `globals.css`. Arrows are globally hidden under 767px (`globals.css`) in favor of touch swipe + pagination dots — this is the established mobile-optimization pattern, don't re-implement it per component.
+Multiple public-site carousels (`PortfolioSlider`, `PortfolioGallerySlider`, home hero, etc.) all use `swiper/react` with a shared custom-styled chrome defined once in `src/app/globals.css` (`.swiper-button-custom`, `.swiper-pagination-capsule`) rather than Swiper's default CSS skin. Each slider component supplies its own scoped `nextEl`/`prevEl`/pagination `el` class names and, if it needs positioning different from the shared defaults, adds a small scoped override block in `globals.css`. Arrows are globally hidden under 767px (`globals.css`) in favor of touch swipe + pagination dots — this is the established mobile-optimization pattern, don't re-implement it per component.
 
 ### UI components
 

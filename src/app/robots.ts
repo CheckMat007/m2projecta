@@ -1,9 +1,10 @@
 // src/app/robots.ts
 
 import { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/site';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://www.m2projecta.com.br';
+  const baseUrl = SITE_URL;
 
   return {
     rules: {

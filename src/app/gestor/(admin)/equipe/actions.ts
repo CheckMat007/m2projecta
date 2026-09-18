@@ -167,6 +167,17 @@ export async function deleteUserAction(userId: string) {
       return { success: false, message: 'Você não pode deletar a si mesmo.' };
     }
 
+    // Post.authorId e Comment.authorId são "onDelete: Cascade" no schema, então excluir
+    // este usuário apagaria silenciosamente todo o conteúdo que ele publicou. Bloqueamos
+    // e pedimos para transferir a autoria antes, em vez de perder posts/comentários.
+    const authoredPostsCount = await prisma.post.count({ where: { authorId: userId } });
+    if (authoredPostsCount > 0) {
+      return {
+        success: false,
+        message: `Este usuário é autor de ${authoredPostsCount} post(s) do blog. Transfira a autoria desses posts para outro usuário antes de excluí-lo.`,
+      };
+    }
+
     await prisma.user.delete({ where: { id: userId } });
     
     revalidatePath('/gestor/equipe');

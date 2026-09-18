@@ -36,13 +36,16 @@ async function canSendNotifications() {
 }
 
 // --- SCHEMA DE VALIDAÇÃO (Zod) ---
+// 'audience' substitui o antigo booleano 'isBroadcast' isolado, que só permitia
+// "todo mundo" (na prática só a equipe via bell, já que o portal do cliente
+// bloqueia broadcasts) ou uma lista manual sem distinção de tipo de usuário.
 const sendNotificationSchema = z.object({
   title: z.string().min(3, "O título deve ter no mínimo 3 caracteres."),
   message: z.string().min(5, "A mensagem deve ter no mínimo 5 caracteres."),
-  isBroadcast: z.boolean(),
+  audience: z.enum(['STAFF', 'CLIENTS', 'ALL', 'CUSTOM']),
   recipientIds: z.array(z.string()).optional(),
-}).refine(data => !data.isBroadcast ? data.recipientIds && data.recipientIds.length > 0 : true, {
-  message: "Se a notificação não for para todos, você deve selecionar ao menos um destinatário.",
+}).refine(data => data.audience !== 'CUSTOM' ? true : !!data.recipientIds && data.recipientIds.length > 0, {
+  message: "Selecione ao menos um destinatário.",
   path: ["recipientIds"],
 });
 
@@ -59,8 +62,8 @@ export async function sendNotificationAction(formData: FormData) {
     const data = {
       title: formData.get('title'),
       message: formData.get('message'),
-      isBroadcast: formData.get('isBroadcast') === 'true',
-      recipientIds: recipientIds,
+      audience: formData.get('audience'),
+      recipientIds,
     };
 
     const validatedFields = sendNotificationSchema.safeParse(data);
@@ -68,7 +71,43 @@ export async function sendNotificationAction(formData: FormData) {
       return { success: false, message: validatedFields.error.issues[0].message };
     }
 
-    const { title, message, isBroadcast } = validatedFields.data;
+    const { title, message, audience } = validatedFields.data;
+    const senderId = session.user.id;
+
+    // 'STAFF' continua usando isBroadcast de verdade: fica visível para qualquer
+    // usuário não-CLIENT, inclusive os que forem cadastrados depois do envio.
+    // 'CLIENTS' e 'ALL' precisam de destinatários explícitos, porque o portal do
+    // cliente nunca exibe notificações broadcast (ver getClientNotifications).
+    // 'CUSTOM' usa a seleção manual, revalidada contra o banco por segurança.
+    let isBroadcast = false;
+    let finalRecipientIds: string[] = [];
+
+    if (audience === 'STAFF') {
+      isBroadcast = true;
+    } else if (audience === 'CLIENTS') {
+      const clients = await prisma.user.findMany({
+        where: { role: 'CLIENT' },
+        select: { id: true },
+      });
+      finalRecipientIds = clients.map(u => u.id);
+    } else if (audience === 'ALL') {
+      const everyone = await prisma.user.findMany({
+        where: { id: { not: senderId } },
+        select: { id: true },
+      });
+      finalRecipientIds = everyone.map(u => u.id);
+    } else {
+      // CUSTOM: revalida os ids recebidos contra usuários reais para evitar
+      // linhas de status órfãs (e para não confiar cegamente no client).
+      const validUsers = await prisma.user.findMany({
+        where: { id: { in: recipientIds } },
+        select: { id: true },
+      });
+      finalRecipientIds = validUsers.map(u => u.id);
+      if (finalRecipientIds.length === 0) {
+        return { success: false, message: "Nenhum destinatário válido selecionado." };
+      }
+    }
 
     // Usamos uma transação para garantir que ambas as operações (criar notificação e status) funcionem ou falhem juntas
     await prisma.$transaction(async (tx) => {
@@ -76,25 +115,26 @@ export async function sendNotificationAction(formData: FormData) {
         data: {
           title,
           message,
-          senderId: session.user.id,
+          senderId,
           isBroadcast,
         }
       });
 
-      // Se não for para todos, criamos as ligações na tabela de status
-      if (!isBroadcast && recipientIds.length > 0) {
-        const statusData = recipientIds.map(userId => ({
+      if (!isBroadcast && finalRecipientIds.length > 0) {
+        const statusData = finalRecipientIds.map(userId => ({
           userId,
           notificationId: notification.id,
         }));
         await tx.userNotificationStatus.createMany({
           data: statusData,
+          skipDuplicates: true,
         });
       }
     });
 
     // Revalida o cache do layout para que o sino de notificação seja atualizado para todos
     revalidatePath('/gestor', 'layout');
+    revalidatePath('/cliente', 'layout');
 
     return { success: true, message: "Notificação enviada com sucesso!" };
   } catch (error) {

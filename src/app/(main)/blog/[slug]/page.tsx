@@ -1,8 +1,6 @@
 // src/app/(main)/blog/[slug]/page.tsx
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -11,29 +9,60 @@ import { ArrowLeft, Clock, ArrowRight } from 'lucide-react';
 import { PostInteraction } from '../_components/PostInteraction';
 import { JsonLd } from '@/components/JsonLd';
 import { SITE_URL } from '@/lib/site';
-import { cookies } from 'next/headers';
-import type { Post, Category } from '@prisma/client';
+import { normalizePageTitle } from '@/lib/seo';
+import { breadcrumbSchema } from '@/lib/breadcrumb';
 import type { Metadata, ResolvingMetadata } from 'next';
+import DOMPurify from 'isomorphic-dompurify';
+import { cache } from 'react';
 
-type PostCardData = Post & {
+type PostCardData = {
+  id: string;
+  slug: string;
+  title: string;
+  seoDescription: string | null;
+  featuredImageUrl: string | null;
+  createdAt: Date;
   author: { name: string | null };
-  categories: Category[];
+  categories: { name: string }[];
 };
+
+export const revalidate = 3600;
+
+// `cache()` garante que generateMetadata e a página, ao chamarem isto com o mesmo
+// slug, disparem só uma consulta ao banco por requisição (mesmo padrão de
+// portfolio/[slug]/page.tsx). Sem sessão/cookies aqui: o voto do visitante atual é
+// resolvido no cliente (ver PostInteraction), o que permite esta página ser
+// estática/ISR em vez de forçada a renderizar do zero a cada request.
+const getPost = cache(async (slug: string) => {
+  return prisma.post.findUnique({
+    where: { slug, status: 'PUBLISHED' },
+    include: {
+      author: true,
+      categories: true,
+      tags: true,
+    },
+  });
+});
+
+// Sem generateStaticParams de propósito: com dezenas de posts, categorias e tags,
+// pré-renderar tudo no build dispara consultas concorrentes suficientes para estourar
+// o limite de conexões do Postgres do Supabase (confirmado: build falhou com "Too many
+// database connections opened"). Cada página ainda é estática/ISR (`revalidate` acima +
+// cache() abaixo) — só passa a existir sob demanda, na primeira visita a cada slug, em
+// vez de todas de uma vez no build.
 
 // --- 1. SEO DINÂMICO DO POST ---
 export async function generateMetadata(
   { params }: { params: { slug: string } },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const post = await prisma.post.findUnique({
-    where: { slug: params.slug },
-    select: { title: true, seoDescription: true, featuredImageUrl: true, seoTitle: true }
-  });
+  const post = await getPost(params.slug);
 
-  if (!post) return { title: "Artigo não encontrado" };
+  if (!post) return { title: "Artigo não encontrado", robots: { index: false } };
 
   const previousImages = (await parent).openGraph?.images || [];
-  const pageTitle = post.seoTitle || `${post.title} | M2 Projecta`;
+  const pageTitle = normalizePageTitle(post.seoTitle || post.title);
+  const featuredImage = post.featuredImageUrl || `${SITE_URL}/assets/hero-image.JPG`;
 
   return {
     title: pageTitle,
@@ -42,8 +71,14 @@ export async function generateMetadata(
     openGraph: {
       title: pageTitle,
       description: post.seoDescription || undefined,
-      images: [post.featuredImageUrl || '', ...previousImages],
-      type: 'article'
+      url: `/blog/${params.slug}`,
+      // String vazia gera uma tag og:image quebrada quando o post não tem imagem de
+      // destaque — cai para a mesma imagem padrão usada visualmente na página (abaixo).
+      images: [{ url: featuredImage, alt: post.title }, ...previousImages],
+      type: 'article',
+      publishedTime: post.createdAt.toISOString(),
+      modifiedTime: post.updatedAt.toISOString(),
+      authors: post.author.name ? [post.author.name] : undefined,
     },
   };
 }
@@ -95,55 +130,47 @@ function PostCard({ post }: { post: PostCardData }) {
 
 // --- 3. BUSCA DE DADOS ---
 async function getPostDetails(slug: string) {
-  const session = await getServerSession(authOptions);
-  const cookieStore = cookies();
+  const post = await getPost(slug);
 
-  const userId = session?.user?.id;
-  const voterId = cookieStore.get('voter_id')?.value;
+  if (!post) return { post: null, relatedPosts: [], likes: 0, dislikes: 0 };
 
-  const post = await prisma.post.findUnique({
-    where: { slug, status: 'PUBLISHED' },
-    include: {
-      author: true,
-      categories: true,
-      tags: true,
-      votes: {
-        where: userId ? { userId } : (voterId ? { voterId } : undefined),
+  // Independentes entre si (ambos só precisam de post.id/post.categories) — rodam em
+  // paralelo em vez de uma consulta esperando a outra terminar.
+  const [voteCounts, relatedPosts] = await Promise.all([
+    prisma.postVote.groupBy({
+      by: ['type'],
+      where: { postId: post.id },
+      _count: { _all: true },
+    }),
+    prisma.post.findMany({
+      where: {
+        status: 'PUBLISHED',
+        id: { not: post.id },
+        categories: { some: { id: { in: post.categories.map(c => c.id) } } }
       },
-    }
-  });
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        seoDescription: true,
+        featuredImageUrl: true,
+        createdAt: true,
+        author: { select: { name: true } },
+        categories: { select: { name: true }, take: 1 },
+      },
+      take: 3,
+    }),
+  ]);
 
-  if (!post) return { post: null, relatedPosts: [], likes: 0, dislikes: 0, userVote: null };
-
-  const voteCounts = await prisma.postVote.groupBy({
-    by: ['type'],
-    where: { postId: post.id },
-    _count: { _all: true },
-  });
-  
   const likes = voteCounts.find(v => v.type === 'LIKE')?._count._all || 0;
   const dislikes = voteCounts.find(v => v.type === 'DISLIKE')?._count._all || 0;
-  const userVote = post.votes.length > 0 ? post.votes[0].type : null;
 
-  const relatedPosts = await prisma.post.findMany({
-    where: {
-      status: 'PUBLISHED',
-      id: { not: post.id },
-      categories: { some: { id: { in: post.categories.map(c => c.id) } } }
-    },
-    include: {
-      author: { select: { name: true } },
-      categories: { take: 1 },
-    },
-    take: 3,
-  });
-
-  return { post, relatedPosts, likes, dislikes, userVote };
+  return { post, relatedPosts, likes, dislikes };
 }
 
 // --- 4. PÁGINA DE LEITURA ---
 export default async function PostPage({ params }: { params: { slug: string } }) {
-  const { post, relatedPosts, likes, dislikes, userVote } = await getPostDetails(params.slug);
+  const { post, relatedPosts, likes, dislikes } = await getPostDetails(params.slug);
 
   if (!post) {
     notFound();
@@ -156,13 +183,16 @@ export default async function PostPage({ params }: { params: { slug: string } })
     "@type": "BlogPosting",
     "headline": post.title,
     "description": post.seoDescription || undefined,
-    "image": post.featuredImageUrl ? [post.featuredImageUrl] : undefined,
+    // Sem fallback, um post sem imagem de destaque ficava sem "image" — e o Google
+    // exige esse campo para elegibilidade de rich result em Article/BlogPosting.
+    "image": [post.featuredImageUrl || `${SITE_URL}/assets/hero-image.JPG`],
     "datePublished": post.createdAt.toISOString(),
     "dateModified": post.updatedAt.toISOString(),
-    "author": {
-      "@type": "Person",
-      "name": post.author.name || "M2 Projecta",
-    },
+    // Só usa "Person" quando há um nome de fato — um Person chamado "M2 Projecta"
+    // mistura os dois tipos e invalida a semântica do schema.
+    "author": post.author.name
+      ? { "@type": "Person", "name": post.author.name }
+      : { "@type": "Organization", "name": "M2 Projecta" },
     "publisher": {
       "@type": "Organization",
       "name": "M2 Projecta",
@@ -180,10 +210,19 @@ export default async function PostPage({ params }: { params: { slug: string } })
     }),
   };
 
+  const firstCategory = post.categories[0];
+  const breadcrumb = breadcrumbSchema([
+    { name: "Início", url: "/" },
+    { name: "Blog", url: "/blog" },
+    ...(firstCategory ? [{ name: firstCategory.name, url: `/blog/categoria/${firstCategory.slug}` }] : []),
+    { name: post.title },
+  ]);
+
   return (
     <article className="w-full max-w-[100vw] overflow-x-hidden bg-[#050505] min-h-screen">
 
       <JsonLd data={articleSchema} />
+      <JsonLd data={breadcrumb} />
 
       {/* HEADER IMERSIVO (HERO DO ARTIGO) */}
       <header className="relative w-full min-h-[60vh] md:min-h-[80vh] flex flex-col justify-end pb-12 md:pb-24">
@@ -200,7 +239,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent z-10" />
         </div>
         
-        <div className="relative z-20 container mx-auto px-4 md:px-6 pt-32 md:pt-0">
+        <div className="relative z-20 container mx-auto px-4 md:px-6 pt-32 md:pt-32">
           <Link 
             href="/blog" 
             className="inline-flex items-center gap-2 text-gray-400 hover:text-m2-green transition-colors font-medium mb-6 md:mb-10 text-sm md:text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green rounded-sm px-2"
@@ -271,7 +310,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
         <div className="max-w-3xl mx-auto">
           <div 
             className="prose prose-invert prose-base md:prose-lg max-w-none prose-p:text-gray-300 prose-p:leading-relaxed prose-headings:text-white prose-a:text-m2-green prose-img:rounded-2xl prose-img:shadow-2xl prose-hr:border-white/10 prose-blockquote:border-l-m2-green prose-blockquote:bg-white/5 prose-blockquote:p-4 prose-blockquote:rounded-r-xl"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
           />
 
           {/* CORREÇÃO 3 (Parte 2): Tags do rodapé arrumadas com inline-block e gap adequado */}
@@ -288,11 +327,11 @@ export default async function PostPage({ params }: { params: { slug: string } })
           )}
 
           <div className="mt-12 pt-8 border-t border-white/5">
-             <PostInteraction 
+             <PostInteraction
                 postId={post.id}
+                slug={post.slug}
                 initialLikes={likes}
                 initialDislikes={dislikes}
-                userVote={userVote}
              />
           </div>
 

@@ -150,7 +150,7 @@ export default async function ClientProjectDetailsPage({ params }: { params: { i
                                 {update.description}
                             </p>
                             {update.createdBy && (
-                                <p className="text-xs text-gray-500 dark:text-gray-600 mt-2">Atualizado por: {update.createdBy.name}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Atualizado por: {update.createdBy.name}</p>
                             )}
                         </div>
                     </div>

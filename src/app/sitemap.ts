@@ -2,9 +2,10 @@
 
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
+import { SITE_URL } from '@/lib/site';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://www.m2projecta.com.br';
+  const baseUrl = SITE_URL;
 
   // 1. Busca SERVIÇOS
   const services = await prisma.service.findMany({
@@ -25,13 +26,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // 3. Busca BLOG POSTS (Apenas publicados)
   const posts = await prisma.post.findMany({
-    where: { 
-        status: 'PUBLISHED' 
+    where: {
+        status: 'PUBLISHED'
     },
     select: {
       slug: true,
       updatedAt: true,
     },
+  });
+
+  // 4. Busca CATEGORIAS e TAGS do blog (páginas de arquivo reais, indexáveis, que
+  // antes não apareciam no sitemap — o Google só as encontrava seguindo links internos)
+  const categories = await prisma.category.findMany({
+    where: { posts: { some: { status: 'PUBLISHED' } } },
+    select: { slug: true },
+  });
+
+  const tags = await prisma.tag.findMany({
+    where: { posts: { some: { status: 'PUBLISHED' } } },
+    select: { slug: true },
   });
 
   // --- Mapeamento das URLs ---
@@ -57,9 +70,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const blogCategoryRoutes = categories.map((category) => ({
+    url: `${baseUrl}/blog/categoria/${category.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.5,
+  }));
+
+  const blogTagRoutes = tags.map((tag) => ({
+    url: `${baseUrl}/blog/tag/${tag.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.4,
+  }));
+
   // --- Rotas Estáticas ---
   const staticRoutes = [
-    '', 
+    '',
     '/sobre',
     '/servicos',
     '/portfolio',
@@ -79,5 +106,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...serviceRoutes,
     ...portfolioRoutes,
     ...blogRoutes, // Adiciona os posts ao sitemap final
+    ...blogCategoryRoutes,
+    ...blogTagRoutes,
   ];
 }

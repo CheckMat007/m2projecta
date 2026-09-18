@@ -7,6 +7,11 @@ import { Metadata, ResolvingMetadata } from "next";
 import * as LucideIcons from "lucide-react";
 import { cache } from "react";
 import { PortfolioGallerySlider } from "@/components/PortfolioGallerySlider";
+import { YouTubeEmbed } from '@next/third-parties/google';
+import { JsonLd } from "@/components/JsonLd";
+import { SITE_URL } from "@/lib/site";
+import { normalizePageTitle } from "@/lib/seo";
+import { breadcrumbSchema } from "@/lib/breadcrumb";
 
 // --- 1. RESOLUÇÃO COMPARTILHADA (slug atual OU id antigo) ---
 // `cache()` garante que generateMetadata e a página, ao chamarem isto com o mesmo
@@ -43,11 +48,11 @@ export async function generateMetadata(
   const resolution = await resolveProject(params.slug);
 
   if (resolution.status === 'not-found') {
-    return { title: "Projeto não encontrado" };
+    return { title: "Projeto não encontrado", robots: { index: false } };
   }
 
   const { project, canonicalSlug } = resolution;
-  const pageTitle = project.seoTitle || `${project.title} | M2 Projecta`;
+  const pageTitle = normalizePageTitle(project.seoTitle || project.title);
   const pageDescription = project.seoDescription || project.shortDescription;
   const previousImages = (await parent).openGraph?.images || [];
 
@@ -59,7 +64,9 @@ export async function generateMetadata(
     openGraph: {
       title: pageTitle,
       description: pageDescription,
-      images: [project.coverImage, ...previousImages],
+      url: `/portfolio/${canonicalSlug}`,
+      type: 'website',
+      images: [{ url: project.coverImage, alt: project.title }, ...previousImages],
     },
   };
 }
@@ -88,9 +95,42 @@ export default async function PortfolioDetailsPage({ params }: { params: { slug:
     : [project.coverImage];
   const isVerticalVideo = Boolean(project.videoUrl) && project.videoIsVertical;
 
+  const projectSchema = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "name": project.title,
+    "description": project.seoDescription || project.shortDescription,
+    "url": `${SITE_URL}/portfolio/${project.slug}`,
+    "image": galleryImages,
+    "datePublished": project.createdAt.toISOString(),
+    "dateModified": project.updatedAt.toISOString(),
+    "creator": { "@id": `${SITE_URL}/#localbusiness` },
+    ...(project.service && {
+      "about": { "@type": "Service", "name": project.service.name, "url": `${SITE_URL}/servicos/${project.service.slug}` },
+    }),
+    ...(project.videoUrl && {
+      "video": {
+        "@type": "VideoObject",
+        "name": project.title,
+        "description": project.shortDescription,
+        "thumbnailUrl": [project.coverImage],
+        "uploadDate": project.createdAt.toISOString(),
+        "embedUrl": `https://www.youtube.com/embed/${project.videoUrl}`,
+      },
+    }),
+  };
+
+  const breadcrumb = breadcrumbSchema([
+    { name: "Início", url: "/" },
+    { name: "Portfólio", url: "/portfolio" },
+    { name: project.title },
+  ]);
+
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden bg-[#050505]">
-      
+      <JsonLd data={projectSchema} />
+      <JsonLd data={breadcrumb} />
+
       {/* HERO SECTION - Corrigida com pt-28/32 para afastar do Header Fixo */}
       <section className="relative w-full min-h-[45vh] md:min-h-[55vh] flex flex-col justify-center md:justify-end pt-28 md:pt-32 pb-10 md:pb-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -131,7 +171,7 @@ export default async function PortfolioDetailsPage({ params }: { params: { slug:
             <div className="lg:col-span-4 space-y-6 md:space-y-8 order-2 lg:order-1">
               <div className="sticky top-28 md:top-32 bg-[#111]/80 backdrop-blur-sm border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-xl">
                 
-                <h3 className="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest mb-2">Categoria</h3>
+                <p className="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest mb-2">Categoria</p>
                 <div className="flex items-center gap-3 mb-6 md:mb-8">
                   <div className="w-8 h-8 md:w-10 md:h-10 bg-m2-green/10 rounded-lg flex items-center justify-center shrink-0">
                     <LucideIcons.FolderGit2 className="w-4 h-4 md:w-5 md:h-5 text-m2-green" aria-hidden="true" />
@@ -143,7 +183,7 @@ export default async function PortfolioDetailsPage({ params }: { params: { slug:
 
                 <hr className="border-white/5 mb-6 md:mb-8" />
 
-                <h3 className="text-xs md:text-sm font-bold text-white uppercase tracking-widest mb-3 md:mb-4">Interessado num projeto similar?</h3>
+                <p className="text-xs md:text-sm font-bold text-white uppercase tracking-widest mb-3 md:mb-4">Interessado num projeto similar?</p>
                 <Link 
                   href={`https://wa.me/5512991316774?text=Oi,%20vi%20o%20projeto%20"${project.title}"%20no%20portfólio%20e%20gostaria%20de%20falar%20sobre%20uma%20ideia!`}
                   target="_blank" 
@@ -158,7 +198,8 @@ export default async function PortfolioDetailsPage({ params }: { params: { slug:
 
             {/* Coluna Direita: O Estudo de Caso */}
             <div className="lg:col-span-8 order-1 lg:order-2">
-              
+              <h2 className="sr-only">Detalhes do Projeto</h2>
+
               {/* SEÇÃO DE MÍDIA (Galeria + Vídeo) */}
               <div className={`mb-8 md:mb-12 flex flex-col gap-6 md:gap-8 ${isVerticalVideo ? 'md:flex-row md:items-start' : ''}`}>
                 <div className={isVerticalVideo ? 'md:flex-1 min-w-0' : 'w-full'}>
@@ -173,21 +214,13 @@ export default async function PortfolioDetailsPage({ params }: { params: { slug:
                     </h3>
                     <div
                       className={
-                        isVerticalVideo
+                        (isVerticalVideo
                           ? "relative w-full aspect-[9/16] overflow-hidden rounded-xl md:rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a]"
-                          : "aspect-video w-full overflow-hidden rounded-xl md:rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a]"
+                          : "relative aspect-video w-full overflow-hidden rounded-xl md:rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a]"
+                        ) + " [&_lite-youtube]:w-full [&_lite-youtube]:h-full [&_lite-youtube]:absolute [&_lite-youtube]:top-0 [&_lite-youtube]:left-0"
                       }
                     >
-                      <iframe
-                        className="w-full h-full"
-                        src={`https://www.youtube.com/embed/${project.videoUrl}`}
-                        title={`Vídeo do projeto ${project.title}`}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                        loading="lazy"
-                      ></iframe>
+                      <YouTubeEmbed videoid={project.videoUrl} params="rel=0&modestbranding=1" />
                     </div>
                   </div>
                 )}

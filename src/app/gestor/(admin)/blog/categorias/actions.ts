@@ -49,6 +49,7 @@ export async function createCategoryAction(formData: FormData) {
 
     await prisma.category.create({ data: { name, slug } });
     revalidatePath('/gestor/blog/categorias');
+    revalidatePath('/blog');
     return { success: true, message: "Categoria criada com sucesso!" };
 
   } catch (error) {
@@ -71,11 +72,27 @@ export async function updateCategoryAction(formData: FormData) {
     const { name } = validatedFields.data;
     const slug = generateSlug(name);
 
+    // Buscamos o slug antigo e os posts afetados ANTES de atualizar, para poder
+    // revalidar as páginas públicas que exibem o nome/slug desta categoria.
+    const currentCategory = await prisma.category.findUnique({
+      where: { id: categoryId },
+      select: { slug: true, posts: { select: { slug: true } } },
+    });
+    if (!currentCategory) {
+      return { success: false, message: "Categoria não encontrada." };
+    }
+
     await prisma.category.update({
       where: { id: categoryId },
       data: { name, slug },
     });
+
     revalidatePath('/gestor/blog/categorias');
+    revalidatePath('/blog');
+    revalidatePath(`/blog/categoria/${currentCategory.slug}`);
+    revalidatePath(`/blog/categoria/${slug}`);
+    currentCategory.posts.forEach(post => revalidatePath(`/blog/${post.slug}`));
+
     return { success: true, message: "Categoria atualizada com sucesso!" };
   } catch (error) {
     console.error("Erro ao atualizar categoria:", error);
@@ -89,8 +106,21 @@ export async function deleteCategoryAction(categoryId: string) {
     if (!(await canManageBlog())) {
       return { success: false, message: "Acesso negado." };
     }
+
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+      select: { slug: true, posts: { select: { slug: true } } },
+    });
+
     await prisma.category.delete({ where: { id: categoryId } });
+
     revalidatePath('/gestor/blog/categorias');
+    revalidatePath('/blog');
+    if (category) {
+      revalidatePath(`/blog/categoria/${category.slug}`);
+      category.posts.forEach(post => revalidatePath(`/blog/${post.slug}`));
+    }
+
     return { success: true, message: "Categoria deletada com sucesso." };
   } catch (error) {
     console.error("Erro ao deletar categoria:", error);

@@ -6,10 +6,19 @@ import Image from "next/image";
 import * as LucideIcons from "lucide-react"; 
 import type { Metadata } from "next";
 
+const pageTitle = 'Nossos Serviços';
+const pageDescription = 'Conheça nosso catálogo de soluções em imagens aéreas com drone: inspeções e vistorias, mercado imobiliário, eventos, timelapse e monitoramento de obras.';
+
 export const metadata: Metadata = {
-  title: 'Nossos Serviços | M2 Projecta',
-  description: 'Conheça nosso catálogo de soluções em imagens aéreas, timelapse, inspeções e monitoramento de obras.',
+  title: pageTitle,
+  description: pageDescription,
   alternates: { canonical: '/servicos' },
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: '/servicos',
+    type: 'website',
+  },
 };
 
 // Busca os dados no servidor
@@ -33,7 +42,7 @@ export default async function ServicosPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-m2-green/5 blur-[150px] rounded-full pointer-events-none" aria-hidden="true" />
         
         <div className="container mx-auto px-6 text-center relative z-10">
-          <h2 className="text-sm font-bold text-m2-green uppercase tracking-[0.3em] mb-4">Portfólio de Soluções</h2>
+          <p className="text-sm font-bold text-m2-green uppercase tracking-[0.3em] mb-4">Portfólio de Soluções</p>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider text-white leading-tight max-w-4xl mx-auto">
             Eleve a <span className="text-m2-green">Perspectiva</span> <br className="hidden md:block"/>
             Do Seu Projeto
