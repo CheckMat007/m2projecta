@@ -4,25 +4,44 @@ import Image from "next/image";
 import { Award, Target, Eye as VisionIcon, CheckCircle2, ShieldCheck, Film } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { SITE_URL } from "@/lib/site";
+import { breadcrumbSchema } from "@/lib/breadcrumb";
+
+const pageTitle = 'Sobre a M2 Projecta | Imagens Aéreas no Vale do Paraíba';
+const pageDescription = 'Conheça a M2 Projecta: equipe certificada, drones de ponta e um olhar cinematográfico para inspeções, imóveis e eventos no Vale do Paraíba (SP).';
 
 export const metadata: Metadata = {
-  title: 'Sobre',
-  description: 'Mais do que imagens, entregamos uma nova perspectiva para o seu negócio.',
+  title: pageTitle,
+  description: pageDescription,
   alternates: { canonical: '/sobre' },
+  // Sem isso, esta página herdava título/descrição/imagem da home inteiros ao ser
+  // compartilhada (o Next substitui `openGraph` por completo por segmento, não faz
+  // merge profundo com o que o layout raiz já declara).
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: '/sobre',
+    type: 'website',
+  },
 };
 
-// --- DATA FETCHING (Mantido intacto) ---
-async function getAboutPageData() {
-  const teamMembers = await prisma.user.findMany({
-    where: { showOnAboutPage: true },
-    orderBy: { name: 'asc' },
-  });
+export const revalidate = 3600;
 
-  const pageSettings = await prisma.pageSettings.findUnique({
-    where: { pageKey: "ABOUT" },
-  });
-  
-  const mainContent = await prisma.aboutPageContent.findFirst();
+// --- DATA FETCHING ---
+async function getAboutPageData() {
+  // As 3 consultas são independentes entre si — rodam em paralelo em vez de uma
+  // esperando a outra terminar.
+  const [teamMembers, pageSettings, mainContent] = await Promise.all([
+    prisma.user.findMany({
+      where: { showOnAboutPage: true },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.pageSettings.findUnique({
+      where: { pageKey: "ABOUT" },
+    }),
+    prisma.aboutPageContent.findFirst(),
+  ]);
 
   return { teamMembers, pageSettings, mainContent };
 }
@@ -34,15 +53,46 @@ export default async function SobrePage() {
   const heroImage = pageSettings?.heroImageUrl || "/assets/portfolio/dutra.JPG";
   const contentTitle = mainContent?.title || "Nossa História";
   const contentText = mainContent?.mainText || "Texto padrão... edite no painel do gestor.";
-  const contentImage = mainContent?.mainImageUrl || "/assets/about/historia.jpg";
+  const contentImage = mainContent?.mainImageUrl || "/assets/equipe-m2-projecta.png";
 
   // Lógica segura para dividir o título dinâmico
   const words = contentTitle.split(' ');
   const lastWord = words.length > 1 ? words.pop() : '';
   const startWords = words.join(' ');
 
+  // Referencia o LocalBusiness já declarado no layout (por @id) em vez de duplicar
+  // nome/endereço/telefone aqui — evita os dois ficarem dessincronizados se um for
+  // editado e o outro não.
+  const aboutPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "@id": `${SITE_URL}/sobre#aboutpage`,
+    "url": `${SITE_URL}/sobre`,
+    "name": pageTitle,
+    "mainEntity": { "@id": `${SITE_URL}/#localbusiness` },
+  };
+
+  const teamSchema = teamMembers
+    .filter((member) => member.name)
+    .map((member) => ({
+      "@type": "Person",
+      "@id": `${SITE_URL}/sobre#person-${member.id}`,
+      "name": member.name,
+      ...(member.jobDescription && { "jobTitle": member.jobDescription }),
+      ...(member.image && { "image": member.image }),
+      "worksFor": { "@id": `${SITE_URL}/#localbusiness` },
+    }));
+
+  const breadcrumb = breadcrumbSchema([
+    { name: "Início", url: "/" },
+    { name: "Sobre" },
+  ]);
+
   return (
     <>
+      <JsonLd data={{ "@context": "https://schema.org", "@graph": [aboutPageSchema, ...teamSchema] }} />
+      <JsonLd data={breadcrumb} />
+
       {/* 1. HERO SECTION (Estilo Editorial) */}
       <section className="relative w-full h-[60vh] md:h-[75vh] flex items-end pb-16 md:pb-24">
         <div className="absolute inset-0 z-0">
@@ -146,10 +196,10 @@ export default async function SobrePage() {
       {/* 4. SEÇÃO ESTÁTICA EXTRA (O Padrão M2) */}
       <section className="py-24 bg-[#050505]">
         <div className="container mx-auto px-6 max-w-5xl text-center">
-          <h2 className="text-sm font-bold text-m2-green uppercase tracking-[0.2em] mb-3">Nossa Abordagem</h2>
-          <h3 className="text-3xl md:text-5xl font-black text-white uppercase mb-12">
+          <p className="text-sm font-bold text-m2-green uppercase tracking-[0.2em] mb-3">Nossa Abordagem</p>
+          <h2 className="text-3xl md:text-5xl font-black text-white uppercase mb-12">
             O Padrão <span className="text-m2-green">M2 Projecta</span>
-          </h3>
+          </h2>
           
           <div className="grid md:grid-cols-3 gap-8 text-left mt-16">
             <div className="flex flex-col items-center md:items-start text-center md:text-left">

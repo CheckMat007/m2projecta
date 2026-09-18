@@ -315,7 +315,7 @@ function TimelineManager({ project }: { project: ProjectWithRelations }) {
                                         <Button 
                                             variant="ghost" 
                                             size="icon" 
-                                            className="h-6 w-6 -mr-2 -mt-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive" 
+                                            className="h-8 w-8 -mr-2 -mt-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
                                             onClick={() => handleDelete(update.id)}
                                             title="Remover atualização"
                                         >

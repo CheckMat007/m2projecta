@@ -1,8 +1,20 @@
 // src/app/gestor/(admin)/site/sobre/page.tsx
 
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/auth';
+import type { User, Permission } from '@prisma/client';
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AboutContentForm } from "./_components/AboutContentForm";
+
+// Helper de permissão
+type UserWithPermissions = User & { permissions: Permission[] };
+const hasPermission = (user: UserWithPermissions | null, permissionName: string): boolean => {
+  if (!user) return false;
+  if (user.role === 'MASTER') return true;
+  return user.permissions?.some(p => p.name === permissionName);
+};
 
 // Função para buscar os dados do conteúdo principal
 async function getAboutContent() {
@@ -23,6 +35,18 @@ async function getAboutContent() {
 }
 
 export default async function SobreSitePage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) redirect('/gestor/login');
+
+  const currentUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { permissions: true },
+  });
+
+  if (!hasPermission(currentUser, 'manage_site')) {
+    redirect('/gestor');
+  }
+
   const mainContent = await getAboutContent();
 
   return (
@@ -30,7 +54,7 @@ export default async function SobreSitePage() {
       
 
       {/* Card para editar o Conteúdo Principal da página Sobre */}
-      <Card className="bg-black/30 border-gray-800">
+      <Card>
         <CardHeader>
           <CardTitle>Seção NOSSA HISTÓRIA</CardTitle>
           <CardDescription>Altere o título, texto e imagem desta seção.</CardDescription>

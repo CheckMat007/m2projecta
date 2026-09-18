@@ -43,6 +43,7 @@ export async function createTagAction(formData: FormData) {
 
     await prisma.tag.create({ data: { name, slug } });
     revalidatePath('/gestor/blog/tags');
+    revalidatePath('/blog');
     return { success: true, message: "Tag criada com sucesso!" };
   } catch (error) {
     console.error("Erro ao criar tag:", error);
@@ -60,8 +61,20 @@ export async function updateTagAction(formData: FormData) {
     const { name } = validatedFields.data;
     const slug = generateSlug(name);
 
+    const currentTag = await prisma.tag.findUnique({
+      where: { id: tagId },
+      select: { slug: true, posts: { select: { slug: true } } },
+    });
+    if (!currentTag) return { success: false, message: "Tag não encontrada." };
+
     await prisma.tag.update({ where: { id: tagId }, data: { name, slug } });
+
     revalidatePath('/gestor/blog/tags');
+    revalidatePath('/blog');
+    revalidatePath(`/blog/tag/${currentTag.slug}`);
+    revalidatePath(`/blog/tag/${slug}`);
+    currentTag.posts.forEach(post => revalidatePath(`/blog/${post.slug}`));
+
     return { success: true, message: "Tag atualizada com sucesso!" };
   } catch (error) {
     console.error("Erro ao atualizar tag:", error);

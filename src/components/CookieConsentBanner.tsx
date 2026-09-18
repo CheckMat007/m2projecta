@@ -4,10 +4,15 @@
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+
+// O modal "Preferências" (Radix Dialog + Switch) raramente é aberto — a maioria dos
+// visitantes só vê o banner e clica "Aceitar Todos". Carregado sob demanda em vez de
+// ir no bundle de toda página pública só por causa deste banner.
+const CookiePreferencesModal = dynamic(() => import('@/components/CookiePreferencesModal'), {
+  ssr: false,
+});
 
 // Chave do cookie e tipo para as preferências
 const COOKIE_PREFERENCES_KEY = 'cookie_preferences';
@@ -89,56 +94,17 @@ export function CookieConsentBanner() {
         </div>
       </div>
 
-      {/* O Modal de Preferências */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Preferências de Cookies</DialogTitle>
-            <DialogDescription>
-              Gerencie suas preferências de cookies. Você pode alterar essas configurações a qualquer momento.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex items-center justify-between p-4 rounded-lg border border-gray-700 bg-gray-900/50">
-              <div>
-                <Label htmlFor="necessary-cookies" className="font-bold">Cookies Necessários</Label>
-                <p className="text-sm text-gray-400">Esses cookies são essenciais para o funcionamento do site e não podem ser desativados.</p>
-              </div>
-              <Switch id="necessary-cookies" checked={true} disabled />
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-lg border border-gray-700">
-              <div>
-                <Label htmlFor="analytics-cookies" className="font-bold">Cookies de Análise</Label>
-                <p className="text-sm text-gray-400">Nos ajudam a entender como os visitantes interagem com o site, coletando informações anonimamente.</p>
-              </div>
-              <Switch 
-                id="analytics-cookies" 
-                checked={preferences.analytics} 
-                onCheckedChange={(value) => handlePreferenceChange('analytics', value)}
-              />
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-lg border border-gray-700">
-              <div>
-                <Label htmlFor="marketing-cookies" className="font-bold">Cookies de Marketing</Label>
-                <p className="text-sm text-gray-400">São usados para rastrear visitantes e exibir anúncios relevantes.</p>
-              </div>
-              <Switch 
-                id="marketing-cookies"
-                checked={preferences.marketing}
-                onCheckedChange={(value) => handlePreferenceChange('marketing', value)}
-              />
-            </div>
-          </div>
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={handleRejectAll} className="w-full sm:w-auto">
-              Rejeitar Todos
-            </Button>
-            <Button onClick={handleSavePreferences} className="w-full sm:w-auto">
-              Salvar Preferências
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* O Modal de Preferências só é importado/montado quando o visitante clica em "Preferências" */}
+      {isModalOpen && (
+        <CookiePreferencesModal
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          preferences={preferences}
+          onPreferenceChange={handlePreferenceChange}
+          onRejectAll={handleRejectAll}
+          onSave={handleSavePreferences}
+        />
+      )}
     </>
   );
 }

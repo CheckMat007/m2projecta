@@ -9,12 +9,15 @@ export const metadata: Metadata = {
 
   title: {
     template: '%s | M2 Projecta',
-    default:
-      'M2 Projecta | Imagens com Drones: Vídeos Corporativos, Inspeções em Obras, 360° e Imagens Aéreas no Vale do Paraíba',
+    // Título anterior tinha ~115 caracteres — o Google trunca por volta de 60,
+    // então a segunda metade nunca aparecia no resultado de busca.
+    default: 'M2 Projecta | Imagens Aéreas com Drone no Vale do Paraíba',
   },
 
+  // Descrição anterior tinha ~214 caracteres — também truncada bem antes do fim
+  // (~155-160 é o limite prático nos resultados de busca).
   description:
-    'A M2 Projecta é especialista em imagens aéreas com drone para inspeções de obra, vídeos corporativos, mercado imobiliário, eventos e imagens 360° no Vale do Paraíba (SP) e região. Produção audiovisual profissional.',
+    'Imagens aéreas com drone para inspeção de obras, vídeos corporativos, imóveis e eventos no Vale do Paraíba (SP). Produção audiovisual profissional.',
 
   keywords: [
     'M2 Projecta',

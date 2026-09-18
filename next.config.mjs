@@ -3,9 +3,17 @@ import withPWAInit from "next-pwa";
 const withPWA = withPWAInit({
   dest: "public",
   // Desativa o Service Worker no modo de desenvolvimento para evitar problemas de cache enquanto você programa
-  disable: process.env.NODE_ENV === "development", 
+  disable: process.env.NODE_ENV === "development",
   register: true,
   skipWaiting: true,
+  // O PWA é uma feature do painel /gestor (ver manifest.ts, que já usa este mesmo
+  // scope), não do site público — sem isso, o Service Worker fica livre para
+  // controlar/cachear qualquer rota, inclusive a home/blog/portfólio públicos.
+  scope: '/gestor/',
+  // Não precacheia os assets pesados do site público (imagens originais de drone e
+  // vídeos, várias dezenas de MB) nem os bundles do painel do cliente — só o /gestor
+  // precisa funcionar offline.
+  publicExcludes: ['!noprecache/**/*', '!videos/**/*', '!assets/**/*'],
 });
 
 /** @type {import('next').NextConfig} */

@@ -2,10 +2,19 @@
 
 import type { Metadata } from 'next';
 
+const pageTitle = 'Termos e Condições';
+const pageDescription = 'Leia os termos e condições de uso do site e dos serviços da M2 Projecta.';
+
 export const metadata: Metadata = {
-  title: 'Termos e Condições | M2 Projecta',
-  description: 'Leia os termos e condições de uso do site e dos serviços da M2 Projecta.',
+  title: pageTitle,
+  description: pageDescription,
   alternates: { canonical: '/termos-e-condicoes' },
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: '/termos-e-condicoes',
+    type: 'website',
+  },
 };
 
 export default function TermosECondicoesPage() {

@@ -9,6 +9,7 @@ import { SITE_URL } from '@/lib/site';
 
 // 1. Importação do Prisma Client (ajuste o caminho se o seu arquivo prisma.ts estiver em outro local)
 import { prisma } from "@/lib/prisma";
+import { getGoogleReviewStats } from "@/lib/reviews";
 
 // 2. Transformado em função async para permitir fetch no servidor
 export default async function MainLayout({
@@ -33,10 +34,7 @@ export default async function MainLayout({
       }
     }),
     // Só entram no schema se já existirem avaliações — nunca inventamos nota/quantidade
-    prisma.googleReview.aggregate({
-      _avg: { rating: true },
-      _count: { rating: true },
-    }),
+    getGoogleReviewStats(),
   ]);
 
   const localBusinessSchema = {

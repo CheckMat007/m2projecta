@@ -9,7 +9,27 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers'; // Importar a função de cookies do Next.js
 import { randomUUID } from 'crypto'; // Para gerar IDs anônimos e seguros
 
-export async function voteOnPostAction({ postId, voteType }: { postId: string, voteType: VoteType }) {
+// Busca só o voto do visitante atual (sessão ou cookie anônimo) para uma notícia —
+// usado pelo PostInteraction no cliente após montar, já que a página do post em si
+// agora é estática/ISR e não pode embutir dado pessoal do visitante no HTML.
+export async function getUserVoteForPostAction(postId: string): Promise<VoteType | null> {
+  const session = await getServerSession(authOptions);
+  const cookieStore = cookies();
+
+  const userId = session?.user?.id;
+  const voterId = cookieStore.get('voter_id')?.value;
+
+  if (!userId && !voterId) return null;
+
+  const vote = await prisma.postVote.findFirst({
+    where: { postId, ...(userId ? { userId } : { voterId }) },
+    select: { type: true },
+  });
+
+  return vote?.type ?? null;
+}
+
+export async function voteOnPostAction({ postId, voteType, slug }: { postId: string, voteType: VoteType, slug: string }) {
   const session = await getServerSession(authOptions);
   const cookieStore = cookies();
   
@@ -63,8 +83,9 @@ export async function voteOnPostAction({ postId, voteType }: { postId: string, v
       });
     }
 
-    // Revalida o cache da página do post para que a contagem seja atualizada para todos
-    revalidatePath(`/blog/${postId}`); // Usamos o ID aqui para ser mais genérico
+    // Revalida o cache da página do post para que a contagem seja atualizada para todos.
+    // Precisa ser o slug (a URL real da página) — revalidatePath com o id não invalida nada.
+    revalidatePath(`/blog/${slug}`);
     return { success: true };
     
   } catch (error) {

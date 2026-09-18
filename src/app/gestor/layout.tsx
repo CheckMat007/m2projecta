@@ -2,6 +2,14 @@
 
 // 1. Importe o componente Toaster
 import { Toaster } from "@/components/ui/sonner";
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Gestor | M2 Projecta',
+    template: '%s | Gestor | M2 Projecta',
+  },
+};
 
 export default function GestorRootLayout({
   children,
