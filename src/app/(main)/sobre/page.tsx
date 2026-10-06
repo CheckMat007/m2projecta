@@ -110,11 +110,10 @@ export default async function SobrePage() {
         <div className="relative z-10 container mx-auto px-6">
           <div className="max-w-3xl border-l-4 border-m2-green pl-6 md:pl-8">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider text-white leading-tight">
-              A <span className="text-m2-green">Essência</span> <br className="hidden md:block" />
-              Por Trás da Lente
+              M2 Projecta: <span className="text-m2-green">imagens aéreas</span> com drone
             </h1>
             <p className="mt-6 text-lg md:text-xl text-gray-300 font-medium max-w-xl">
-              Mais do que imagens, entregamos uma nova perspectiva para o seu negócio.
+              A M2 Projecta produz imagens aéreas, vídeos e mapeamento com drones para projetos no Vale do Paraíba (SP).
             </p>
           </div>
         </div>
