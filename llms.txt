@@ -1,0 +1,16 @@
+# M2 Projecta
+
+> Especialistas em serviços de imagens aéreas e mapeamento. Oferecemos captação profissional, gestão de projetos e entrega de materiais através de um portal dedicado para acompanhamento de clientes.
+
+## Nossos Serviços e Trabalhos
+- [/servicos](/servicos) — Catálogo completo dos nossos serviços de imagens aéreas e soluções para empresas.
+- [/portfolio](/portfolio) — Galeria de projetos entregues, incluindo vídeos e visualizações 3D de mapeamentos por drone.
+
+## Área do Cliente e Administração
+- [/cliente/login](/cliente/login) — Portal de acesso exclusivo para clientes acompanharem o status de projetos, atualizações de entregáveis e contratos.
+- [/gestor/login](/gestor/login) — Acesso restrito ao painel administrativo para a equipe interna.
+
+## Conteúdo e Atendimento
+- [/blog](/blog) — Artigos, novidades e informações técnicas sobre captação com drones e imagens aéreas.
+- [/sobre](/sobre) — Informações institucionais sobre a M2 Projecta e documentos legais.
+- [/contato](/contato) — Canais de atendimento e formulário para solicitação de orçamentos e propostas.

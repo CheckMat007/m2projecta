@@ -47,7 +47,7 @@ export async function generateMetadata(
   const previousImages = (await parent).openGraph?.images || [];
 
   return {
-    title: service.name,
+    title: `${service.name} com Drone`,
     description: service.shortDescription,
     keywords: [service.name, "serviços drone", "imagens aéreas", "M2 Projecta"],
     alternates: { canonical: `/servicos/${params.slug}` },
@@ -91,7 +91,15 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
     "image": service.image,
     "url": `${SITE_URL}/servicos/${service.slug}`,
     "serviceType": service.name,
-    "provider": { "@id": `${SITE_URL}/#localbusiness` },
+    "provider": {
+      "@id": `${SITE_URL}/#localbusiness`,
+      "@type": "LocalBusiness",
+      "name": "M2 Projecta",
+    },
+    "areaServed": {
+      "@type": "AdministrativeArea",
+      "name": "Vale do Paraíba, São Paulo, Brasil",
+    },
     ...(service.portfolioItems.length > 0 && {
       "workExample": service.portfolioItems.map((item) => ({
         "@type": "CreativeWork",

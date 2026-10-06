@@ -140,22 +140,23 @@ export default function HomeContent({ heroVideoId, heroVideoIsVertical, portfoli
           {/* H2 invisível apenas para acessibilidade (Screen Readers) para não quebrar o layout original, mas manter a semântica */}
           <h2 className="sr-only">Nossos Serviços</h2>
 
-          <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+          <ul className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
             {services.slice(0, 5).map((service) => {
               const IconComponent = iconMap[service.icon] || Building;
               return (
+                <li key={service.slug}>
                 <Link
                   href={`/servicos/${service.slug}`}
-                  key={service.slug}
                   className="group block bg-m2-dark p-8 rounded-lg shadow-xl border border-gray-800 text-center transition-all duration-300 hover:border-m2-green hover:-translate-y-2 focus:outline-none focus:ring-2 focus:ring-m2-green"
                 >
                   <IconComponent className="w-12 h-12 text-m2-green mx-auto mb-4" aria-hidden="true" />
                   <h3 className="text-xl font-bold mb-2 text-white">{service.name}</h3>
                   <p className="text-gray-400 text-sm">{service.shortDescription}</p>
                 </Link>
+                </li>
               )
             })}
-          </div>
+          </ul>
 
           <div className="mt-16">
             <Link href="/servicos" className="text-m2-green font-bold text-lg group inline-block">

@@ -6,8 +6,8 @@ import Image from "next/image";
 import * as LucideIcons from "lucide-react"; 
 import type { Metadata } from "next";
 
-const pageTitle = 'Nossos Serviços';
-const pageDescription = 'Conheça nosso catálogo de soluções em imagens aéreas com drone: inspeções e vistorias, mercado imobiliário, eventos, timelapse e monitoramento de obras.';
+const pageTitle = 'Serviços de Imagens Aéreas com Drone';
+const pageDescription = 'Serviços de imagens aéreas com drone, mapeamento, inspeções e vídeos para obras, imóveis, empresas e eventos no Vale do Paraíba (SP).';
 
 export const metadata: Metadata = {
   title: pageTitle,
@@ -44,11 +44,10 @@ export default async function ServicosPage() {
         <div className="container mx-auto px-6 text-center relative z-10">
           <p className="text-sm font-bold text-m2-green uppercase tracking-[0.3em] mb-4">Portfólio de Soluções</p>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider text-white leading-tight max-w-4xl mx-auto">
-            Eleve a <span className="text-m2-green">Perspectiva</span> <br className="hidden md:block"/>
-            Do Seu Projeto
+            Serviços de <span className="text-m2-green">imagens aéreas</span> com drone
           </h1>
           <p className="mt-8 text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Combinamos tecnologia de drones de ponta com um olhar cinematográfico para entregar muito mais que imagens: entregamos valor, segurança e impacto.
+            A M2 Projecta oferece captação, mapeamento, inspeções e produção audiovisual aérea para projetos no Vale do Paraíba.
           </p>
         </div>
       </section>
@@ -127,36 +126,36 @@ export default async function ServicosPage() {
             <p className="text-gray-400 text-lg">Do alinhamento de ideias à entrega final, trabalhamos com um fluxo otimizado.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 relative">
+          <ol className="grid md:grid-cols-3 gap-8 relative">
             <div className="hidden md:block absolute top-12 left-[10%] w-[80%] h-0.5 bg-gradient-to-r from-m2-green/10 via-m2-green/50 to-m2-green/10" aria-hidden="true"></div>
 
-            <div className="relative bg-[#111] p-8 rounded-2xl border border-white/5 z-10 hover:border-m2-green/30 transition-colors">
+            <li className="relative bg-[#111] p-8 rounded-2xl border border-white/5 z-10 hover:border-m2-green/30 transition-colors">
               <div className="w-12 h-12 bg-black border-2 border-m2-green rounded-full flex items-center justify-center text-xl font-black text-m2-green absolute -top-6 left-1/2 -translate-x-1/2">
                 1
               </div>
               <LucideIcons.ClipboardList className="w-10 h-10 text-white mt-4 mb-4" aria-hidden="true" />
               <h3 className="text-xl font-bold text-white mb-2">Alinhamento e Planejamento</h3>
               <p className="text-gray-400 text-sm leading-relaxed">Entendemos a sua necessidade, estudamos o local e checamos as normas do espaço aéreo. A execução do serviço fica sujeita à aprovação destas condições de segurança e autorização técnica.</p>
-            </div>
+            </li>
 
-            <div className="relative bg-[#111] p-8 rounded-2xl border border-white/5 z-10 hover:border-m2-green/30 transition-colors">
+            <li className="relative bg-[#111] p-8 rounded-2xl border border-white/5 z-10 hover:border-m2-green/30 transition-colors">
               <div className="w-12 h-12 bg-black border-2 border-m2-green rounded-full flex items-center justify-center text-xl font-black text-m2-green absolute -top-6 left-1/2 -translate-x-1/2">
                 2
               </div>
               <LucideIcons.Crosshair className="w-10 h-10 text-white mt-4 mb-4" aria-hidden="true" />
               <h3 className="text-xl font-bold text-white mb-2">Captação em Campo</h3>
               <p className="text-gray-400 text-sm leading-relaxed">Realizamos a operação técnica no local com foco total em segurança, precisão e qualidade técnica das imagens.</p>
-            </div>
+            </li>
 
-            <div className="relative bg-[#111] p-8 rounded-2xl border border-white/5 z-10 hover:border-m2-green/30 transition-colors">
+            <li className="relative bg-[#111] p-8 rounded-2xl border border-white/5 z-10 hover:border-m2-green/30 transition-colors">
               <div className="w-12 h-12 bg-black border-2 border-m2-green rounded-full flex items-center justify-center text-xl font-black text-m2-green absolute -top-6 left-1/2 -translate-x-1/2">
                 3
               </div>
               <LucideIcons.MonitorPlay className="w-10 h-10 text-white mt-4 mb-4" aria-hidden="true" />
               <h3 className="text-xl font-bold text-white mb-2">Edição ou Entrega Bruta</h3>
               <p className="text-gray-400 text-sm leading-relaxed">Entregamos o material com tratamento profissional ou disponibilizamos os arquivos brutos, sem edição. Escolha o formato ideal para o seu projeto, com download em alta resolução direto na sua plataforma.</p>
-            </div>
-          </div>
+            </li>
+          </ol>
         </div>
       </section>
 
