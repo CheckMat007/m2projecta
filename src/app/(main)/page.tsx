@@ -7,7 +7,17 @@ import GoogleReviews from '@/components/GoogleReviews';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
+  title: 'Imagens Aéreas com Drone no Vale do Paraíba',
+  description:
+    'A M2 Projecta produz imagens aéreas com drone, mapeamento, vídeos e inspeções para obras, imóveis, empresas e eventos no Vale do Paraíba (SP).',
   alternates: { canonical: '/' },
+  openGraph: {
+    title: 'M2 Projecta | Imagens Aéreas com Drone no Vale do Paraíba',
+    description:
+      'Imagens aéreas com drone, mapeamento, vídeos e inspeções para projetos no Vale do Paraíba (SP).',
+    url: '/',
+    type: 'website',
+  },
 };
 
 export const revalidate = 3600;
