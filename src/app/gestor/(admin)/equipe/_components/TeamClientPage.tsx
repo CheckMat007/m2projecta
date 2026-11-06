@@ -63,7 +63,10 @@ import { createUserAction, updateUserAction, deleteUserAction, toggleShowOnAbout
 import { PasswordStrength } from '../../_components/PasswordStrength';
 
 // --- TIPOS ---
-type UserWithPermissions = User & { permissions: Permission[] };
+type UserWithPermissions = Pick<
+  User,
+  'id' | 'name' | 'email' | 'image' | 'role' | 'showOnAboutPage'
+> & { permissions: Permission[] };
 
 // --- FORMULÁRIO DE USUÁRIO ---
 function UserForm({

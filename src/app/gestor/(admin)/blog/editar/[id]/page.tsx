@@ -27,7 +27,8 @@ async function getData(id: string) {
   return { post, allCategories, allTags };
 }
 
-export default async function EditPostPage({ params }: { params: { id: string } }) {
+export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect('/gestor/login');
 
@@ -40,7 +41,7 @@ export default async function EditPostPage({ params }: { params: { id: string } 
     redirect('/gestor');
   }
 
-  const { post, allCategories, allTags } = await getData(params.id);
+  const { post, allCategories, allTags } = await getData(id);
 
   if (!post) {
     notFound();

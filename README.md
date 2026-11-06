@@ -1,125 +1,165 @@
-# 🚁 M2 Projecta
+# M2 Projecta
 
-![Status do Projeto](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow) ![Next.js](https://img.shields.io/badge/Next.js-14-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Prisma](https://img.shields.io/badge/Prisma-ORM-green)
+Sistema de gestão de serviços de imagens aéreas e CRM da M2 Projecta. O projeto reúne uma vitrine pública para apresentação de serviços, um painel interno para gestão comercial e operacional e um portal para acompanhamento de projetos pelos clientes.
 
-Sistema de **Gestão de Serviços de Imagens Aéreas** e **CRM** — combina uma vitrine pública otimizada para aquisição de clientes com um painel administrativo para gestão de projetos, contratos e entregáveis.
+## Visão geral
 
-**Sumário**
-
-- [Funcionalidades](#funcionalidades)
-- [Stack Tecnológica](#stack-tecnológica)
-- [Instalação e Execução](#instalação-e-execução)
-- [Variáveis de Ambiente](#variáveis-de-ambiente)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Segurança e Performance](#segurança-e-performance)
-- [Contribuição e Autor](#contribuição-e-autor)
-
----
+A M2 Projecta atua com imagens aéreas, vídeos, mapeamento e produção audiovisual com drones em Taubaté, no Vale do Paraíba e região. O site público apresenta a empresa, serviços, portfólio e conteúdo editorial, enquanto as áreas autenticadas organizam clientes, contratos, projetos, entregáveis e notificações.
 
 ## Funcionalidades
 
-### Área Pública (Vitrine)
-- Landing page otimizada para conversão.
-- Páginas dinâmicas de serviços via `src/app/servicos/[slug]`.
-- Portfólio interativo com filtros e detalhes técnicos.
-- SEO técnico: `sitemap.xml` dinâmico, `robots.txt`, metadados e OpenGraph.
-- Blog integrado para publicações.
+### Site público
 
-### Painel Gestor (Admin)
-- Dashboard com métricas e visão geral.
-- CRUD completo de clientes (PJ/PF) e geração de credenciais.
-- Gestão de contratos e projetos com uploads (PDF).
-- Timeline de projetos com updates em tempo real.
-- CMS para serviços e itens do portfólio.
+- Página inicial com apresentação da empresa e chamadas para orçamento.
+- Catálogo de serviços com páginas detalhadas gerenciadas pelo CMS.
+- Portfólio de projetos publicados, com galerias, vídeos e visualizações 3D quando disponíveis.
+- Blog com posts, categorias, tags, busca, comentários e votação.
+- Páginas institucionais, contato, termos e política de privacidade.
+- SEO técnico com metadados, Open Graph, dados estruturados, sitemap e robots.
+- Formulários protegidos por reCAPTCHA e upload de arquivos via Vercel Blob.
 
-### Área do Cliente
-- Portal seguro com login.
-- Acompanhamento do projeto (timeline, status em tempo real).
-- Entregáveis disponíveis para download seguro.
-- Notificações sobre atualizações.
+### Painel do gestor
 
----
+- Dashboard administrativo com permissões por usuário.
+- Cadastro e gestão de clientes, usuários e credenciais.
+- Gestão de contratos, projetos, status, atualizações e entregáveis.
+- CMS para serviços, portfólio, blog e conteúdo institucional.
+- Gestão de depoimentos, perguntas frequentes, configurações do site e notificações.
+- Upload de imagens e documentos pelo endpoint compartilhado `/api/upload`.
 
-## Stack Tecnológica
+### Portal do cliente
 
-- Framework: Next.js 14 (App Router & Server Actions)
-- Linguagem: TypeScript
-- CSS: Tailwind CSS
-- Componentes: shadcn/ui + Radix UI
-- Ícones: Lucide React
-- Banco de Dados: PostgreSQL
-- ORM: Prisma
-- Autenticação: NextAuth.js
-- Validação: Zod
-- Uploads: Vercel Blob (ou API de Blob Storage)
+- Login seguro separado da área administrativa.
+- Acompanhamento do status e da linha do tempo do projeto.
+- Consulta e download de entregáveis disponibilizados.
+- Visualização de contratos e notificações.
+- Fluxo de primeiro acesso para alteração obrigatória de senha.
 
----
+## Arquitetura
 
-## Instalação e Execução
+O projeto usa Next.js 14 com App Router e três zonas de navegação:
 
-1. Clone o repositório:
+- `src/app/(main)`: páginas públicas, sem autenticação.
+- `src/app/gestor`: painel interno, protegido por sessão e permissões.
+- `src/app/cliente`: portal do cliente, protegido por sessão e pelo papel `CLIENT`.
+
+O middleware centraliza o bloqueio de rotas, redirecionamentos por papel e fluxo de primeiro acesso. As mutações administrativas usam Server Actions, validação com Zod, Prisma e revalidação das páginas afetadas.
+
+## Stack
+
+- Next.js 15, React 18 e TypeScript.
+- Tailwind CSS, shadcn/ui, Radix UI e Lucide React.
+- Prisma ORM com PostgreSQL (Supabase).
+- NextAuth.js com autenticação por credenciais e sessões JWT.
+- Zod para validação de dados.
+- Vercel Blob para armazenamento de imagens e documentos.
+- Swiper, Framer Motion e Three.js para experiências visuais.
+
+## Requisitos
+
+- Node.js compatível com Next.js 15.
+- npm.
+- PostgreSQL acessível para desenvolvimento.
+- Credenciais dos serviços externos usados pelo ambiente.
+
+## Instalação e execução
+
+Clone o repositório e instale as dependências:
 
 ```bash
 git clone https://github.com/CheckMat007/m2projecta.git
 cd m2projecta
-```
-
-2. Instale dependências:
-
-```bash
 npm install
 ```
 
-3. Gere o cliente Prisma e aplique migrations (desenvolvimento):
+Configure as variáveis de ambiente, gere o cliente Prisma e execute o servidor:
 
 ```bash
 npx prisma generate
-npx prisma migrate dev
-```
-
-4. Execute em modo desenvolvimento:
-
-```bash
 npm run dev
 ```
 
----
+O site ficará disponível em `http://localhost:3000`.
 
-## Variáveis de Ambiente
+Para criar e aplicar migrations em desenvolvimento:
 
-Crie um arquivo `.env` na raiz com as variáveis mínimas abaixo (exemplo):
-
-```env
-DATABASE_URL="postgresql://user:password@host:port/db"
-NEXTAUTH_SECRET="sua-chave-secreta"
-NEXTAUTH_URL="http://localhost:3000"
-BLOB_READ_WRITE_TOKEN="seu-token-de-blob"
+```bash
+npx prisma migrate dev
 ```
 
-Consulte `prisma/schema.prisma` para detalhes sobre o banco de dados.
+Quando o banco não estiver acessível, uma migration pode ser criada manualmente em `prisma/migrations/` e aplicada posteriormente com:
 
----
+```bash
+npx prisma migrate deploy
+```
 
-## Estrutura do Projeto (resumo)
+## Variáveis de ambiente
 
-- `src/app/(main)`: rotas públicas (layout, home, serviços).
-- `src/app/gestor`: painel administrativo protegido por middleware.
-- `src/app/cliente`: área do cliente protegida.
-- `src/components/ui`: componentes reutilizáveis.
-- `prisma/schema.prisma`: modelagem do banco.
+Crie um arquivo `.env` local. Nunca versione valores reais, tokens ou segredos.
 
----
+```env
+DATABASE_URL="postgresql://usuario:senha@host:porta/banco"
+NEXTAUTH_SECRET="segredo-da-sessao"
+NEXTAUTH_URL="http://localhost:3000"
+BLOB_READ_WRITE_TOKEN="token-do-vercel-blob"
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY="chave-publica-recaptcha"
+RECAPTCHA_SECRET_KEY="chave-secreta-recaptcha"
+CRON_SECRET="segredo-do-cron"
+GOOGLE_MAPS_API_KEY="chave-da-api-do-google"
+GOOGLE_PLACE_ID="id-do-local-no-google"
+```
 
-## Segurança e Performance
+`NEXT_PUBLIC_RECAPTCHA_SITE_KEY` é usada nos formulários públicos e de login. A verificação server-side usa `RECAPTCHA_SECRET_KEY`. O endpoint de avaliações agendadas exige `CRON_SECRET` e as variáveis do Google Maps.
 
-- Middleware: controle de acesso por papéis (admin vs cliente).
-- Server Actions: lógica sensível executada no servidor.
-- ReCAPTCHA: proteção contra bots nos formulários.
-- Imagens: uso do componente `Image` do Next.js para otimização automática.
+## Comandos
 
----
+```bash
+npm run dev              # Servidor de desenvolvimento
+npm run build            # Gera o Prisma Client e cria o build de produção
+npm run start            # Inicia o build de produção
+npm run lint             # Executa o ESLint/Next.js
+npx tsc --noEmit         # Verifica os tipos sem emitir arquivos
+npx prisma generate      # Regenera o Prisma Client
+npx prisma studio        # Abre o navegador do banco
+```
 
-## Contribuição e Autor
+O projeto não possui uma suíte de testes automatizados configurada. O lint e o TypeScript são as verificações principais antes de publicar alterações.
 
-Desenvolvido por Gustavo Levenhagen.
+## Estrutura relevante
 
+```text
+src/
+  app/
+    (main)/              # Site público
+    gestor/              # Painel administrativo
+    cliente/             # Portal do cliente
+    api/                 # Uploads, cron e endpoints públicos
+  components/            # Componentes compartilhados e UI
+  lib/                   # Prisma, autenticação, SEO e utilitários
+prisma/
+  schema.prisma          # Modelo de dados
+  migrations/            # Histórico de migrations
+  seed.ts                # Permissões iniciais
+public/
+  llms.txt               # Contexto oficial para sistemas de IA
+```
+
+## Segurança e operação
+
+- Não exponha arquivos `.env`, credenciais de usuários ou tokens de serviços.
+- O acesso é controlado por middleware, sessão JWT, papéis e permissões.
+- Operações de escrita devem permanecer no servidor e validar entradas com Zod.
+- Uploads passam pelo endpoint único de armazenamento e devem respeitar os limites do ambiente.
+- A execução de voos e captações depende das condições de segurança e autorizações aplicáveis ao local.
+
+## Licença
+
+Este software é proprietário. Consulte o arquivo [LICENSE](./LICENSE) para as condições de uso, cópia, modificação e distribuição.
+
+## Contato
+
+- Site: [m2projecta.com.br](https://www.m2projecta.com.br/)
+- E-mail: [contato@m2projecta.com.br](mailto:contato@m2projecta.com.br)
+- WhatsApp: [+55 12 99131-6774](https://wa.me/5512991316774)
+
+Desenvolvido por Gustavo Levenhagen para a M2 Projecta.

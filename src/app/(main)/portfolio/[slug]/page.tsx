@@ -42,10 +42,11 @@ const resolveProject = cache(async (slugOrId: string) => {
 
 // --- 2. CONFIGURAÇÃO DE SEO DINÂMICO ---
 export async function generateMetadata(
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const resolution = await resolveProject(params.slug);
+  const { slug } = await params;
+  const resolution = await resolveProject(slug);
 
   if (resolution.status === 'not-found') {
     return { title: "Projeto não encontrado", robots: { index: false } };
@@ -88,8 +89,9 @@ async function getProject(slug: string) {
 }
 
 // --- 4. COMPONENTE DA PÁGINA ---
-export default async function PortfolioDetailsPage({ params }: { params: { slug: string } }) {
-  const project = await getProject(params.slug);
+export default async function PortfolioDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const project = await getProject(slug);
   const galleryImages = project.galleryImages && project.galleryImages.length > 0
     ? [project.coverImage, ...project.galleryImages]
     : [project.coverImage];

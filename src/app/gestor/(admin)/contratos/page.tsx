@@ -14,7 +14,8 @@ const hasPermission = (user: UserWithPermissions | null, permissionName: string)
 };
 
 // A página recebe searchParams para pegar o ID do cliente caso venha do fluxo anterior
-export default async function ContractsPage({ searchParams }: { searchParams: { newClientId?: string } }) {
+export default async function ContractsPage({ searchParams }: { searchParams: Promise<{ newClientId?: string }> }) {
+  const { newClientId } = await searchParams;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect('/gestor/login');
 
@@ -48,7 +49,7 @@ export default async function ContractsPage({ searchParams }: { searchParams: { 
       <ContractsClientPage 
         initialContracts={contracts} 
         clients={clients} 
-        preSelectedClientId={searchParams.newClientId}
+        preSelectedClientId={newClientId}
       />
     </div>
   );
