@@ -37,9 +37,10 @@ const getCategory = cache(async (slug: string) => {
 
 // --- 1. SEO DINÂMICO PARA A CATEGORIA ---
 export async function generateMetadata(
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
-  const category = await getCategory(params.slug);
+  const { slug } = await params;
+  const category = await getCategory(slug);
 
   if (!category) {
     return { title: "Categoria não encontrada", robots: { index: false } };
@@ -51,11 +52,11 @@ export async function generateMetadata(
   return {
     title: pageTitle,
     description: pageDescription,
-    alternates: { canonical: `/blog/categoria/${params.slug}` },
+    alternates: { canonical: `/blog/categoria/${slug}` },
     openGraph: {
       title: pageTitle,
       description: pageDescription,
-      url: `/blog/categoria/${params.slug}`,
+      url: `/blog/categoria/${slug}`,
       type: 'website',
     },
   };
@@ -140,8 +141,9 @@ async function getCategoryData(slug: string) {
 }
 
 // --- 4. PÁGINA PRINCIPAL ---
-export default async function CategoryArchivePage({ params }: { params: { slug: string } }) {
-  const { category, posts } = await getCategoryData(params.slug);
+export default async function CategoryArchivePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const { category, posts } = await getCategoryData(slug);
 
   if (!category) {
     notFound();

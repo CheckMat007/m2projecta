@@ -14,7 +14,12 @@ import { getNotificationsForBell } from './notifications/actions';
 // Tipos e helper (sem alterações)
 type IconName = keyof typeof LucideIcons;
 interface MenuItem { href?: string; icon: IconName; label: string; permission?: string; subItems?: Omit<MenuItem, 'subItems' | 'permission'>[];}
-type UserWithPermissions = User & { permissions: Permission[]; };
+type UserWithPermissions = Pick<
+  User,
+  'id' | 'name' | 'email' | 'image' | 'role' | 'mustChangePassword'
+> & {
+  permissions: Permission[];
+};
 const hasPermission = (user: UserWithPermissions | null, permissionName: string): boolean => {
   if (!user) return false;
   if (user.role === 'MASTER') return true;
@@ -31,10 +36,18 @@ export default async function GestorLayout({
     redirect('/gestor/login');
   }
 
-  // Buscamos o usuário completo e mais recente do banco de dados
+  // Buscamos somente os dados necessários para a área administrativa
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    include: { permissions: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      role: true,
+      mustChangePassword: true,
+      permissions: true,
+    },
   });
 
   // Adicionamos uma verificação de segurança: se o usuário da sessão não existe mais no banco, desloga ele.

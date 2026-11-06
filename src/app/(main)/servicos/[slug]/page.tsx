@@ -32,10 +32,11 @@ const getService = cache(async (slug: string): Promise<ServiceWithPortfolio | nu
 });
 
 export async function generateMetadata(
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const service = await getService(params.slug);
+  const { slug } = await params;
+  const service = await getService(slug);
 
   if (!service) {
     return {
@@ -50,11 +51,11 @@ export async function generateMetadata(
     title: `${service.name} com Drone`,
     description: service.shortDescription,
     keywords: [service.name, "serviços drone", "imagens aéreas", "M2 Projecta"],
-    alternates: { canonical: `/servicos/${params.slug}` },
+    alternates: { canonical: `/servicos/${slug}` },
     openGraph: {
       title: service.name,
       description: service.shortDescription,
-      url: `/servicos/${params.slug}`,
+      url: `/servicos/${slug}`,
       type: 'website',
       images: [{ url: service.image, alt: service.name }, ...previousImages],
     },
@@ -72,8 +73,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function ServiceDetailPage({ params }: { params: { slug: string } }) {
-  const service = await getService(params.slug);
+export default async function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const service = await getService(slug);
 
   if (!service) {
     notFound();

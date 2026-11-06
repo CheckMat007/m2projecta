@@ -22,7 +22,6 @@ const nextConfig = {
   // "external" no bundle do servidor e quebra com "ESM packages need to be imported".
   transpilePackages: ['@react-pdf/renderer'],
   images: {
-    dangerouslyAllowSVG: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -42,7 +41,6 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
-      // CORREÇÃO: Uso de curinga (*) para garantir que qualquer bucket da Vercel funcione
       {
         protocol: 'https',
         hostname: '*.public.blob.vercel-storage.com',

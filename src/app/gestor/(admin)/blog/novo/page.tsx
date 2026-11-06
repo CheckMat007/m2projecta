@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import type { User, Permission } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import dynamic from 'next/dynamic';
+import { PostForm } from '../_components/PostForm';
 
 // Helper de permissão
 type UserWithPermissions = User & { permissions: Permission[] };
@@ -13,11 +13,6 @@ const hasPermission = (user: UserWithPermissions | null, permissionName: string)
   if (user.role === 'MASTER') return true;
   return user.permissions?.some(p => p.name === permissionName);
 };
-
-const PostForm = dynamic(() =>
-  import('../_components/PostForm').then(mod => mod.PostForm),
-  { ssr: false }
-);
 
 export default async function NewPostPage() {
   const session = await getServerSession(authOptions);
