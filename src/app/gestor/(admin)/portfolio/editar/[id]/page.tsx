@@ -38,7 +38,8 @@ async function getPageData(id: string) {
   return { item, featuredCount, services };
 }
 
-export default async function EditPortfolioPage({ params }: { params: { id: string } }) {
+export default async function EditPortfolioPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect('/gestor/login');
 
@@ -51,7 +52,7 @@ export default async function EditPortfolioPage({ params }: { params: { id: stri
     redirect('/gestor');
   }
 
-  const { item, featuredCount, services } = await getPageData(params.id);
+  const { item, featuredCount, services } = await getPageData(id);
 
   // Renderiza o formulário (cliente) e passa todos os dados
   return (

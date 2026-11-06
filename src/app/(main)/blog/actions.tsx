@@ -14,7 +14,7 @@ import { randomUUID } from 'crypto'; // Para gerar IDs anônimos e seguros
 // agora é estática/ISR e não pode embutir dado pessoal do visitante no HTML.
 export async function getUserVoteForPostAction(postId: string): Promise<VoteType | null> {
   const session = await getServerSession(authOptions);
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   const userId = session?.user?.id;
   const voterId = cookieStore.get('voter_id')?.value;
@@ -31,7 +31,7 @@ export async function getUserVoteForPostAction(postId: string): Promise<VoteType
 
 export async function voteOnPostAction({ postId, voteType, slug }: { postId: string, voteType: VoteType, slug: string }) {
   const session = await getServerSession(authOptions);
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   
   const userId = session?.user?.id;
   let voterId = cookieStore.get('voter_id')?.value;

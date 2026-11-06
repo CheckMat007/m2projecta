@@ -53,10 +53,11 @@ const getPost = cache(async (slug: string) => {
 
 // --- 1. SEO DINÂMICO DO POST ---
 export async function generateMetadata(
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const post = await getPost(params.slug);
+  const { slug } = await params;
+  const post = await getPost(slug);
 
   if (!post) return { title: "Artigo não encontrado", robots: { index: false } };
 
@@ -67,11 +68,11 @@ export async function generateMetadata(
   return {
     title: pageTitle,
     description: post.seoDescription,
-    alternates: { canonical: `/blog/${params.slug}` },
+    alternates: { canonical: `/blog/${slug}` },
     openGraph: {
       title: pageTitle,
       description: post.seoDescription || undefined,
-      url: `/blog/${params.slug}`,
+      url: `/blog/${slug}`,
       // String vazia gera uma tag og:image quebrada quando o post não tem imagem de
       // destaque — cai para a mesma imagem padrão usada visualmente na página (abaixo).
       images: [{ url: featuredImage, alt: post.title }, ...previousImages],
@@ -169,8 +170,9 @@ async function getPostDetails(slug: string) {
 }
 
 // --- 4. PÁGINA DE LEITURA ---
-export default async function PostPage({ params }: { params: { slug: string } }) {
-  const { post, relatedPosts, likes, dislikes } = await getPostDetails(params.slug);
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const { post, relatedPosts, likes, dislikes } = await getPostDetails(slug);
 
   if (!post) {
     notFound();

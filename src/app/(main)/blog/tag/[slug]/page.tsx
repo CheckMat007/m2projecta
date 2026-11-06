@@ -37,10 +37,11 @@ const getTag = cache(async (slug: string) => {
 
 // --- 1. SEO DINÂMICO PARA A TAG ---
 export async function generateMetadata(
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 
 ): Promise<Metadata> {
-  const tag = await getTag(params.slug);
+  const { slug } = await params;
+  const tag = await getTag(slug);
 
   if (!tag) {
     return { title: "Tag não encontrada", robots: { index: false } };
@@ -52,11 +53,11 @@ export async function generateMetadata(
   return {
     title: pageTitle,
     description: pageDescription,
-    alternates: { canonical: `/blog/tag/${params.slug}` },
+    alternates: { canonical: `/blog/tag/${slug}` },
     openGraph: {
       title: pageTitle,
       description: pageDescription,
-      url: `/blog/tag/${params.slug}`,
+      url: `/blog/tag/${slug}`,
       type: 'website',
     },
   };
@@ -141,8 +142,9 @@ async function getTagData(slug: string) {
 }
 
 // --- 4. PÁGINA PRINCIPAL ---
-export default async function TagArchivePage({ params }: { params: { slug: string } }) {
-  const { tag, posts } = await getTagData(params.slug);
+export default async function TagArchivePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const { tag, posts } = await getTagData(slug);
 
   if (!tag) {
     notFound();

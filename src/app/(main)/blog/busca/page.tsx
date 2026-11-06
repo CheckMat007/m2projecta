@@ -114,9 +114,9 @@ async function getSearchResults(query: string) {
 export default async function SearchPage({ 
   searchParams 
 }: { 
-  searchParams: { q: string | undefined } 
+  searchParams: Promise<{ q?: string }>
 }) {
-  const query = searchParams.q;
+  const { q: query } = await searchParams;
 
   if (!query) {
     redirect('/blog');

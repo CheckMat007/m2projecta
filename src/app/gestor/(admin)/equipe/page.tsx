@@ -14,7 +14,15 @@ async function getTeamData() {
       }
     },
     orderBy: { name: 'asc' },
-    include: { permissions: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      role: true,
+      showOnAboutPage: true,
+      permissions: true,
+    },
   });
   const allPermissions = await prisma.permission.findMany();
   return { users, allPermissions };
@@ -29,10 +37,13 @@ export default async function TeamPage() {
     redirect('/gestor/login');
   }
 
-  // 2. Buscar os dados COMPLETOS do usuário logado, incluindo suas permissões
+  // 2. Buscar somente os dados necessários para validar o acesso
   const currentUser = await prisma.user.findUnique({
     where: { id: session.user.id },
-    include: { permissions: true },
+    select: {
+      role: true,
+      permissions: true,
+    },
   });
 
   // Se por algum motivo o usuário da sessão não existir no banco, redireciona
