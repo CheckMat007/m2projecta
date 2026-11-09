@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Metadata, ResolvingMetadata } from "next";
 import * as LucideIcons from "lucide-react";
 import { Service, PortfolioItem } from "@prisma/client";
-import { YouTubeEmbed } from '@next/third-parties/google';
+import { LazyYouTubeEmbed } from '@/components/LazyYouTubeEmbed';
 import { cache } from "react";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
@@ -197,8 +197,8 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                     <LucideIcons.PlayCircle className="text-m2-green w-6 h-6" aria-hidden="true" />
                     Veja em Ação
                   </h3>
-                  <div className="aspect-video w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a] relative [&_lite-youtube]:w-full [&_lite-youtube]:h-full [&_lite-youtube]:absolute [&_lite-youtube]:top-0 [&_lite-youtube]:left-0">
-                    <YouTubeEmbed videoid={service.videoUrl} params="rel=0&modestbranding=1" />
+                  <div className="aspect-video w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a] relative">
+                    <LazyYouTubeEmbed videoid={service.videoUrl} params="rel=0&modestbranding=1" />
                   </div>
                 </div>
               )}

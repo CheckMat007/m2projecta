@@ -7,7 +7,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import * as LucideIcons from "lucide-react";
 import { cache } from "react";
 import { PortfolioGallerySlider } from "@/components/PortfolioGallerySlider";
-import { YouTubeEmbed } from '@next/third-parties/google';
+import { LazyYouTubeEmbed } from '@/components/LazyYouTubeEmbed';
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
 import { normalizePageTitle } from "@/lib/seo";
@@ -219,10 +219,10 @@ export default async function PortfolioDetailsPage({ params }: { params: Promise
                         (isVerticalVideo
                           ? "relative w-full aspect-[9/16] overflow-hidden rounded-xl md:rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a]"
                           : "relative aspect-video w-full overflow-hidden rounded-xl md:rounded-2xl border border-white/10 shadow-2xl bg-[#0a0a0a]"
-                        ) + " [&_lite-youtube]:w-full [&_lite-youtube]:h-full [&_lite-youtube]:absolute [&_lite-youtube]:top-0 [&_lite-youtube]:left-0"
+                        )
                       }
                     >
-                      <YouTubeEmbed videoid={project.videoUrl} params="rel=0&modestbranding=1" />
+                      <LazyYouTubeEmbed videoid={project.videoUrl} params="rel=0&modestbranding=1" />
                     </div>
                   </div>
                 )}
