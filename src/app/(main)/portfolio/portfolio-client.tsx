@@ -5,7 +5,6 @@ import { useState, useRef, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, ArrowRight } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 6;
@@ -137,57 +136,49 @@ function PortfolioContent({ initialItems, services }: {
       {/* 3. GRID DE PORTFÓLIO */}
       <section ref={portfolioRef} className="py-12 md:py-16 bg-black min-h-screen">
         <div className="container mx-auto px-4 md:px-6">
-          <motion.div 
-            layout 
+          <div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 grid-flow-row-dense"
           >
-            <AnimatePresence mode="popLayout">
-              {visibleItems.map((item, index) => {
-                const isFeatured = index === 0 && activeFilter === 'Todos';
+            {visibleItems.map((item, index) => {
+              const isFeatured = index === 0 && activeFilter === 'Todos';
 
-                return (
-                  <motion.div
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className={`${isFeatured ? 'md:col-span-2 md:row-span-1' : 'col-span-1'} w-full min-w-0`}
+              return (
+                <div
+                  key={item.id}
+                  className={`${isFeatured ? 'md:col-span-2 md:row-span-1' : 'col-span-1'} w-full min-w-0`}
+                >
+                  <Link
+                    href={`/portfolio/${item.slug}`}
+                    className="group relative block w-full aspect-video md:aspect-auto md:h-full min-h-[280px] overflow-hidden rounded-2xl bg-[#0a0a0a] border border-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green"
                   >
-                    <Link
-                      href={`/portfolio/${item.slug}`}
-                      className="group relative block w-full aspect-video md:aspect-auto md:h-full min-h-[280px] overflow-hidden rounded-2xl bg-[#0a0a0a] border border-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m2-green"
-                    >
-                      <Image 
-                        src={item.coverImage}
-                        alt={item.title} 
-                        fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover transition-transform duration-1000 group-hover:scale-110 filter md:grayscale md:group-hover:grayscale-0" 
-                      />
+                    <Image 
+                      src={item.coverImage}
+                      alt={item.title} 
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-1000 group-hover:scale-110 filter md:grayscale md:group-hover:grayscale-0" 
+                    />
+                    
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div className="absolute inset-0 flex flex-col justify-end p-5 w-full max-w-full overflow-hidden">
+                      <p className="text-m2-green text-[10px] font-bold uppercase tracking-[0.2em] mb-2 truncate w-full">
+                        {item.service?.name || 'Projeto Especial'}
+                      </p>
                       
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <h3 className="text-lg md:text-2xl font-black text-white leading-tight mb-4 group-hover:text-m2-green transition-colors break-words line-clamp-3 md:line-clamp-none w-full">
+                        {item.title}
+                      </h3>
                       
-                      <div className="absolute inset-0 flex flex-col justify-end p-5 w-full max-w-full overflow-hidden">
-                        <p className="text-m2-green text-[10px] font-bold uppercase tracking-[0.2em] mb-2 truncate w-full">
-                          {item.service?.name || 'Projeto Especial'}
-                        </p>
-                        
-                        <h3 className="text-lg md:text-2xl font-black text-white leading-tight mb-4 group-hover:text-m2-green transition-colors break-words line-clamp-3 md:line-clamp-none w-full">
-                          {item.title}
-                        </h3>
-                        
-                        <div className="flex items-center gap-2 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
-                          Explorar Projeto <ArrowRight size={14} className="text-m2-green flex-shrink-0" />
-                        </div>
+                      <div className="flex items-center gap-2 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
+                        Explorar Projeto <ArrowRight size={14} className="text-m2-green flex-shrink-0" />
                       </div>
-                    </Link>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </motion.div>
+                    </div>
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
 
           {/* Load More */}
           {visibleCount < filteredItems.length && (
