@@ -16,6 +16,7 @@ const CookiePreferencesModal = dynamic(() => import('@/components/CookiePreferen
 
 // Chave do cookie e tipo para as preferências
 const COOKIE_PREFERENCES_KEY = 'cookie_preferences';
+const ANALYTICS_EVENT = 'cookie-preferences-updated';
 type CookiePreferences = {
   necessary: boolean;
   analytics: boolean;
@@ -43,6 +44,7 @@ export function CookieConsentBanner() {
   const handleSavePreferences = () => {
     // Salva as preferências como um objeto JSON no cookie
     Cookies.set(COOKIE_PREFERENCES_KEY, JSON.stringify(preferences), { expires: 365, path: '/' });
+    window.dispatchEvent(new Event(ANALYTICS_EVENT));
     setShowBanner(false);
     setIsModalOpen(false);
   };
@@ -51,6 +53,7 @@ export function CookieConsentBanner() {
     const allEnabled: CookiePreferences = { necessary: true, analytics: true, marketing: true };
     setPreferences(allEnabled);
     Cookies.set(COOKIE_PREFERENCES_KEY, JSON.stringify(allEnabled), { expires: 365, path: '/' });
+    window.dispatchEvent(new Event(ANALYTICS_EVENT));
     setShowBanner(false);
   };
 
@@ -58,6 +61,7 @@ export function CookieConsentBanner() {
     const onlyNecessary: CookiePreferences = { necessary: true, analytics: false, marketing: false };
     setPreferences(onlyNecessary);
     Cookies.set(COOKIE_PREFERENCES_KEY, JSON.stringify(onlyNecessary), { expires: 365, path: '/' });
+    window.dispatchEvent(new Event(ANALYTICS_EVENT));
     setShowBanner(false);
   };
 

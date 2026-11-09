@@ -116,32 +116,6 @@
 
 /* --- 2. Testimonials Slider Styles --- */
 
-.testimonial-bg-image {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  z-index: 0;
-  transition: background-image 0.5s ease-in-out;
-}
-
-.slider-container-padded {
-  padding-left: 3rem;
-  padding-right: 3rem;
-}
-
-.slider-container-padded .swiper-button-custom.prev { left: 0; }
-.slider-container-padded .swiper-button-custom.next { right: 0; }
-
-.slider-container-padded .swiper-button-custom {
-  opacity: 0;
-  pointer-events: none;
-}
-.slider-container-padded:hover .swiper-button-custom {
-  opacity: 1;
-  pointer-events: auto;
-}
-
 .swiper-pagination-capsule {
   background: rgba(26, 27, 30, 0.5);
   border: 1px solid rgba(151, 249, 1, 0.2);
@@ -227,11 +201,6 @@
     display: none !important;
   }
   
-  /* Adjust padding for testimonials slider on mobile */
-  .slider-container-padded {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
 }
 
 .prose mark {

@@ -6,7 +6,7 @@
 import { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from "next/link";
-import { YouTubeEmbed } from '@next/third-parties/google';
+import { LazyYouTubeEmbed } from '@/components/LazyYouTubeEmbed';
 import { PortfolioHighlightSection } from './_components/PortfolioHighlightSection';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Building, CheckCircle, Clock, Users, Video, Settings } from 'lucide-react';
@@ -114,11 +114,11 @@ export default function HomeContent({ heroVideoId, heroVideoIsVertical, portfoli
               <div
                 className={
                   heroVideoIsVertical
-                    ? "aspect-[9/16] h-[60vh] max-h-[600px] w-auto mx-auto overflow-hidden rounded-lg shadow-2xl bg-black border border-white/10 z-20 relative [&_lite-youtube]:w-full [&_lite-youtube]:h-full [&_lite-youtube]:absolute [&_lite-youtube]:top-0 [&_lite-youtube]:left-0"
-                    : "aspect-video w-full overflow-hidden rounded-lg shadow-2xl bg-black border border-white/10 z-20 relative [&_lite-youtube]:w-full [&_lite-youtube]:h-full [&_lite-youtube]:absolute [&_lite-youtube]:top-0 [&_lite-youtube]:left-0"
+                    ? "aspect-[9/16] h-[60vh] max-h-[600px] w-auto mx-auto overflow-hidden rounded-lg shadow-2xl bg-black border border-white/10 z-20 relative                     "
+                    : "aspect-video w-full overflow-hidden rounded-lg shadow-2xl bg-black border border-white/10 z-20 relative                     "
                 }
               >
-                 <YouTubeEmbed
+                 <LazyYouTubeEmbed
                     videoid={heroVideoId}
                     params="rel=0&modestbranding=1"
                  />
