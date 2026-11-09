@@ -150,6 +150,7 @@ export const Header = ({ services = [] }: HeaderProps) => {
       <div 
         id="mobile-menu"
         aria-hidden={!isMenuOpen}
+        inert={!isMenuOpen}
         className={`md:hidden fixed top-0 right-0 w-[75%] max-w-[320px] h-[100dvh] bg-[#0a0a0a] border-l border-white/10 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out z-[80] overflow-y-auto
         ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >

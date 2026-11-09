@@ -1,112 +1,108 @@
-// src/app/sitemap.ts
-
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 import { SITE_URL } from '@/lib/site';
 
+export const revalidate = 3600;
+
+type SitemapContent = {
+  slug: string;
+  updatedAt: Date;
+};
+
+type SitemapArchive = {
+  slug: string;
+  posts: Array<{ updatedAt: Date }>;
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = SITE_URL;
+  const [services, portfolioItems, posts, categories, tags] = await Promise.all([
+    prisma.service.findMany({
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
+    }),
+    prisma.portfolioItem.findMany({
+      where: { status: 'PUBLISHED' },
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
+    }),
+    prisma.post.findMany({
+      where: { status: 'PUBLISHED' },
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
+    }),
+    prisma.category.findMany({
+      where: { posts: { some: { status: 'PUBLISHED' } } },
+      select: {
+        slug: true,
+        posts: {
+          where: { status: 'PUBLISHED' },
+          select: { updatedAt: true },
+          orderBy: { updatedAt: 'desc' },
+          take: 1,
+        },
+      },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.tag.findMany({
+      where: { posts: { some: { status: 'PUBLISHED' } } },
+      select: {
+        slug: true,
+        posts: {
+          where: { status: 'PUBLISHED' },
+          select: { updatedAt: true },
+          orderBy: { updatedAt: 'desc' },
+          take: 1,
+        },
+      },
+      orderBy: { name: 'asc' },
+    }),
+  ]);
 
-  // 1. Busca SERVIÇOS
-  const services = await prisma.service.findMany({
-    select: {
-      slug: true,
-      updatedAt: true,
-    },
-  });
-
-  // 2. Busca PORTFÓLIO (Apenas publicados)
-  const portfolioItems = await prisma.portfolioItem.findMany({
-    where: { status: 'PUBLISHED' },
-    select: {
-      slug: true,
-      updatedAt: true,
-    },
-  });
-
-  // 3. Busca BLOG POSTS (Apenas publicados)
-  const posts = await prisma.post.findMany({
-    where: {
-        status: 'PUBLISHED'
-    },
-    select: {
-      slug: true,
-      updatedAt: true,
-    },
-  });
-
-  // 4. Busca CATEGORIAS e TAGS do blog (páginas de arquivo reais, indexáveis, que
-  // antes não apareciam no sitemap — o Google só as encontrava seguindo links internos)
-  const categories = await prisma.category.findMany({
-    where: { posts: { some: { status: 'PUBLISHED' } } },
-    select: { slug: true },
-  });
-
-  const tags = await prisma.tag.findMany({
-    where: { posts: { some: { status: 'PUBLISHED' } } },
-    select: { slug: true },
-  });
-
-  // --- Mapeamento das URLs ---
-
-  const serviceRoutes = services.map((service) => ({
-    url: `${baseUrl}/servicos/${service.slug}`,
-    lastModified: service.updatedAt,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
-
-  const portfolioRoutes = portfolioItems.map((item) => ({
-    url: `${baseUrl}/portfolio/${item.slug}`,
-    lastModified: item.updatedAt,
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }));
-
-  const blogRoutes = posts.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: post.updatedAt,
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }));
-
-  const blogCategoryRoutes = categories.map((category) => ({
-    url: `${baseUrl}/blog/categoria/${category.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.5,
-  }));
-
-  const blogTagRoutes = tags.map((tag) => ({
-    url: `${baseUrl}/blog/tag/${tag.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.4,
-  }));
-
-  // --- Rotas Estáticas ---
-  const staticRoutes = [
-    '',
-    '/sobre',
-    '/servicos',
-    '/portfolio',
-    '/blog', // A home do blog
-    '/contato',
-    '/termos-e-condicoes',
-    '/politica-de-privacidade',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: route === '' ? 'weekly' as const : 'monthly' as const,
-    priority: route === '' ? 1 : 0.6,
+  const staticRoutes = ([
+    { path: '/', priority: 1, changeFrequency: 'weekly' },
+    { path: '/sobre', priority: 0.6, changeFrequency: 'monthly' },
+    { path: '/servicos', priority: 0.8, changeFrequency: 'weekly' },
+    { path: '/portfolio', priority: 0.8, changeFrequency: 'monthly' },
+    { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
+    { path: '/contato', priority: 0.6, changeFrequency: 'monthly' },
+    { path: '/termos-e-condicoes', priority: 0.3, changeFrequency: 'yearly' },
+    { path: '/politica-de-privacidade', priority: 0.3, changeFrequency: 'yearly' },
+  ] as const).map(({ path, ...metadata }) => ({
+    url: `${SITE_URL}${path}`,
+    ...metadata,
   }));
 
   return [
     ...staticRoutes,
-    ...serviceRoutes,
-    ...portfolioRoutes,
-    ...blogRoutes, // Adiciona os posts ao sitemap final
-    ...blogCategoryRoutes,
-    ...blogTagRoutes,
+    ...services.map((service: SitemapContent) => ({
+      url: `${SITE_URL}/servicos/${service.slug}`,
+      lastModified: service.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
+    ...portfolioItems.map((item: SitemapContent) => ({
+      url: `${SITE_URL}/portfolio/${item.slug}`,
+      lastModified: item.updatedAt,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
+    ...posts.map((post: SitemapContent) => ({
+      url: `${SITE_URL}/blog/${post.slug}`,
+      lastModified: post.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    })),
+    ...categories.map((category: SitemapArchive) => ({
+      url: `${SITE_URL}/blog/categoria/${category.slug}`,
+      lastModified: category.posts[0]?.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.5,
+    })),
+    ...tags.map((tag: SitemapArchive) => ({
+      url: `${SITE_URL}/blog/tag/${tag.slug}`,
+      lastModified: tag.posts[0]?.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.4,
+    })),
   ];
 }
